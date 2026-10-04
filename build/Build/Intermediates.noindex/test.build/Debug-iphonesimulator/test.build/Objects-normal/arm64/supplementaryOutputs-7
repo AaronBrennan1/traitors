@@ -1,0 +1,37 @@
+{
+  "/Users/aaronbrennan/Documents/test/test/UI/Ceremonies/NightCeremony.swift" : {
+    "const-values" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/NightCeremony.swiftconstvalues",
+    "dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/NightCeremony.d",
+    "diagnostics" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/NightCeremony.dia",
+    "object" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/NightCeremony.o",
+    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/NightCeremony.swiftdeps"
+  },
+  "/Users/aaronbrennan/Documents/test/test/UI/Ceremonies/RoleCeremony.swift" : {
+    "const-values" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/RoleCeremony.swiftconstvalues",
+    "dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/RoleCeremony.d",
+    "diagnostics" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/RoleCeremony.dia",
+    "object" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/RoleCeremony.o",
+    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/RoleCeremony.swiftdeps"
+  },
+  "/Users/aaronbrennan/Documents/test/test/UI/Ceremonies/VoteCeremony.swift" : {
+    "const-values" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/VoteCeremony.swiftconstvalues",
+    "dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/VoteCeremony.d",
+    "diagnostics" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/VoteCeremony.dia",
+    "object" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/VoteCeremony.o",
+    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/VoteCeremony.swiftdeps"
+  },
+  "/Users/aaronbrennan/Documents/test/test/UI/Components/Components.swift" : {
+    "const-values" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Components.swiftconstvalues",
+    "dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Components.d",
+    "diagnostics" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Components.dia",
+    "object" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Components.o",
+    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Components.swiftdeps"
+  },
+  "/Users/aaronbrennan/Documents/test/test/UI/Missions/Arena/Stages/BanquetStage.swift" : {
+    "const-values" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/BanquetStage.swiftconstvalues",
+    "dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/BanquetStage.d",
+    "diagnostics" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/BanquetStage.dia",
+    "object" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/BanquetStage.o",
+    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/BanquetStage.swiftdeps"
+  }
+}

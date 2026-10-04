@@ -1,0 +1,14 @@
+Target dependency graph (5 targets)
+Target 'AllIncludingTests' in project 'Aggregate'
+➜ Explicit dependency on target 'EngineTests-product' in project 'TraitorsEngine'
+➜ Dependency on target 'EngineTests-product' in project 'TraitorsEngine' via transitive dependency through 'EngineTests-test-runner'
+➜ Explicit dependency on target 'TraitorsEngine-product' in project 'TraitorsEngine'
+➜ Explicit dependency on target 'traitors-sim-product' in project 'TraitorsEngine'
+➜ Explicit dependency on target 'TraitorsEngine' in project 'TraitorsEngine'
+Target 'traitors-sim-product' in project 'TraitorsEngine'
+➜ Explicit dependency on target 'TraitorsEngine' in project 'TraitorsEngine'
+Target 'TraitorsEngine-product' in project 'TraitorsEngine'
+➜ Explicit dependency on target 'TraitorsEngine' in project 'TraitorsEngine'
+Target 'EngineTests-product' in project 'TraitorsEngine'
+➜ Explicit dependency on target 'TraitorsEngine' in project 'TraitorsEngine'
+Target 'TraitorsEngine' in project 'TraitorsEngine' (no dependencies)

@@ -1,0 +1,29 @@
+{
+  "" : {
+    "diagnostics" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/EngineTests-p.build/Objects-normal/arm64/EngineTests-primary.dia",
+    "emit-module-dependencies" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/EngineTests-p.build/Objects-normal/arm64/EngineTests-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/EngineTests-p.build/Objects-normal/arm64/EngineTests-primary-emit-module.dia",
+    "pch" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/EngineTests-p.build/Objects-normal/arm64/EngineTests-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/EngineTests-p.build/Objects-normal/arm64/EngineTests-primary.swiftdeps"
+  },
+  "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/EngineTests-p.build/DerivedSources/test_entry_point.swift" : {
+    "const-values" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/EngineTests-p.build/Objects-normal/arm64/test_entry_point.swiftconstvalues",
+    "dependencies" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/EngineTests-p.build/Objects-normal/arm64/test_entry_point.d",
+    "diagnostics" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/EngineTests-p.build/Objects-normal/arm64/test_entry_point.dia",
+    "index-unit-output-path" : "/TraitorsEngine.build/Debug/EngineTests-p.build/Objects-normal/arm64/test_entry_point.o",
+    "llvm-bc" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/EngineTests-p.build/Objects-normal/arm64/test_entry_point.bc",
+    "object" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/EngineTests-p.build/Objects-normal/arm64/test_entry_point.o",
+    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/EngineTests-p.build/Objects-normal/arm64/test_entry_point.swiftdeps",
+    "swiftmodule" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/EngineTests-p.build/Objects-normal/arm64/test_entry_point~partial.swiftmodule"
+  },
+  "/Users/aaronbrennan/Documents/test/Tests/EngineTests/EngineTests.swift" : {
+    "const-values" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/EngineTests-p.build/Objects-normal/arm64/EngineTests.swiftconstvalues",
+    "dependencies" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/EngineTests-p.build/Objects-normal/arm64/EngineTests.d",
+    "diagnostics" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/EngineTests-p.build/Objects-normal/arm64/EngineTests.dia",
+    "index-unit-output-path" : "/TraitorsEngine.build/Debug/EngineTests-p.build/Objects-normal/arm64/EngineTests.o",
+    "llvm-bc" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/EngineTests-p.build/Objects-normal/arm64/EngineTests.bc",
+    "object" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/EngineTests-p.build/Objects-normal/arm64/EngineTests.o",
+    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/EngineTests-p.build/Objects-normal/arm64/EngineTests.swiftdeps",
+    "swiftmodule" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/EngineTests-p.build/Objects-normal/arm64/EngineTests~partial.swiftmodule"
+  }
+}

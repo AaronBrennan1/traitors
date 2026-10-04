@@ -1,0 +1,37 @@
+{
+  "/Users/aaronbrennan/Documents/test/test/Engine/Dialogue/Dialogue.swift" : {
+    "const-values" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Dialogue.swiftconstvalues",
+    "dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Dialogue.d",
+    "diagnostics" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Dialogue.dia",
+    "object" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Dialogue.o",
+    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Dialogue.swiftdeps"
+  },
+  "/Users/aaronbrennan/Documents/test/test/Engine/Missions/MissionDeck.swift" : {
+    "const-values" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/MissionDeck.swiftconstvalues",
+    "dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/MissionDeck.d",
+    "diagnostics" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/MissionDeck.dia",
+    "object" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/MissionDeck.o",
+    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/MissionDeck.swiftdeps"
+  },
+  "/Users/aaronbrennan/Documents/test/test/Engine/Missions/Missions.swift" : {
+    "const-values" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Missions.swiftconstvalues",
+    "dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Missions.d",
+    "diagnostics" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Missions.dia",
+    "object" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Missions.o",
+    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Missions.swiftdeps"
+  },
+  "/Users/aaronbrennan/Documents/test/test/Engine/Rules/GameEngine.swift" : {
+    "const-values" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/GameEngine.swiftconstvalues",
+    "dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/GameEngine.d",
+    "diagnostics" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/GameEngine.dia",
+    "object" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/GameEngine.o",
+    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/GameEngine.swiftdeps"
+  },
+  "/Users/aaronbrennan/Documents/test/test/Engine/Staging/Autopilot.swift" : {
+    "const-values" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Autopilot.swiftconstvalues",
+    "dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Autopilot.d",
+    "diagnostics" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Autopilot.dia",
+    "object" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Autopilot.o",
+    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Autopilot.swiftdeps"
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "source": "/Users/aaronbrennan/Documents/test/test/UI/Ceremonies/EndingCeremony.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Skip to the result",
+        "location": {
+          "startingColumn": 45,
+          "startingLine": 53
+        }
+      },
+      {
+        "comment": "",
+        "key": "See how it unfolded",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 54
+        }
+      },
+      {
+        "comment": "",
+        "key": "THE TRAITORS WIN",
+        "location": {
+          "startingColumn": 55,
+          "startingLine": 39
+        }
+      },
+      {
+        "comment": "",
+        "key": "THE FAITHFUL WIN",
+        "location": {
+          "startingColumn": 76,
+          "startingLine": 39
+        }
+      },
+      {
+        "comment": "",
+        "key": "TRAITOR",
+        "location": {
+          "startingColumn": 69,
+          "startingLine": 30
+        }
+      },
+      {
+        "comment": "",
+        "key": "FAITHFUL",
+        "location": {
+          "startingColumn": 81,
+          "startingLine": 30
+        }
+      },
+      {
+        "comment": "",
+        "key": " ",
+        "location": {
+          "startingColumn": 95,
+          "startingLine": 30
+        }
+      }
+    ]
+  },
+  "version": 1
+}

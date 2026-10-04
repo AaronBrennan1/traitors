@@ -1,0 +1,56 @@
+{
+  "source": "/Users/aaronbrennan/Documents/test/test/UI/Missions/Arena/ArenaPauseView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Sound",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 11
+        }
+      },
+      {
+        "comment": "",
+        "key": "Haptics",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 16
+        }
+      },
+      {
+        "comment": "",
+        "key": "Paused",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 42
+        }
+      },
+      {
+        "comment": "",
+        "key": "The mission starts again from the top when you come back.",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 62
+        }
+      },
+      {
+        "comment": "",
+        "key": "Resume",
+        "location": {
+          "startingColumn": 32,
+          "startingLine": 60
+        }
+      },
+      {
+        "comment": "",
+        "key": "Save and leave",
+        "location": {
+          "startingColumn": 32,
+          "startingLine": 61
+        }
+      }
+    ]
+  },
+  "version": 1
+}

@@ -1,0 +1,32 @@
+{
+  "source": "/Users/aaronbrennan/Documents/test/test/UI/Missions/MissionView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "%@, play area",
+        "location": {
+          "startingColumn": 57,
+          "startingLine": 51
+        }
+      },
+      {
+        "comment": "",
+        "key": "Skip to the scores",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 56
+        }
+      },
+      {
+        "comment": "",
+        "key": "To the Round Table",
+        "location": {
+          "startingColumn": 32,
+          "startingLine": 96
+        }
+      }
+    ]
+  },
+  "version": 1
+}

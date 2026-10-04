@@ -1,0 +1,128 @@
+{
+  "source": "/Users/aaronbrennan/Documents/test/test/UI/Ceremonies/RoleCeremony.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Skip to my role",
+        "location": {
+          "startingColumn": 45,
+          "startingLine": 39
+        }
+      },
+      {
+        "comment": "",
+        "key": "Footsteps, behind the chairs.",
+        "location": {
+          "startingColumn": 19,
+          "startingLine": 128
+        }
+      },
+      {
+        "comment": "",
+        "key": "Closer.",
+        "location": {
+          "startingColumn": 52,
+          "startingLine": 128
+        }
+      },
+      {
+        "comment": "",
+        "key": "Right behind you.",
+        "location": {
+          "startingColumn": 63,
+          "startingLine": 128
+        }
+      },
+      {
+        "comment": "",
+        "key": "A hand rests on your shoulder.",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 131
+        }
+      },
+      {
+        "comment": "",
+        "key": "The footsteps pass you by.",
+        "location": {
+          "startingColumn": 72,
+          "startingLine": 131
+        }
+      },
+      {
+        "comment": "",
+        "key": "Tap to skip. Make sure nobody else can see your screen.",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 47
+        }
+      },
+      {
+        "comment": "",
+        "key": "Go down to breakfast",
+        "location": {
+          "startingColumn": 32,
+          "startingLine": 44
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@, %@",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 116
+        }
+      },
+      {
+        "comment": "",
+        "key": "“%@”",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 117
+        }
+      },
+      {
+        "comment": "",
+        "key": "You are a",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 145
+        }
+      },
+      {
+        "comment": "",
+        "key": "Each day, one of you must finish the secret side quest hidden inside the mission to earn a murder that night. It costs time, so mind your score. Do not get caught.",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 167
+        }
+      },
+      {
+        "comment": "",
+        "key": "Two of the seven around you are traitors. Beat par in the missions, watch who falls short, weigh the votes, and banish them both.",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 173
+        }
+      },
+      {
+        "comment": "",
+        "key": "TRAITOR",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 150
+        }
+      },
+      {
+        "comment": "",
+        "key": "FAITHFUL",
+        "location": {
+          "startingColumn": 49,
+          "startingLine": 150
+        }
+      }
+    ]
+  },
+  "version": 1
+}

@@ -1,0 +1,40 @@
+{
+  "source": "/Users/aaronbrennan/Documents/test/test/UI/Ceremonies/BreakfastCeremony.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Skip ahead",
+        "location": {
+          "startingColumn": 45,
+          "startingLine": 41
+        }
+      },
+      {
+        "comment": "",
+        "key": "See how it ended",
+        "location": {
+          "startingColumn": 49,
+          "startingLine": 44
+        }
+      },
+      {
+        "comment": "",
+        "key": "To the Fire of Truth",
+        "location": {
+          "startingColumn": 84,
+          "startingLine": 44
+        }
+      },
+      {
+        "comment": "",
+        "key": "To the mission",
+        "location": {
+          "startingColumn": 109,
+          "startingLine": 44
+        }
+      }
+    ]
+  },
+  "version": 1
+}

@@ -1,0 +1,72 @@
+{
+  "source": "/Users/aaronbrennan/Documents/test/test/UI/Ceremonies/NightCeremony.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Continues to the morning",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 83
+        }
+      },
+      {
+        "comment": "",
+        "key": "You lock your door and try to sleep. Somewhere above, the turret may be busy.",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 36
+        }
+      },
+      {
+        "comment": "",
+        "key": "Blow out the candle",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 65
+        }
+      },
+      {
+        "comment": "",
+        "key": "Wait for morning",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 67
+        }
+      },
+      {
+        "comment": "",
+        "key": "Join the traitors",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 57
+        }
+      },
+      {
+        "comment": "",
+        "key": "Refuse",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 59
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@ %@",
+        "location": {
+          "startingColumn": 51,
+          "startingLine": 49
+        }
+      },
+      {
+        "comment": "",
+        "key": "Choose a player",
+        "location": {
+          "startingColumn": 116,
+          "startingLine": 49
+        }
+      }
+    ]
+  },
+  "version": 1
+}

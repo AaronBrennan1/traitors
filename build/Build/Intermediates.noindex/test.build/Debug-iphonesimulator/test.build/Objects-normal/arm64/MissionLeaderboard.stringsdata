@@ -1,0 +1,80 @@
+{
+  "source": "/Users/aaronbrennan/Documents/test/test/UI/Missions/MissionLeaderboard.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "The gold line is par. Anyone short of it is flagged for the whole table to see.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 31
+        }
+      },
+      {
+        "comment": "",
+        "key": "Par %lld of %lld %@",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 22
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld. %@, %lld of %lld%@",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 93
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 51
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 76
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld of %lld %@",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 104
+        }
+      },
+      {
+        "comment": "",
+        "key": "Team",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 101
+        }
+      },
+      {
+        "comment": "",
+        "key": "Added to the pot",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 118
+        }
+      },
+      {
+        "comment": "",
+        "key": "€%@",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 120
+        }
+      }
+    ]
+  },
+  "version": 1
+}

@@ -1,0 +1,128 @@
+{
+  "source": "/Users/aaronbrennan/Documents/test/test/UI/Screens/TableScreen.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Vote to banish %@",
+        "location": {
+          "startingColumn": 47,
+          "startingLine": 22
+        }
+      },
+      {
+        "comment": "",
+        "key": "Choose a player",
+        "location": {
+          "startingColumn": 94,
+          "startingLine": 22
+        }
+      },
+      {
+        "comment": "",
+        "key": "End the game only if you believe every traitor is gone. It must be unanimous.",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 32
+        }
+      },
+      {
+        "comment": "",
+        "key": "End the game",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 35
+        }
+      },
+      {
+        "comment": "",
+        "key": "Banish again",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 37
+        }
+      },
+      {
+        "comment": "",
+        "key": "Accuse %@",
+        "location": {
+          "startingColumn": 52,
+          "startingLine": 119
+        }
+      },
+      {
+        "comment": "",
+        "key": "Speak up for %@",
+        "location": {
+          "startingColumn": 92,
+          "startingLine": 119
+        }
+      },
+      {
+        "comment": "",
+        "key": "Ask %@ for a name",
+        "location": {
+          "startingColumn": 32,
+          "startingLine": 125
+        }
+      },
+      {
+        "comment": "",
+        "key": "Answer the charge",
+        "location": {
+          "startingColumn": 32,
+          "startingLine": 134
+        }
+      },
+      {
+        "comment": "",
+        "key": "Back",
+        "location": {
+          "startingColumn": 32,
+          "startingLine": 70
+        }
+      },
+      {
+        "comment": "",
+        "key": "Accuse",
+        "location": {
+          "startingColumn": 32,
+          "startingLine": 137
+        }
+      },
+      {
+        "comment": "",
+        "key": "Defend",
+        "location": {
+          "startingColumn": 32,
+          "startingLine": 138
+        }
+      },
+      {
+        "comment": "",
+        "key": "Question",
+        "location": {
+          "startingColumn": 32,
+          "startingLine": 139
+        }
+      },
+      {
+        "comment": "",
+        "key": "Claim the shield",
+        "location": {
+          "startingColumn": 32,
+          "startingLine": 142
+        }
+      },
+      {
+        "comment": "",
+        "key": "Stay quiet",
+        "location": {
+          "startingColumn": 32,
+          "startingLine": 144
+        }
+      }
+    ]
+  },
+  "version": 1
+}

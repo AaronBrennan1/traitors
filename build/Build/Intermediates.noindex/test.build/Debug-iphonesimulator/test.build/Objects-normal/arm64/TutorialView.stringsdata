@@ -1,0 +1,24 @@
+{
+  "source": "/Users/aaronbrennan/Documents/test/test/UI/Screens/TutorialView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "How to play",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 62
+        }
+      },
+      {
+        "comment": "",
+        "key": "Skip",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 64
+        }
+      }
+    ]
+  },
+  "version": 1
+}

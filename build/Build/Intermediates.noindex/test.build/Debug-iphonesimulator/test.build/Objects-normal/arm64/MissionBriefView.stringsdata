@@ -1,0 +1,40 @@
+{
+  "source": "/Users/aaronbrennan/Documents/test/test/UI/Missions/MissionBriefView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "%@, %@ %@",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 113
+        }
+      },
+      {
+        "comment": "",
+        "key": "Everyone plays at once and every score goes up on the board. Finish under par and the whole table will see it. The pot is filled by what the team brings home between them.",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 32
+        }
+      },
+      {
+        "comment": "",
+        "key": "Begin the mission",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 49
+        }
+      },
+      {
+        "comment": "",
+        "key": "Watch the mission",
+        "location": {
+          "startingColumn": 68,
+          "startingLine": 49
+        }
+      }
+    ]
+  },
+  "version": 1
+}

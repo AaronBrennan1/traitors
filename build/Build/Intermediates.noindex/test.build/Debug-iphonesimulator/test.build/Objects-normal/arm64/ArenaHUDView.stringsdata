@@ -1,0 +1,264 @@
+{
+  "source": "/Users/aaronbrennan/Documents/test/test/UI/Missions/Arena/ArenaHUDView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Time, %lld seconds",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 175
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@, %lld percent",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 290
+        }
+      },
+      {
+        "comment": "",
+        "key": "Pause",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 308
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@. Starting in %@",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 350
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 167
+        }
+      },
+      {
+        "comment": "",
+        "key": "Watching",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 181
+        }
+      },
+      {
+        "comment": "",
+        "key": "par %lld",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 182
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 184
+        }
+      },
+      {
+        "comment": "",
+        "key": "of %lld %@",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 190
+        }
+      },
+      {
+        "comment": "",
+        "key": "par %lld made",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 193
+        }
+      },
+      {
+        "comment": "",
+        "key": "par %lld",
+        "location": {
+          "startingColumn": 64,
+          "startingLine": 193
+        }
+      },
+      {
+        "comment": "",
+        "key": "Side quest, %lld of %lld",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 218
+        }
+      },
+      {
+        "comment": "",
+        "key": "Team, %lld of %lld",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 241
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld/%lld",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 228
+        }
+      },
+      {
+        "comment": "",
+        "key": "TEAM",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 225
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@, %lld%@",
+        "location": {
+          "startingColumn": 41,
+          "startingLine": 267
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 252
+        }
+      },
+      {
+        "comment": "",
+        "key": "You are watching this one",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 341
+        }
+      },
+      {
+        "comment": "",
+        "key": "Time",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 358
+        }
+      },
+      {
+        "comment": "",
+        "key": "See the scoreboard",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 412
+        }
+      },
+      {
+        "comment": "",
+        "key": "Full haul",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 382
+        }
+      },
+      {
+        "comment": "",
+        "key": "Par made",
+        "location": {
+          "startingColumn": 55,
+          "startingLine": 382
+        }
+      },
+      {
+        "comment": "",
+        "key": "Under par",
+        "location": {
+          "startingColumn": 68,
+          "startingLine": 382
+        }
+      },
+      {
+        "comment": "",
+        "key": "Par was %lld.",
+        "location": {
+          "startingColumn": 33,
+          "startingLine": 391
+        }
+      },
+      {
+        "comment": "",
+        "key": "Par was %lld. The whole table will see it.",
+        "location": {
+          "startingColumn": 59,
+          "startingLine": 391
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 387
+        }
+      },
+      {
+        "comment": "",
+        "key": "of %lld %@",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 389
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld of %lld",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 400
+        }
+      },
+      {
+        "comment": "",
+        "key": "Team",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 397
+        }
+      },
+      {
+        "comment": "",
+        "key": "Side quest",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 405
+        }
+      },
+      {
+        "comment": "",
+        "key": "Done",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 407
+        }
+      },
+      {
+        "comment": "",
+        "key": "Not done",
+        "location": {
+          "startingColumn": 43,
+          "startingLine": 407
+        }
+      }
+    ]
+  },
+  "version": 1
+}

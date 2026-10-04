@@ -1,0 +1,160 @@
+{
+  "source": "/Users/aaronbrennan/Documents/test/test/UI/Screens/GameOverView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "THE TRAITORS WIN",
+        "location": {
+          "startingColumn": 55,
+          "startingLine": 25
+        }
+      },
+      {
+        "comment": "",
+        "key": "THE FAITHFUL WIN",
+        "location": {
+          "startingColumn": 76,
+          "startingLine": 25
+        }
+      },
+      {
+        "comment": "",
+        "key": "You won. The pot of €%@ is yours to share.",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 29
+        }
+      },
+      {
+        "comment": "",
+        "key": "You lost. The pot of €%@ goes to the other side.",
+        "location": {
+          "startingColumn": 114,
+          "startingLine": 29
+        }
+      },
+      {
+        "comment": "",
+        "key": "Recruited traitor",
+        "location": {
+          "startingColumn": 81,
+          "startingLine": 49
+        }
+      },
+      {
+        "comment": "",
+        "key": "Traitor",
+        "location": {
+          "startingColumn": 103,
+          "startingLine": 49
+        }
+      },
+      {
+        "comment": "",
+        "key": "Faithful",
+        "location": {
+          "startingColumn": 116,
+          "startingLine": 49
+        }
+      },
+      {
+        "comment": "",
+        "key": "Back to the title",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 66
+        }
+      },
+      {
+        "comment": "",
+        "key": "Chance a neutral observer gave of you being a traitor, after each banishment",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 98
+        }
+      },
+      {
+        "comment": "",
+        "key": "Line chart of how suspicious you looked after each banishment",
+        "location": {
+          "startingColumn": 33,
+          "startingLine": 131
+        }
+      },
+      {
+        "comment": "",
+        "key": "Banishment",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 102
+        }
+      },
+      {
+        "comment": "",
+        "key": "Suspicion",
+        "location": {
+          "startingColumn": 73,
+          "startingLine": 102
+        }
+      },
+      {
+        "comment": "",
+        "key": "Banishment",
+        "location": {
+          "startingColumn": 41,
+          "startingLine": 105
+        }
+      },
+      {
+        "comment": "",
+        "key": "Suspicion",
+        "location": {
+          "startingColumn": 74,
+          "startingLine": 105
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld%%",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 110
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 43,
+          "startingLine": 120
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld%%",
+        "location": {
+          "startingColumn": 43,
+          "startingLine": 126
+        }
+      },
+      {
+        "comment": "",
+        "key": "Each faithful's own suspicion of you on day %lld",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 149
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld%%",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 163
+        }
+      }
+    ]
+  },
+  "version": 1
+}

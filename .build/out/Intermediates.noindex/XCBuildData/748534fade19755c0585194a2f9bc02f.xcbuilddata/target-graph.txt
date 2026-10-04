@@ -1,0 +1,4 @@
+Target dependency graph (2 targets)
+Target 'traitors-sim-product' in project 'TraitorsEngine'
+➜ Explicit dependency on target 'TraitorsEngine' in project 'TraitorsEngine'
+Target 'TraitorsEngine' in project 'TraitorsEngine' (no dependencies)

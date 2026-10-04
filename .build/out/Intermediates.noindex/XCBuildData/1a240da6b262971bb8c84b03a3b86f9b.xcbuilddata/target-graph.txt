@@ -1,0 +1,10 @@
+Target dependency graph (4 targets)
+Target 'AllExcludingTests' in project 'Aggregate'
+➜ Explicit dependency on target 'TraitorsEngine-product' in project 'TraitorsEngine'
+➜ Explicit dependency on target 'traitors-sim-product' in project 'TraitorsEngine'
+➜ Explicit dependency on target 'TraitorsEngine' in project 'TraitorsEngine'
+Target 'traitors-sim-product' in project 'TraitorsEngine'
+➜ Explicit dependency on target 'TraitorsEngine' in project 'TraitorsEngine'
+Target 'TraitorsEngine-product' in project 'TraitorsEngine'
+➜ Explicit dependency on target 'TraitorsEngine' in project 'TraitorsEngine'
+Target 'TraitorsEngine' in project 'TraitorsEngine' (no dependencies)
