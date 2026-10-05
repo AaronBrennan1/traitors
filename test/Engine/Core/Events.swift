@@ -1,210 +1,119 @@
 import Foundation
 
-/// The shape of a mission: how many things there are to do, and how many is a respectable day's work.
+/// The shape of a mission: how long it runs and how much gold the company is asked for.
 struct MissionSpec {
-    /// The most anyone can bring home.
-    let steps: Int
-    /// Finishing below this is a public slip.
-    let par: Int
-    /// What is being counted, for the scoreboard.
+    /// What is being counted.
     let unit: String
     let baseSeconds: Double
+    /// Bags one ordinary runner gets home in a round, with five running and with eight. More
+    /// runners get in each other's way, so each brings a little less.
+    let par: (few: Double, full: Double)
     /// What each player is worth to the pot when the team makes its goal.
     var potPerHead = 400
-    /// The share of a perfect day from everyone that the team is asked for.
-    var teamShare = 0.75
+
+    /// One player's ordinary share of the day's work at a table of this size.
+    func head(alive: Int) -> Double {
+        par.few + (par.full - par.few) * clamp(Double(alive - 5) / 3, 0, 1)
+    }
 
     /// The clock tightens a little as the days go on.
     func seconds(day: Int) -> Double {
         max(baseSeconds - 5, baseSeconds - Double(max(day - 1, 0)))
     }
 
-    /// What the team has to bring home between them for the full pot.
+    /// What the company has to bring home between them to win the day.
     func teamGoal(alive: Int) -> Int {
-        max(1, Int((teamShare * Double(steps * alive)).rounded()))
+        max(1, Int((head(alive: alive) * (Double(alive) - MissionRun.handicap)).rounded()))
     }
 }
 
+/// The courses of the gauntlet. It is the same game on every one: gold from the hoard to the
+/// vault, through whatever that part of the castle has in the way.
 enum MissionKind: String, Codable, CaseIterable {
-    case bogRelay, lanternRun, sheepRoundUp, shipwreckDive, ceiliChaos
-    case marketDay, kiteRace, hedgeMaze, hurley, banquetPrep
+    case greatHall, cellars, armoury, battlements, crypt
 
     var title: String {
         switch self {
-        case .bogRelay: return "The Bog Relay"
-        case .lanternRun: return "Castle Lantern Run"
-        case .sheepRoundUp: return "Sheep Round-Up"
-        case .shipwreckDive: return "The Shipwreck Dive"
-        case .ceiliChaos: return "Céilí Chaos"
-        case .marketDay: return "Market Day Scramble"
-        case .kiteRace: return "Cliffside Kite Race"
-        case .hedgeMaze: return "The Hedge Maze"
-        case .hurley: return "Hurley Target Practice"
-        case .banquetPrep: return "The Banquet Prep"
+        case .greatHall: return "The Great Hall"
+        case .cellars: return "The Cellars"
+        case .armoury: return "The Armoury"
+        case .battlements: return "The Battlements"
+        case .crypt: return "The Crypt"
         }
     }
 
     var icon: String {
         switch self {
-        case .bogRelay: return "square.stack.3d.up.fill"
-        case .lanternRun: return "flame.fill"
-        case .sheepRoundUp: return "pawprint.fill"
-        case .shipwreckDive: return "water.waves"
-        case .ceiliChaos: return "music.note"
-        case .marketDay: return "basket.fill"
-        case .kiteRace: return "wind"
-        case .hedgeMaze: return "square.grid.3x3.fill"
-        case .hurley: return "target"
-        case .banquetPrep: return "fork.knife"
+        case .greatHall: return "building.columns.fill"
+        case .cellars: return "cylinder.fill"
+        case .armoury: return "shield.lefthalf.filled"
+        case .battlements: return "wind"
+        case .crypt: return "flame.fill"
         }
     }
 
     var spec: MissionSpec {
         switch self {
-        case .bogRelay: return MissionSpec(steps: 10, par: 6, unit: "sods", baseSeconds: 75)
-        case .lanternRun: return MissionSpec(steps: 12, par: 7, unit: "lanterns", baseSeconds: 80)
-        case .sheepRoundUp: return MissionSpec(steps: 10, par: 6, unit: "sheep", baseSeconds: 80)
-        case .shipwreckDive: return MissionSpec(steps: 8, par: 5, unit: "chests", baseSeconds: 85)
-        case .ceiliChaos: return MissionSpec(steps: 16, par: 10, unit: "steps", baseSeconds: 70)
-        case .marketDay: return MissionSpec(steps: 9, par: 5, unit: "items", baseSeconds: 80)
-        case .kiteRace: return MissionSpec(steps: 14, par: 8, unit: "rings", baseSeconds: 75)
-        case .hedgeMaze: return MissionSpec(steps: 9, par: 5, unit: "finds", baseSeconds: 85)
-        case .hurley: return MissionSpec(steps: 10, par: 6, unit: "hits", baseSeconds: 70)
-        case .banquetPrep: return MissionSpec(steps: 12, par: 7, unit: "jobs", baseSeconds: 90)
-        }
-    }
-
-    /// Seen at an angle from above. The rest are seen side-on.
-    var isometric: Bool {
-        switch self {
-        case .lanternRun, .sheepRoundUp, .ceiliChaos, .marketDay, .hedgeMaze, .banquetPrep: return true
-        case .bogRelay, .shipwreckDive, .kiteRace, .hurley: return false
-        }
-    }
-
-    /// Games where a traitor is hard to see for most of the day. Two never fall on consecutive days.
-    var coverHeavy: Bool {
-        switch self {
-        case .lanternRun, .marketDay, .hedgeMaze, .shipwreckDive: return true
-        default: return false
+        case .greatHall: return MissionSpec(unit: "bags", baseSeconds: 75, par: (9.2, 9.45))
+        case .cellars: return MissionSpec(unit: "bags", baseSeconds: 75, par: (10.0, 10.1))
+        case .armoury: return MissionSpec(unit: "bags", baseSeconds: 75, par: (8.55, 8.9))
+        case .battlements: return MissionSpec(unit: "bags", baseSeconds: 75, par: (11.0, 11.0))
+        case .crypt: return MissionSpec(unit: "bags", baseSeconds: 75, par: (8.5, 8.8))
         }
     }
 
     var brief: String {
         switch self {
-        case .bogRelay:
-            return "A Connemara bog at dawn. Turf is cut at one bank and has to be stacked at the other, across stepping stones that sink under your feet. Every sod stacked goes to the team."
-        case .lanternRun:
-            return "Night on the ramparts, and the Dark is creeping in from the walls. Carry flame from the brazier and keep the lanterns lit. The more that burn, the further everyone can see."
-        case .sheepRoundUp:
-            return "A windy hillside and a flock with no intention of going home. Walk the sheep into the pen that matches their ribbon. The dog answers to whoever whistles last."
-        case .shipwreckDive:
-            return "An old wreck in a sheltered bay off Kerry. Dive, haul the chests up to the boat and come up for air before it runs out. The water is murky and the big chests want two pairs of hands."
-        case .ceiliChaos:
-            return "A céilí in the great hall. The band calls a shape and everyone has a tile to be standing on when the beat lands. A shape with nobody missing counts double for the team."
-        case .marketDay:
-            return "Market day in the village, and a feast to shop for. Buy from the stalls, bring it back to the cart and mind the crowds. Stalls sell out, so spread yourselves round the square."
-        case .kiteRace:
-            return "Sea cliffs on a windy day. Run the cliff path and fly your kite through the rings, twice round. The gusts will throw you about and the rock spires will catch a careless string."
-        case .hedgeMaze:
-            return "The old estate maze, with a bell tower at its heart. Find the sigils and the map posts, then ring the bell. Whatever one of you finds goes on the map for all, and the hedges will not stay put."
-        case .hurley:
-            return "The castle lawn on a sunny afternoon, ten sliotars each and targets out to the far wall. Every hit in a row by anyone builds the team's streak."
-        case .banquetPrep:
-            return "The castle kitchen an hour before the feast. Fetch, chop, stir, plate and serve. Nobody can do it all, and a pot left alone will burn."
+        case .greatHall:
+            return "The Great Hall, cleared for the occasion. The castle's gold is heaped at the door and the vault stands open at the far end, with the old blades swinging in between. Every bag in the vault goes to the team."
+        case .cellars:
+            return "The cellars, where the wine used to be. The short way to the vault runs under the barrel chutes. The long way winds round them, and takes its time."
+        case .armoury:
+            return "The armoury. The floor is full of spikes and the walls are full of darts, and the plates that loose the darts lie a few paces short of where they land. Mind whose feet are behind you."
+        case .battlements:
+            return "The wall-walk, on a night with a wind in it. There is nothing at the edge but the odd merlon, and a gust will carry you and your gold clean over."
+        case .crypt:
+            return "The crypt, by candlelight. Flame from the old grates, blades between the tombs, and no seeing further than the next candle. Carried gold glints in the dark."
         }
     }
 
-    /// How the mini-game is played.
-    var controls: String {
+    /// What is different about this course, in a line.
+    var twist: String {
         switch self {
-        case .bogRelay:
-            return "Drag to run. Walk into the turf bank on the left to lift a sod: the big pile counts double but slows you down. Carry it to the stack on the right. Stones sink while you stand on them and wading is slow. Press Interact beside someone empty-handed to pass your sod on."
-        case .lanternRun:
-            return "Drag to run. Touch the brazier to take a flame, then walk into a dark lantern to light it. Lanterns burn down and need lighting again. Hold Interact at a lantern to trim its wick."
-        case .sheepRoundUp:
-            return "Drag to run. Sheep move away from you, so get behind one and walk it into the pen that matches its ribbon. Press Interact to whistle the dog out in front of you."
-        case .shipwreckDive:
-            return "Drag to swim. Hold Interact at a chest to lift it, then swim it up to the boat. Surface before your air runs out. A big chest is slow unless another diver swims alongside. Eels stun."
-        case .ceiliChaos:
-            return "Drag to move. When the band calls a shape, a tile lights up in your colour. Be standing on it when the ring closes. On a free dance you can stand anywhere."
-        case .marketDay:
-            return "Drag to run. Stalls with a gold tag still have something on your list. Hold Interact at a stall to buy, carry up to three things, and walk them to the cart."
-        case .kiteRace:
-            return "Push right to run. Push up and down to fly your kite higher and lower, and thread the rings. Fly close behind another kite for a tow. If your string catches on a rock, press Interact to tug it free."
-        case .hedgeMaze:
-            return "Drag to run. Walk into sigils and map posts to claim them, then ring the bell in the middle. Hold Interact at a statue to search it. The hedges shift twice."
-        case .hurley:
-            return "Drag back from your sliotar and let go to strike. The further you pull, the harder it flies. Ten strikes each."
-        case .banquetPrep:
-            return "Drag to run. A station that glows has a job waiting: hold Interact there to do it. Herbs come from the shelf at the back of the pantry and go in a pot that asks for seasoning."
+        case .greatHall: return "Three blades in a row swing a beat apart. One steady pace walks through all of them."
+        case .cellars: return "Left is short and has barrels coming down it. Right is long and has none."
+        case .armoury: return "A plate in the floor looses the darts two paces on. The crowd sets them off."
+        case .battlements: return "No walls at the edge. Lean into the gusts or go over with your gold."
+        case .crypt: return "You can only see as far as the candles let you."
         }
     }
 
-    /// What a traitor must do during this mission to earn the night's murder. Late in the game the task is longer.
-    func questText(steps: Int = 1) -> String {
-        let long = steps > 1
-        switch self {
-        case .bogRelay:
-            return "The Bog Offering. A dark pool in the back lane is marked for you. Carry \(long ? "two sods there, one at a time," : "a sod there") and hold Interact to lower it in. Let go early and it splashes."
-        case .lanternRun:
-            return "The Cold Draught. \(long ? "Two tower lanterns are" : "One tower lantern is") marked for you. Hold Interact to blow it out, and see that it stays out for twenty seconds."
-        case .sheepRoundUp:
-            return "The Black Sheep. \(long ? "Two black-faced sheep wear" : "One black-faced sheep wears") a mark only you can see. Walk it into a pen that is not its own."
-        case .shipwreckDive:
-            return "The False Coin. Hold Interact at the marked chest in the captain's cabin to swap its coin for a fake\(long ? ", then do the same at the chest in the hold" : ""). Anyone else in the room will see you do it."
-        case .ceiliChaos:
-            return "The Cracked Tile. A cracked tile is marked for you. Be standing on it when the beat lands, \(long ? "four" : "three") times in the night."
-        case .marketDay:
-            return "The Sealed Letter. \(long ? "Two stalls are" : "One stall is") marked for you, selling nothing on the list. Hold Interact at the basket to slip the letter in."
-        case .kiteRace:
-            return "The Snagged String. A rock spire is marked for you. Fly your kite onto it and leave the string caught for three seconds\(long ? ", on both laps" : ""). A kite passing close will free it."
-        case .hedgeMaze:
-            return "The Statue's Mark. \(long ? "Two statues are" : "A statue is") marked for you at the end of a dead end. Hold Interact to scratch the mark into the stone."
-        case .hurley:
-            return "The Far Bell. Ring the old bell on the far tower\(long ? " twice" : ""). It is worth nothing and it breaks the streak."
-        case .banquetPrep:
-            return "The Secret Herb. Take a herb from the pantry shelf and add it to the head table's pot while that order is on\(long ? ". Then do it again" : "")."
-        }
-    }
+    /// How the gauntlet is played. It is the same on every course.
+    static let controls = [
+        "Drag to run. Walk into the hoard to lift a bag, and wait there a moment for a second and a third. More gold makes you slower.",
+        "Carry it up to the vault. Get caught by a trap and you drop the lot and wake at the last brazier.",
+        "Tap Dash for a burst that clears a gap two tiles wide. Every trap shows itself before it strikes.",
+    ]
+
+    /// What a traitor can do out there, and what it earns.
+    static let hand = "The Shadow's Hand. Stand still beside a lever, a candle sconce or the vault door and tap Dash: the lever trips its trap, the sconce goes out, the door spills gold back onto the floor. Nothing on the screen says it was you, but anyone watching sees who was standing there."
 }
 
-/// One player's showing in a mission.
-struct MissionUnit: Codable {
-    var players: [PlayerID]
-    /// How many they brought home.
-    var count: Int
-    /// Finished under par: a public slip.
-    var anomalous: Bool
-    /// Chance a faithful of this ability comes in under par by honest mistake.
-    var innocentRate: Double
-    /// Chance the same player comes in under par while busy with the side quest.
-    var questRate: Double
-    var detail: String
-}
-
+/// What the table is told about a mission: what the company brought home between them, and
+/// whether it was enough. Nothing in it says who did how much.
 struct MissionReport: Codable {
     var kind: MissionKind
     var day: Int
-    var steps: Int
-    var par: Int
-    var units: [MissionUnit]
-    /// 0...1 performance per player.
-    var scores: [PlayerID: Double]
+    var teamTotal: Int
+    var teamGoal: Int
+    /// The company made its goal, so the night is quiet.
+    var groupWon: Bool
     var potEarned: Int
-    var lines: [String]
-    /// What everyone brought home between them, and what was asked of them.
-    var teamTotal = 0
-    var teamGoal = 0
-
-    func unitIndex(of player: PlayerID) -> Int? {
-        units.firstIndex { $0.players.contains(player) }
-    }
 }
 
 enum ChipKind: String, Codable {
     // Suspicious
-    case missionSlip, votedOutFaithful, sparedTraitor, defendedTraitor, victimSuspected, sayVote
+    case votedOutFaithful, sparedTraitor, defendedTraitor, victimSuspected, sayVote
     /// Something the speaker says they saw the subject do during a mission.
     case sighting
     /// First to name `other`, or the one who pushed hardest, and `other` was a faithful.
@@ -214,7 +123,7 @@ enum ChipKind: String, Codable {
     /// Said something about `other` that a witness flatly contradicted.
     case caughtLie
     // Exonerating
-    case votedTraitor, cleanMissions, accusedByTraitor
+    case votedTraitor, accusedByTraitor
     /// The speaker had the subject in view for a whole mission.
     case inSight
     /// Raised `other` before the table did, or named them first, and `other` was a traitor.
@@ -226,9 +135,9 @@ enum ChipKind: String, Codable {
 
     var isSuspicious: Bool {
         switch self {
-        case .missionSlip, .votedOutFaithful, .sparedTraitor, .defendedTraitor, .victimSuspected, .sayVote,
+        case .votedOutFaithful, .sparedTraitor, .defendedTraitor, .victimSuspected, .sayVote,
              .sighting, .firstNamed, .pushedHardest, .sworeBy, .caughtLie, .gut: return true
-        case .votedTraitor, .cleanMissions, .accusedByTraitor, .inSight, .flaggedEarly, .firstOnTraitor, .tableAgreed: return false
+        case .votedTraitor, .accusedByTraitor, .inSight, .flaggedEarly, .firstOnTraitor, .tableAgreed: return false
         }
     }
 }
@@ -246,15 +155,10 @@ struct Chip: Codable {
 
     /// True when this chip is somebody's word about a mission rather than public record.
     var isTestimony: Bool { sight != nil && (kind == .sighting || kind == .inSight) }
-
-    var noticeKey: Int? {
-        guard kind == .missionSlip, let unit else { return nil }
-        return day * 100 + unit
-    }
 }
 
 enum StatementKind: String, Codable {
-    case accuse, defend, selfDefend, answer, declare, question, claimShield, pass
+    case accuse, defend, selfDefend, answer, declare, question, pass
     /// Holding someone to account for a banishment that went wrong.
     case callout
     /// A light, low-stakes doubt.
@@ -275,7 +179,7 @@ enum StatementKind: String, Codable {
 
 /// The line an accused player takes.
 enum Defence: String, Codable, CaseIterable {
-    case denial, redirect, diffusion, evidence, originRedirect, trackRecord, badAtThis, ownAndPivot, counterattack, appeal
+    case denial, redirect, diffusion, evidence, originRedirect, trackRecord, ownAndPivot, counterattack, appeal
 }
 
 struct Statement: Codable {

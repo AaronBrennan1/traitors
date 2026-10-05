@@ -15,23 +15,26 @@ enum ArenaSounds {
         case .countdown: (key, volume) = ("countdown", 0.7)
         case .go: (key, volume) = ("go", 0.8)
         case .score(let n): (key, volume) = ("score\(min(max(n, 0), 16))", 0.75)
-        case .penalty: (key, volume) = ("penalty", 0.8)
         case .otherScore:
             // Seven others scoring at once should be a patter, not a din.
             let now = CACurrentMediaTime()
             guard now - lastQuiet > 0.14 else { return }
             lastQuiet = now
             (key, volume) = ("other", 0.22)
-        case .teamBonus: (key, volume) = ("bonus", 0.5)
+        case .dash: (key, volume) = ("dash", 0.5)
+        case .pickup: (key, volume) = ("pickup", 0.45)
+        case .nearMiss: (key, volume) = ("near", 0.5)
+        case .hit: (key, volume) = ("penalty", 0.85)
+        case .bump: (key, volume) = ("bump", 0.35)
+        case .warn: (key, volume) = ("warn", 0.3)
+        case .strike: (key, volume) = ("burst", 0.45)
+        case .lightsOut: (key, volume) = ("lightsOut", 0.6)
+        case .lightsOn: (key, volume) = ("lightsOn", 0.4)
+        case .spill: (key, volume) = ("spill", 0.8)
+        case .sealing: (key, volume) = ("sealing", 0.6)
         case .banner: (key, volume) = ("banner", 0.55)
-        case .shake: (key, volume) = ("shake", 0.8)
-        case .burst: (key, volume) = ("burst", 0.6)
-        case .holdTick: (key, volume) = ("holdTick", 0.3)
-        case .holdDone: (key, volume) = ("holdDone", 0.5)
-        case .par: (key, volume) = ("par", 0.75)
+        case .hand: (key, volume) = ("hand", 0.5)
         case .teamGoal: (key, volume) = ("teamGoal", 0.75)
-        case .questStep: (key, volume) = ("questStep", 0.55)
-        case .questDone: (key, volume) = ("questDone", 0.7)
         case .lastSeconds: (key, volume) = ("heartbeat", 0.7)
         case .time: (key, volume) = ("time", 0.85)
         case .tap: (key, volume) = ("tap", 0.4)
@@ -50,7 +53,7 @@ nonisolated enum ArenaSynth {
 
     static func render(_ key: String) -> [Float] {
         if key.hasPrefix("score"), let n = Int(key.dropFirst(5)) {
-            // Two plucked notes a fifth apart, a semitone higher for every one you bring home.
+            // Two plucked notes a fifth apart, climbing a semitone at a time as the company nears its goal.
             let base = 440.0 * pow(2, Double(n) / 12)
             return mix([(0, pluck(base, 0.22), 0.8), (0.07, pluck(base * 1.5, 0.3), 0.8)])
         }
@@ -60,17 +63,20 @@ nonisolated enum ArenaSynth {
         case "time": return mix([(0, bell(196, 1.9), 1), (0, tone(98, 1.2, decay: 3.5), 0.5)])
         case "penalty": return mix([(0, tone(150, 0.32, decay: 11, glide: -0.55), 0.9), (0, noise(0.14, decay: 26, smooth: 0.93, seed: 5), 0.8)])
         case "other": return tone(1320, 0.05, decay: 80)
-        case "bonus": return mix([(0, pluck(1047, 0.4), 0.6), (0.05, pluck(1568, 0.5), 0.6)])
         case "banner": return horn([196, 294], 0.8)
-        case "shake": return noise(0.55, decay: 6, smooth: 0.985, seed: 9).map { $0 * 3.2 }
         case "burst": return mix([(0, noise(0.09, decay: 45, smooth: 0.8, seed: 7), 0.9), (0, tone(190, 0.1, decay: 40, glide: -0.4), 0.7)])
-        case "holdTick": return tone(520, 0.03, decay: 120)
-        case "holdDone": return mix([(0, tone(1400, 0.06, decay: 70), 0.6), (0.02, tone(2100, 0.08, decay: 55), 0.5)])
-        case "par": return mix([(0, pluck(1047, 0.5), 0.6), (0.08, pluck(1319, 0.5), 0.6), (0.16, pluck(1568, 0.8), 0.7)])
+        case "dash": return mix([(0, noise(0.13, decay: 22, smooth: 0.55, seed: 15), 0.8), (0, tone(300, 0.12, decay: 26, glide: 0.9), 0.4)])
+        case "pickup": return mix([(0, pluck(988, 0.12), 0.7), (0.03, tone(1976, 0.05, decay: 80), 0.3)])
+        case "near": return mix([(0, tone(1760, 0.07, decay: 60), 0.5), (0.05, tone(2349, 0.1, decay: 45), 0.5)])
+        case "bump": return tone(130, 0.09, decay: 45, glide: -0.3)
+        case "warn": return mix([(0, tone(392, 0.05, decay: 70), 0.6), (0.09, tone(392, 0.05, decay: 70), 0.6)])
+        case "lightsOut": return mix([(0, tone(220, 0.6, decay: 6, glide: -0.5, harmonics: [1, 0.3]), 0.8), (0, noise(0.3, decay: 12, smooth: 0.9, seed: 17), 0.6)])
+        case "lightsOn": return tone(330, 0.3, decay: 10, glide: 0.4)
+        case "spill": return mix([(0, noise(0.25, decay: 12, smooth: 0.7, seed: 19), 0.8), (0, pluck(784, 0.2), 0.5), (0.08, pluck(659, 0.2), 0.5),
+                                  (0.16, pluck(523, 0.2), 0.5), (0.24, pluck(392, 0.4), 0.5)])
+        case "sealing": return mix([(0, pluck(392, 0.3), 0.6), (0.12, pluck(523, 0.3), 0.6), (0.24, pluck(659, 0.4), 0.6)])
+        case "hand": return tone(110, 0.45, decay: 8, harmonics: [1, 0.5, 0.2])
         case "teamGoal": return mix([(0, pluck(392, 0.3), 0.6), (0.12, pluck(523, 0.3), 0.6), (0.24, pluck(659, 0.3), 0.6), (0.36, bell(784, 1.1), 0.7)])
-        case "questStep": return tone(147, 0.5, decay: 7, harmonics: [1, 0.4, 0.15])
-        case "questDone": return mix([(0, tone(110, 1.2, decay: 3, harmonics: [1, 0.5, 0.2]), 0.7), (0, tone(131, 1.2, decay: 3), 0.45),
-                                      (0.04, tone(165, 1.2, decay: 3), 0.4)])
         case "heartbeat": return mix([(0, tone(72, 0.16, decay: 26, glide: -0.3), 1), (0.17, tone(60, 0.2, decay: 22, glide: -0.3), 0.7)])
         case "tap": return mix([(0, noise(0.025, decay: 160, smooth: 0.6, seed: 11), 0.6), (0, tone(480, 0.05, decay: 70), 0.5)])
         case "toggle": return tone(740, 0.06, decay: 60)

@@ -61,8 +61,6 @@ enum Dialogue {
             body = rng.pick(["I'm voting {T}.", "{T} for me tonight.", "My slate says {T}.", "It's {T} for me.", "I'm writing {T}."])
         case .question:
             body = rng.pick(["{T}, who are you voting for, and why?", "{T}, give us a name.", "I want to hear from {T}. Who do you suspect?"])
-        case .claimShield:
-            body = "I'll tell you all now: I hold the shield tonight."
         case .pass:
             body = "I'll keep my counsel for now."
         }
@@ -82,7 +80,6 @@ enum Dialogue {
     static func label(_ chip: Chip, view: TableView) -> String {
         let o = chip.other.map { view.name($0) } ?? ""
         switch chip.kind {
-        case .missionSlip: return "Under par in \(missionName(chip, view)) (day \(chip.day))"
         case .votedOutFaithful: return "Voted out \(o), a faithful"
         case .sparedTraitor: return "Didn't vote for the traitor \(o)"
         case .defendedTraitor: return "Defended the traitor \(o)"
@@ -90,7 +87,6 @@ enum Dialogue {
         case .sayVote: return "Said one name, voted another (day \(chip.day))"
         case .votedTraitor: return "Voted for the traitor \(o)"
         case .accusedByTraitor: return "Was accused by the traitor \(o)"
-        case .cleanMissions: return "Made par in every mission"
         case .gut: return "Just a feeling"
         case .sighting: return "Seen \(saw(chip.sight)) in \(missionName(chip, view)) (day \(chip.day))"
         case .inSight: return "In sight all through \(missionName(chip, view)) (day \(chip.day))"
@@ -115,7 +111,6 @@ enum Dialogue {
         case .evidence: return "Give your reason for \(o)"
         case .originRedirect: return "\(t) named \(o) first"
         case .trackRecord: return "Your record: " + (option.chip.map { label($0, view: view) } ?? "")
-        case .badAtThis: return "I was just bad at the mission"
         case .ownAndPivot: return "Own the mistake, then point at \(t)"
         case .counterattack: return "Turn it on \(t): " + (option.chip.map { label($0, view: view) } ?? "")
         case .appeal: return "Ask them to trust you"
@@ -135,9 +130,9 @@ enum Dialogue {
         switch kind {
         case .offTask: return "drifting off into the corners"
         case .loiter: return "standing about out of the way"
-        case .brokeAway: return "slipping away from the group"
+        case .emptyHanded: return "up at the vault with nothing to put in it"
         case .startled: return "jump and look busy when watched"
-        case .atQuestObject: return "at something that was no part of the mission"
+        case .atTheWorks: return "standing right by the works when they went"
         case .inView, .none: return "in plain sight throughout"
         }
     }
@@ -187,11 +182,6 @@ enum Dialogue {
             case .accusedByTraitor: return "{O} came after me, and {O} was a traitor. What does that tell you?"
             default: return "I voted for {O}, and {O} was a traitor. Look at my record."
             }
-        case .badAtThis:
-            return rng.pick([
-                "I was rubbish at {M}, that's all it was. Being bad at games isn't treachery.",
-                "I had a bad day in {M}. If that makes a traitor, half this table is one.",
-            ])
         case .ownAndPivot:
             return rng.pick([
                 "I got {O} wrong, and I'll own that. But look at {T}.",
@@ -211,13 +201,6 @@ enum Dialogue {
 
     private static func reason(_ chip: Chip?, suspicious: Bool, view: TableView, rng: inout SeededRNG) -> String {
         switch chip?.kind {
-        case .missionSlip:
-            return rng.pick([
-                "{T} came back from {M} well short. Something else had their attention out there.",
-                "I watched the board after {M}. {T} was under par, and I don't think it was nerves.",
-                "{T} made a poor fist of {M}. A traitor with a side quest to do would look just like that.",
-                "Look at {M} again. {T} is down among the stragglers, and I want to know why.",
-            ])
         case .votedOutFaithful:
             return rng.pick([
                 "{T} was quick to put {O} out the door, and {O} was a faithful.",
@@ -258,17 +241,17 @@ enum Dialogue {
             case .offTask:
                 return rng.pick([
                     "{T} kept drifting off into the corners in {M}, nowhere near the work.",
-                    "Forget the score. {T} was wandering the edges of {M} where there was nothing to do.",
+                    "Never mind how the day went. {T} was wandering the edges of {M} where there was nothing to do.",
                 ])
             case .loiter:
                 return rng.pick([
-                    "Forget the score. {T} stood about at the edge of {M} for ages, doing nothing.",
+                    "Never mind how the day went. {T} stood about at the edge of {M} for ages, doing nothing.",
                     "I watched {T} hang back in {M}, waiting on something. What?",
                 ])
-            case .brokeAway:
+            case .emptyHanded:
                 return rng.pick([
-                    "{T} peeled away from the rest of us in {M} and went where nobody could see.",
-                    "Halfway through {M}, {T} was gone. Out of everyone's sight. Why?",
+                    "{T} was up at the vault door in {M} with nothing in their arms. Doing what?",
+                    "Halfway through {M}, {T} walked up to the vault empty-handed. Why would you?",
                 ])
             case .startled:
                 return rng.pick([
@@ -277,8 +260,8 @@ enum Dialogue {
                 ])
             default:
                 return rng.pick([
-                    "I saw {T} at something in {M} that had nothing to do with the mission.",
-                    "{T} was busy in {M} with something that was no part of the game. I saw it.",
+                    "Something went off out of turn in {M}, and {T} was standing right beside it.",
+                    "{T} was stood at the works in {M} the moment they went. I saw it.",
                 ])
             }
         case .inSight:
@@ -304,11 +287,6 @@ enum Dialogue {
             return "{T} had doubts about {O} before any of us did, and {O} was a traitor."
         case .firstOnTraitor:
             return "{T} named {O} first, and {O} was a traitor. That's a faithful at work."
-        case .cleanMissions:
-            return rng.pick([
-                "{T} hasn't put a foot wrong in the missions. We're wasting a vote there.",
-                "Nothing {T} has done in a mission points their way.",
-            ])
         default:
             return suspicious
                 ? rng.pick([

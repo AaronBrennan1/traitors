@@ -15,7 +15,7 @@ struct Listeners {
         let ids = view.alive.filter { !team.contains($0) }
         let replays = ids.map { l -> Replay in
             var r = Replay(count: view.count, observer: Observer(
-                id: l, gut: Array(repeating: 0, count: view.count), temper: 1, noticed: nil, missFloor: 0.15,
+                id: l, gut: Array(repeating: 0, count: view.count), temper: 1,
                 sightings: known.filter { $0.witnesses.has(l) }))
             r.feed(view.log)
             return r

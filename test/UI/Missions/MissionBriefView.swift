@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Before each mini-game: what it is, how to play it, and for a traitor the secret side quest.
+/// Before each mission: which course it is, how the gauntlet is played, and for a traitor the shadow's hand.
 struct MissionBriefView: View {
     @Environment(GameStore.self) private var store
 
@@ -14,22 +14,21 @@ struct MissionBriefView: View {
                         hero(kind, day: game.day)
 
                         HStack(spacing: 8) {
-                            fact("target", "Goal", "\(spec.steps)", spec.unit)
-                            fact("flag.fill", "Par", "\(spec.par)", spec.unit)
-                            fact("person.3.fill", "Team", "\(spec.teamGoal(alive: run.order.count))", "between you")
+                            fact("person.3.fill", "Goal", "\(run.teamGoal)", "\(spec.unit) between you")
+                            fact("moon.stars.fill", "Make it", "Safe", "no murder tonight")
                             fact("hourglass", "Time", "\(Int(spec.seconds(day: game.day)))", "seconds")
                         }
 
                         VStack(alignment: .leading, spacing: 8) {
                             SectionTitle(text: "How to play")
-                            ForEach(Array(steps(kind.controls).enumerated()), id: \.offset) { _, line in
+                            ForEach(Array((MissionKind.controls + [kind.twist]).enumerated()), id: \.offset) { _, line in
                                 HStack(alignment: .firstTextBaseline, spacing: 9) {
                                     Image(systemName: "diamond.fill").font(.system(size: 6)).foregroundStyle(Palette.gold)
                                     Text(line).font(.serif(.subheadline)).foregroundStyle(Palette.parchment)
                                         .fixedSize(horizontal: false, vertical: true)
                                 }
                             }
-                            Text("Everyone plays at once and every score goes up on the board. Finish under par and the whole table will see it. The pot is filled by what the team brings home between them.")
+                            Text("Everyone runs at once and everything goes in one vault. Fill it to the goal between you and it seals: nobody is murdered tonight. Fall short and the traitors have their night.")
                                 .font(.serif(.caption)).foregroundStyle(Palette.muted)
                                 .fixedSize(horizontal: false, vertical: true)
                                 .padding(.top, 2)
@@ -92,11 +91,6 @@ struct MissionBriefView: View {
         .overlay(RoundedRectangle(cornerRadius: Tokens.Radius.sheet).stroke(Palette.gold.opacity(0.3), lineWidth: 1))
     }
 
-    /// The controls come as one paragraph; a line a sentence is easier to take in at a glance.
-    private func steps(_ controls: String) -> [String] {
-        controls.split(separator: ". ").map { $0.hasSuffix(".") ? String($0) : $0 + "." }
-    }
-
     private func fact(_ icon: String, _ label: String, _ value: String, _ unit: String) -> some View {
         VStack(spacing: 3) {
             Image(systemName: icon).font(.caption2).foregroundStyle(Palette.gold.opacity(0.8))
@@ -115,19 +109,14 @@ struct MissionBriefView: View {
 }
 
 extension MissionKind {
-    /// The colour of each stage's light, for the card that introduces it.
+    /// The colour of each course's light, for the card that introduces it.
     var tint: Color {
         switch self {
-        case .bogRelay: return Color(red: 0.62, green: 0.38, blue: 0.26)
-        case .lanternRun: return Color(red: 0.16, green: 0.20, blue: 0.42)
-        case .sheepRoundUp: return Color(red: 0.22, green: 0.36, blue: 0.24)
-        case .shipwreckDive: return Color(red: 0.10, green: 0.28, blue: 0.38)
-        case .ceiliChaos: return Color(red: 0.46, green: 0.24, blue: 0.14)
-        case .marketDay: return Color(red: 0.28, green: 0.32, blue: 0.40)
-        case .kiteRace: return Color(red: 0.36, green: 0.36, blue: 0.30)
-        case .hedgeMaze: return Color(red: 0.12, green: 0.32, blue: 0.22)
-        case .hurley: return Color(red: 0.50, green: 0.28, blue: 0.24)
-        case .banquetPrep: return Color(red: 0.50, green: 0.26, blue: 0.12)
+        case .greatHall: return Color(red: 0.50, green: 0.30, blue: 0.16)
+        case .cellars: return Color(red: 0.34, green: 0.22, blue: 0.16)
+        case .armoury: return Color(red: 0.28, green: 0.32, blue: 0.40)
+        case .battlements: return Color(red: 0.16, green: 0.22, blue: 0.40)
+        case .crypt: return Color(red: 0.12, green: 0.30, blue: 0.26)
         }
     }
 }

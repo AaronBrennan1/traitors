@@ -25,7 +25,7 @@ struct SettingsToggles: View {
     }
 }
 
-/// A mini-game stopped mid-round: how to play it, the switches, and the way out.
+/// The gauntlet stopped mid-round: how to play it, the switches, and the way out.
 struct ArenaPauseView: View {
     let model: ArenaHUDModel
     /// The status bar's height, when the arena runs under it.
@@ -47,12 +47,14 @@ struct ArenaPauseView: View {
 
                     VStack(alignment: .leading, spacing: 6) {
                         SectionTitle(text: "How to play")
-                        Text(model.kind.controls).font(.serif(.subheadline)).foregroundStyle(Palette.parchment)
-                            .fixedSize(horizontal: false, vertical: true)
+                        ForEach(MissionKind.controls + [model.kind.twist], id: \.self) { line in
+                            Text(line).font(.serif(.subheadline)).foregroundStyle(Palette.parchment)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
                     }
                     .panel()
 
-                    if let quest = model.questText { QuestBanner(text: quest) }
+                    if let hand = model.handText { QuestBanner(text: hand) }
 
                     SettingsToggles().panel()
 

@@ -26,6 +26,7 @@ enum Host {
     static func murdered(_ name: String) -> String { "\(name) was murdered in the night." }
     static let youWereMurdered = "The empty chair is yours. The others will not see you again."
     static let noMurder = "Everyone has come down to breakfast. Nobody was murdered in the night."
+    static let quietNight = "Everyone has come down to breakfast. You won your day, and it bought you all a quiet night."
 
     // MARK: Round Table
 
@@ -64,8 +65,13 @@ enum Host {
     static let letter = "By order of the traitors"
 
     static func missionIntro(day: Int) -> String {
-        day == 1 ? "Your first mission. Work together, and the pot grows." : "Today's mission. Earn your keep."
+        day == 1 ? "Your first mission. You win it together or not at all." : "Today's mission. Make the goal between you, and you all sleep safe."
     }
+    static func missionRule(goal: Int, unit: String) -> String {
+        "Bring home \(goal) \(unit) between you and nobody is murdered tonight. Fall short, and the traitors have their night."
+    }
+    static let missionWon = "You made your goal. Nobody dies tonight."
+    static let missionLost = "You fell short. The traitors have their night."
 
     private static func number(_ n: Int) -> String {
         let words = ["none", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"]

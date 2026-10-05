@@ -20,27 +20,23 @@ struct TutorialView: View {
         ]),
         Page(title: "A day in the castle", lines: [
             "Breakfast shows who was murdered in the night.",
-            "Then everyone plays the day's mission, and the scores go up on the board.",
+            "Then everyone plays the day's mission together, and wins or loses it together.",
             "At the Round Table you talk, vote, and banish one player. Then night falls.",
         ]),
         Page(title: "Missions", lines: [
-            "Each mission is a short game everyone plays at once: stacking turf across a bog, keeping the castle lanterns lit, herding sheep, cooking for the banquet.",
-            "What you bring home counts for you and for the team. The pot depends on what everyone manages between them.",
-            "Every mission has a par. Beat it, because the table is told exactly who fell short.",
+            "Every mission is the gauntlet: carry the castle's gold from the hoard to the vault, through blades, barrels, spikes and whatever else that part of the castle has in the way.",
+            "Get caught and you drop what you carry and wake at the last brazier. Every trap shows itself before it strikes, and a dash will carry you over a gap.",
+            "Everything goes in one vault, and the vault has a goal. Fill it between you and there is no murder that night. Fall short and the traitors have their night.",
         ]),
-        Page(title: "The secret side quest", lines: [
-            "A traitor is given the Shadow's Task, hidden in the very same game: a sod to sink in a bog pool, a lantern to keep dark, a letter to slip into a basket.",
-            "If a traitor finishes the side quest, the traitors may murder that night. If nobody does, nobody dies.",
-            "It costs a little time, but the real risk is being seen. You can only see so far, and so can everyone else: wait for the fog, the crowd or an empty room.",
+        Page(title: "The shadow's hand", lines: [
+            "A traitor runs the same gauntlet with one thing more. Standing still beside a lever, a candle sconce or the vault door, a tap of Dash trips the trap, puts out the light or spills gold back out of the vault.",
+            "The traitors only get their night if the company falls short, so the hand is how they see to it.",
+            "Nothing on the screen says whose hand it was. But the castle's own traps slip now and then, and anyone close by sees who was standing there when it went.",
         ]),
-        Page(title: "Reading the board", lines: [
-            "A red flag means under par. It proves little: plenty of faithful are simply bad at games.",
-            "What people saw matters more. You are told what you noticed in each mission, and can say it at the table.",
+        Page(title: "What you saw", lines: [
+            "The mission does not say who did how much. What people saw is the evidence: you are told what you noticed, and can say it at the table.",
             "It is only your word, though, and a traitor can invent a sighting. Anyone who was watching can call the lie.",
-        ]),
-        Page(title: "The shield", lines: [
-            "Some days, one of the three best scorers is secretly given the shield and cannot be murdered that night.",
-            "If nobody dies because the side quest went undone, breakfast says so, and names anyone who was never out of sight. A murder the shield blocked passes without a word.",
+            "After a day the company lost, breakfast names anyone who was never out of sight. Whoever spoiled the run, it was not them.",
         ]),
         Page(title: "The Round Table", lines: [
             "You speak twice. Accuse or defend someone with a piece of real evidence, or put a question to another player.",
@@ -48,7 +44,7 @@ struct TutorialView: View {
             "The others notice when your words and your vote don't match.",
         ]),
         Page(title: "Night and the finale", lines: [
-            "Once per game a lone traitor recruits instead of murdering. The knock could come at your door.",
+            "Once per game a lone traitor recruits instead of murdering, on a night that is theirs. The knock could come at your door.",
             "With four or fewer left there are no more missions or murders, and banished players stop revealing their role.",
             "The game only ends when everyone still standing votes to end it.",
         ]),
@@ -143,13 +139,15 @@ struct TutorialView: View {
                     Image(systemName: "circle.fill").foregroundStyle(Palette.gold)
                 }
                 .font(.title2)
-                QuestBanner(text: "seen only by traitors, hidden inside the mission.")
+                QuestBanner(text: "Known only to traitors: a lever, a candle, the vault door.")
             }
         case 4:
-            MissionLeaderboard(report: Self.sampleReport, players: Self.samplePlayers)
+            HStack(spacing: 22) {
+                step("eye.fill", "Seen")
+                step("bubble.left.fill", "Said")
+                step("moon.stars.fill", "The night")
+            }
         case 5:
-            Image(systemName: "shield.fill").font(.system(size: 64)).foregroundStyle(Palette.gold)
-        case 6:
             HStack(spacing: 22) {
                 step("exclamationmark.bubble.fill", "Accuse")
                 step("hand.raised.fill", "Defend")
@@ -176,17 +174,4 @@ struct TutorialView: View {
                 .lineLimit(1).minimumScaleFactor(0.7)
         }
     }
-
-    private static let samplePlayers: [Player] = Cast.bots.prefix(4).enumerated().map { i, c in
-        Player(id: i, name: c.name, county: c.county, job: c.job, isHuman: false, role: .faithful,
-               personality: c.personality, voice: c.voice, hue: c.hue)
-    }
-
-    private static let sampleReport: MissionReport = {
-        let counts = [9, 7, 6, 3]
-        let units = counts.enumerated().map { i, c in
-            MissionUnit(players: [i], count: c, anomalous: c < 6, innocentRate: 0.3, questRate: 0.4, detail: "")
-        }
-        return MissionReport(kind: .bogRelay, day: 1, steps: 10, par: 6, units: units, scores: [:], potEarned: 0, lines: [])
-    }()
 }

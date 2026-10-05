@@ -6,13 +6,19 @@ enum Feedback {
     enum Event {
         /// The 3, 2, 1 before a round, and the bell that starts it.
         case countdown, go
-        /// Your own count going up, to the given number, and your own penalty.
-        case score(Int), penalty
-        case otherScore, teamBonus
-        case banner, shake, burst
-        case holdTick, holdDone
-        case par, teamGoal
-        case questStep, questDone
+        /// Your own gold going into the vault, with how far the company is towards its goal out of 16.
+        case score(Int)
+        case otherScore
+        case dash, pickup, nearMiss
+        /// Caught by a trap or over the edge, and a knock from somebody else.
+        case hit, bump
+        /// A trap showing itself, and going off.
+        case warn, strike
+        case lightsOut, lightsOn, spill
+        case sealing, banner
+        /// The shadow's hand, used. Only ever played to the traitor who used it.
+        case hand
+        case teamGoal
         case lastSeconds, time
         /// Buttons and switches outside the arena.
         case tap, toggle, row, pause
@@ -33,16 +39,27 @@ enum Feedback {
         ArenaSounds.play(event)
     }
 
+    /// Wakes the haptics up, so the next one lands on time and not a beat late.
+    static func prepare() {
+        guard settings.haptics, !muted else { return }
+        light.prepare()
+        heavy.prepare()
+        soft.prepare()
+        notice.prepare()
+    }
+
     private static func haptic(_ event: Event) {
         switch event {
-        case .countdown, .score, .holdDone, .tap: light.impactOccurred()
-        case .go, .time, .shake: heavy.impactOccurred()
-        case .penalty: notice.notificationOccurred(.error)
-        case .par, .teamGoal, .questDone: notice.notificationOccurred(.success)
-        case .banner, .burst, .questStep, .pause: soft.impactOccurred()
+        case .countdown, .score, .tap, .dash: light.impactOccurred()
+        case .go, .time, .spill: heavy.impactOccurred()
+        case .hit:
+            heavy.impactOccurred()
+            notice.notificationOccurred(.error)
+        case .teamGoal: notice.notificationOccurred(.success)
+        case .banner, .pause, .bump, .nearMiss, .sealing: soft.impactOccurred()
         case .lastSeconds: soft.impactOccurred(intensity: 0.6)
-        case .toggle: selection.selectionChanged()
-        case .otherScore, .teamBonus, .holdTick, .row: break
+        case .toggle, .pickup, .hand: selection.selectionChanged()
+        case .otherScore, .row, .warn, .strike, .lightsOut, .lightsOn: break
         }
     }
 }

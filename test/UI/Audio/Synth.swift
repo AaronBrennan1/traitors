@@ -3,6 +3,8 @@ import Foundation
 /// The looping sound of a room.
 nonisolated enum Bed: String, Sendable {
     case hall, morning, grounds, table, turret, chamber, fire
+    /// Not a room: the pulse under a mission.
+    case gauntlet
 }
 
 /// A single sound laid over the room.
@@ -41,6 +43,11 @@ nonisolated enum Synth {
         case .chamber:
             mix(&out, wind(n, seed: 61, low: 0.006, high: 0.022), 0.22)
             mix(&out, ticks(n, every: 1.0), 0.20)
+        case .gauntlet:
+            // D minor, sixteen beats to the loop: a drone, a heartbeat under it and a figure picked out over the top.
+            mix(&out, drone(n, [73.5, 110.25, 147]), 0.20)
+            mix(&out, pulse(n, beats: 16), 0.55)
+            mix(&out, ostinato(n, beats: 16, notes: [293.66, 349.23, 440, 349.23, 293.66, 261.63, 220, 261.63]), 0.16)
         case .fire:
             mix(&out, rumble(n, seed: 71), 0.40)
             mix(&out, crackle(n, seed: 72, perSecond: 14), 0.34)
@@ -222,6 +229,35 @@ nonisolated enum Synth {
     }
 
     /// A clock: a tick each interval, alternating slightly in pitch.
+    /// A low thump on every beat, heavier on the first of each four.
+    private static func pulse(_ n: Int, beats: Int) -> [Float] {
+        var out = [Float](repeating: 0, count: n)
+        let step = n / beats, length = min(step, Int(0.22 * rate))
+        for b in 0..<beats {
+            let weight = b % 4 == 0 ? 1.0 : 0.55
+            for j in 0..<length {
+                let t = Double(j) / rate
+                out[b * step + j] += Float(sin(2 * .pi * (58 - 60 * t) * t) * exp(-t * 20) * weight)
+            }
+        }
+        return out
+    }
+
+    /// Plucked notes, two to the beat, going round a short figure.
+    private static func ostinato(_ n: Int, beats: Int, notes: [Double]) -> [Float] {
+        var out = [Float](repeating: 0, count: n)
+        let step = n / (beats * 2), length = min(step * 2, Int(0.4 * rate))
+        for k in 0..<beats * 2 {
+            let f = notes[k % notes.count]
+            for j in 0..<length where k * step + j < n {
+                let t = Double(j) / rate
+                let p = 2 * Double.pi * f * t
+                out[k * step + j] += Float((sin(p) + 0.4 * sin(2 * p) * exp(-t * 16)) * exp(-t * 9) * min(1, t / 0.003))
+            }
+        }
+        return out
+    }
+
     private static func ticks(_ n: Int, every: Double) -> [Float] {
         var out = [Float](repeating: 0, count: n)
         let step = Int(every * rate)

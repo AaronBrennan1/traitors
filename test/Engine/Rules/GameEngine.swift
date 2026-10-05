@@ -3,13 +3,6 @@ import Foundation
 /// The whole game: state plus the rules that move it forward. `advance` runs until the next
 /// point where the human has to decide something (or simply tap to continue).
 struct Game: Codable {
-    static let shieldInPlay = 0.6
-
-    /// Chance a bot traitor pulls off the side quest once they go for it.
-    static func questOdds(_ p: Personality) -> Double {
-        clamp(0.70 + 0.16 * p.skill + 0.13 * p.deceit, 0.5, 0.95)
-    }
-
     var seed: UInt64
     var rng: SeededRNG
     var players: [Player]
@@ -28,9 +21,8 @@ struct Game: Codable {
     var missionDeck: [MissionKind]
     var mission: MissionRun?
     var report: MissionReport?
-    var questBy: PlayerID?
-    var shield: PlayerID?
-    var shieldClaims: [PlayerID] = []
+    /// Private: the traitor whose hand cost the company today's mission, if one did.
+    var sunkBy: PlayerID?
     var pot = 0
 
     var recruitmentUsed = false
@@ -130,7 +122,7 @@ struct Game: Codable {
     /// Evidence the human can cite about a player, including what they saw in today's mission.
     func notebook(about p: PlayerID, suspicious: Bool) -> [Chip] {
         let mine = human.map { h in minds[h].seen.filter { $0.day == day } } ?? []
-        return Chips.about(p, view: view(), noticed: nil, suspicious: suspicious, sightings: mine)
+        return Chips.about(p, view: view(), suspicious: suspicious, sightings: mine)
     }
 
     /// The ways the human can answer whoever last pointed at them. Empty when nobody has.
@@ -152,6 +144,9 @@ struct Game: Codable {
         guard let chip, chip.isTestimony else { return false }
         return !sightings.contains { $0.day == chip.day && $0.subject == chip.subject && $0.kind == chip.sight && $0.witnesses.has(speaker) }
     }
+
+    /// Whether tonight is the traitors'. A day the company won keeps them in.
+    var traitorsMayAct: Bool { report?.groupWon != true }
 
     /// Who the human may pick right now (vote, murder, recruit).
     var choices: [PlayerID] {
@@ -223,9 +218,7 @@ struct Game: Codable {
 
     private mutating func startDay() {
         heat = Array(repeating: 0, count: players.count)
-        shieldClaims = []
-        questBy = nil
-        shield = nil
+        sunkBy = nil
         mission = nil
         report = nil
         partnerAdvice = nil
@@ -253,14 +246,14 @@ struct Game: Codable {
         let v = view()
         let ts = aliveTraitors
         let botTs = ts.filter { $0 != human }
+        // A lone traitor recruits at night in place of a murder, and has to earn that night the same way.
         let recruitTonight = ts.count == 1 && !recruitmentUsed && alive.count - 1 >= 5
+        let night = recruitTonight ? "recruit" : "murder"
         var runner: PlayerID?
         var whisper: String?
         let humanOnTeam = humanAlive && humanIsTraitor
 
-        if recruitTonight {
-            if humanOnTeam { whisper = "You are alone now. Tonight you recruit, so there is no need for the side quest today." }
-        } else if options.randomTraitors {
+        if options.randomTraitors {
             runner = botTs.isEmpty || !rng.chance(0.5) ? nil : rng.pick(botTs)
         } else if !botTs.isEmpty {
             let pub = TraitorBrain.publicBelief(v)
@@ -271,31 +264,27 @@ struct Game: Codable {
             if humanOnTeam, let me = human {
                 if pub.marginal(cand) > pub.marginal(me) + 0.05 {
                     go = false
-                    whisper = "\(players[cand].name) whispers: \"Too many eyes on me. The side quest has to be you today.\""
+                    whisper = "\(players[cand].name) whispers: \"Too many eyes on me. If anyone spoils the run today it has to be you.\""
                 } else if go {
-                    whisper = "\(players[cand].name) whispers: \"Leave the side quest to me. Keep your hands clean.\""
+                    whisper = "\(players[cand].name) whispers: \"Leave the traps to me. Keep your hands clean.\""
                 } else {
-                    whisper = "\(players[cand].name) whispers: \"I'm lying low today. If you want a murder tonight, it's on you.\""
+                    whisper = "\(players[cand].name) whispers: \"I'm lying low today. If they look like making their goal, it is on you.\""
                 }
             }
             if go { runner = cand }
         } else if humanOnTeam {
-            whisper = "You are the only traitor left. If you want a murder tonight, the side quest is yours to do."
+            whisper = recruitTonight
+                ? "You are alone now. Tonight you may recruit, but only if the company falls short."
+                : "You are the only traitor left. If the company makes its goal, there is no night for you."
         }
 
-        let cautious = runner.map { 0.2 + 0.6 * (1 - players[$0].personality.deceit) } ?? 0
-        // With fewer left to watch, the task is longer.
-        let questSteps = alive.count <= 6 ? 2 : 1
-        let odds = (runner.map { Self.questOdds(players[$0].personality) } ?? 0) * (questSteps > 1 ? 0.88 : 1)
-        mission = MissionRun(kind: kind, day: day, alive: alive, human: humanAlive ? human : nil, traitors: ts,
-                             runner: runner, caution: cautious, questOdds: odds, questOpen: !recruitTonight,
-                             traits: players.map(\.personality), quirkSeed: seed, rng: rng.fork(),
-                             questSteps: questSteps)
-        feed = [Beat(kind: .narration, text: kind.brief)]
+        let run = MissionRun(kind: kind, day: day, alive: alive, human: humanAlive ? human : nil, traitors: ts,
+                             runner: runner, traits: players.map(\.personality), quirkSeed: seed, rng: rng.fork())
+        mission = run
+        feed = [Beat(kind: .narration, text: kind.brief),
+                Beat(kind: .host, text: Host.missionRule(goal: run.teamGoal, unit: kind.spec.unit))]
         if humanOnTeam {
-            if !recruitTonight {
-                feed.append(Beat(kind: .secret, text: "The Shadow's Task. \(kind.questText(steps: questSteps)) Complete it and the traitors may murder tonight."))
-            }
+            feed.append(Beat(kind: .secret, text: "\(MissionKind.hand) Keep the company short of its goal and the traitors may \(night) tonight."))
             if let whisper { feed.append(Beat(kind: .secret, text: whisper)) }
         }
         phase = .missionBrief
@@ -317,13 +306,14 @@ struct Game: Codable {
 
     private mutating func finishMission() {
         guard let run = mission else { return }
-        let r = run.report(names: names)
+        let r = run.report()
         report = r
         log.append(.mission(r))
         pot += r.potEarned
-        questBy = run.questCompletedBy
-        if run.runnerAttempt || (run.questCompletedBy != nil && run.questCompletedBy == human) { tally.questAttempts += 1 }
-        if questBy != nil { tally.questsDone += 1 }
+        sunkBy = run.sunkBy
+        if run.runnerAttempt || run.humanAttempt { tally.sabotageAttempts += 1 }
+        if sunkBy != nil { tally.daysSunk += 1 }
+        if r.groupWon { tally.groupWins += 1 }
 
         // Everyone takes away what they saw, and knows who was looking at them.
         sightings += run.sightings
@@ -332,41 +322,26 @@ struct Game: Codable {
             for w in s.witnesses.seats { minds[w].seen.append(s) }
         }
 
-        // Each bot only registers the slips it happened to spot.
-        for b in aliveBots {
-            let perception = players[b].personality.perception
-            for (u, unit) in r.units.enumerated() where unit.anomalous {
-                if unit.players.contains(b) || minds[b].rng.chance(0.5 + 0.5 * perception) {
-                    minds[b].noticed.insert(r.day * 100 + u)
-                }
-            }
-        }
-
-        let ranked = alive.sorted { (r.scores[$0] ?? 0, Double($0)) > (r.scores[$1] ?? 0, Double($1)) }
-        let top = Array(ranked.prefix(3))
-        // The shield is not in play every day, which keeps a quiet night ambiguous without making murders rare.
-        shield = top.isEmpty || !rng.chance(Self.shieldInPlay) ? nil : rng.pick(top)
-
-        feed = [Beat(kind: .result, text: "\(r.kind.title): \(r.potEarned) added to the pot.")]
-        feed += r.lines.map { Beat(kind: .result, text: $0) }
+        let tally = "\(r.kind.title): \(r.teamTotal) \(r.kind.spec.unit) between you, and the goal was \(r.teamGoal)."
+        feed = [Beat(kind: .result, text: tally + (r.groupWon ? " The company made it." : " The company fell short.")),
+                Beat(kind: .result, text: "\(r.potEarned) added to the pot."),
+                Beat(kind: .host, text: r.groupWon ? Host.missionWon : Host.missionLost)]
         if humanAlive, let me = human {
             let v = view()
             for s in run.sightings where s.witnesses.has(me) {
                 feed.append(Beat(kind: .secret, target: s.subject, text: Dialogue.noticed(s, view: v)))
             }
         }
-        if humanAlive, shield == human {
-            feed.append(Beat(kind: .secret, text: "You were among the best today and hold the shield. You cannot be murdered tonight. Nobody else knows."))
-        }
         if humanAlive, humanIsTraitor {
             let recruitTonight = aliveTraitors.count == 1 && !recruitmentUsed && alive.count - 1 >= 5
-            if !recruitTonight {
-                if let by = questBy {
-                    let who = by == human ? "You" : players[by].name
-                    feed.append(Beat(kind: .secret, text: "\(who) completed the side quest. The traitors may murder tonight."))
-                } else {
-                    feed.append(Beat(kind: .secret, text: "The side quest was not completed. There will be no murder tonight."))
-                }
+            let night = recruitTonight ? "recruit" : "murder"
+            if r.groupWon {
+                feed.append(Beat(kind: .secret, text: "The company made its goal. There will be no \(night) tonight."))
+            } else if let by = sunkBy {
+                let who = by == human ? "Your hand" : "\(players[by].name)'s hand"
+                feed.append(Beat(kind: .secret, text: "\(who) cost them the day. The traitors may \(night) tonight."))
+            } else {
+                feed.append(Beat(kind: .secret, text: "The company fell short without any help. The traitors may \(night) tonight."))
             }
         }
         phase = .missionResult
@@ -547,13 +522,6 @@ struct Game: Codable {
         case .answer, .declare: heat[t] += 0.5 * weight
         default: break
         }
-        // Pointing at a mission slip makes others see it who had missed it.
-        if let key = s.chip?.noticeKey {
-            let p = clamp(0.45 + 0.35 * v.standing(s.speaker), 0, 0.95)
-            for b in aliveBots where b != s.speaker && !minds[b].noticed.contains(key) {
-                if minds[b].rng.chance(p) { minds[b].noticed.insert(key) }
-            }
-        }
     }
 
     private mutating func humanSay(_ kind: HumanSay, _ target: PlayerID?, _ chip: Chip?) {
@@ -573,13 +541,7 @@ struct Game: Codable {
             log.append(.statement(Statement(day: day, speaker: me, kind: .question, target: t, chip: nil, text: text)))
             feed.append(Beat(kind: .speech, speaker: me, target: t, text: text))
             let name = botVote(t, pool: alive, sticky: view().index.declared(day: day, by: t))
-            let noticed: Set<Int>? = players[t].role == .traitor ? nil : minds[t].noticed
-            say(t, Intent(kind: .answer, target: name, chip: FaithfulBrain.bestChip(name, view(), noticed, suspicious: true)))
-        case .claimShield:
-            shieldClaims.append(me)
-            let text = Dialogue.line(kind: .claimShield, target: nil, chip: nil, voice: .plain, view: v, rng: &rng)
-            log.append(.statement(Statement(day: day, speaker: me, kind: .claimShield, target: nil, chip: nil, text: text)))
-            feed.append(Beat(kind: .speech, speaker: me, text: text))
+            say(t, Intent(kind: .answer, target: name, chip: FaithfulBrain.bestChip(name, view(), suspicious: true)))
         default:
             feed.append(Beat(kind: .narration, text: "You say nothing and watch."))
         }
@@ -717,7 +679,7 @@ struct Game: Codable {
             for b in aliveBots where players[b].role == .faithful {
                 let belief = Inference.compute(view: v, observer: FaithfulBrain.observer(minds[b], players[b].personality))
                 ofHuman[b] = belief.marginal(me)
-                let chip = FaithfulBrain.bestChip(me, v, minds[b].noticed, suspicious: true,
+                let chip = FaithfulBrain.bestChip(me, v, suspicious: true,
                                                   sightings: minds[b].seen.filter { $0.day == day }, belief: belief)
                 if chip?.kind != .gut { whyHuman[b] = chip }
             }
@@ -807,7 +769,13 @@ struct Game: Codable {
         partnerAdvice = nil
         let ts = aliveTraitors
         let humanOnTeam = humanAlive && humanIsTraitor
-        if ts.count == 1, !recruitmentUsed, alive.count >= 5 {
+        if !traitorsMayAct {
+            // The company won the day: nobody leaves their room.
+            tally.quietNights += 1
+            if humanOnTeam {
+                feed.append(Beat(kind: .secret, text: "The company made its goal. The turret stays dark tonight."))
+            }
+        } else if ts.count == 1, !recruitmentUsed, alive.count >= 5 {
             recruiter = ts[0]
             if ts[0] == human {
                 nightChoice = .recruit
@@ -826,7 +794,7 @@ struct Game: Codable {
                     feed.append(Beat(kind: .secret, text: "A cloaked figure is waiting in your room. It is \(players[ts[0]].name). \"Join me as a traitor, or you will not see the morning.\""))
                 }
             }
-        } else if questBy != nil, !ts.isEmpty {
+        } else if !ts.isEmpty {
             let lead = ts.first { $0 != human } ?? ts[0]
             if lead != human {
                 var mind = minds[lead]
@@ -834,7 +802,7 @@ struct Game: Codable {
                     partnerAdvice = mind.rng.pick(aliveFaithful)
                 } else {
                     partnerAdvice = TraitorBrain.murder(view: view(), me: lead, team: team, mind: &mind,
-                                                        p: players[lead].personality, shieldClaims: shieldClaims, known: known())
+                                                        p: players[lead].personality, known: known())
                 }
                 minds[lead] = mind
             }
@@ -844,8 +812,6 @@ struct Game: Codable {
                 if let advice = partnerAdvice { text += " \(players[lead].name) suggests \(players[advice].name)." }
                 feed.append(Beat(kind: .secret, text: text))
             }
-        } else if humanOnTeam {
-            feed.append(Beat(kind: .secret, text: "The side quest was not completed. The traitors cannot murder tonight."))
         }
         phase = .night
         if human == nil { resolveNight(.next) }
@@ -885,7 +851,7 @@ struct Game: Codable {
                     secret = Beat(kind: .secret, text: "\(players[recruit].name) accepted. You have a partner again.")
                 }
             }
-        } else if questBy != nil, !aliveTraitors.isEmpty {
+        } else if traitorsMayAct, !aliveTraitors.isEmpty {
             var target = partnerAdvice
             if nightChoice == .murder {
                 guard case .murder(let pick) = input, choices.contains(pick) else {
@@ -894,16 +860,7 @@ struct Game: Codable {
                 }
                 target = pick
             }
-            if let target {
-                if target == shield {
-                    tally.shieldBlocks += 1
-                    if humanAlive, humanIsTraitor {
-                        secret = Beat(kind: .secret, text: "\(players[target].name) held the shield. The murder failed.")
-                    }
-                } else {
-                    victim = target
-                }
-            }
+            victim = target
         }
 
         if let victim {
@@ -921,16 +878,15 @@ struct Game: Codable {
                 : "\(players[victim].name) does not come down to breakfast. Murdered in the night."
             morning.append(Beat(kind: .murder, target: victim, text: text, role: .faithful))
         } else {
-            morning.append(Beat(kind: .host, text: Host.noMurder))
-            if !recruitNight, questBy == nil, let run = mission, run.questOpen {
-                // The shadow's task went undone, and whoever was watched all day could not have tried it.
-                let watched = run.neverAlone.filter { players[$0].alive }.prefix(3).map { players[$0].name }
-                var text = "Word at breakfast is that the shadow's task went undone yesterday."
-                if !watched.isEmpty {
-                    let list = watched.count > 1 ? watched.dropLast().joined(separator: ", ") + " and " + watched.last! : watched[0]
-                    text += " \(list) \(watched.count > 1 ? "were" : "was") never out of sight. Who was?"
-                }
-                morning.append(Beat(kind: .narration, text: text))
+            morning.append(Beat(kind: .host, text: traitorsMayAct ? Host.noMurder : Host.quietNight))
+        }
+        if traitorsMayAct, !finale, let run = mission, run.done {
+            // The traitors had their night because the gold came up short. Whoever was watched all
+            // day had no chance to see to that.
+            let watched = run.neverAlone.filter { players[$0].alive }.prefix(3).map { players[$0].name }
+            if !watched.isEmpty {
+                let list = watched.count > 1 ? watched.dropLast().joined(separator: ", ") + " and " + watched.last! : watched[0]
+                morning.append(Beat(kind: .narration, text: "The company fell short yesterday, and somebody may have seen to it. \(list) \(watched.count > 1 ? "were" : "was") never out of sight. Who was?"))
             }
         }
         if let secret { morning.append(secret) }

@@ -1,7 +1,8 @@
 import Foundation
 
 /// Headless all-bot games, for balancing and for checking the bots earn their keep.
-/// Driven by the `traitors-sim` command-line tool: [--games N] [--seed S] [--transcript] [--seat] [--arena] [--cores] [--scenes] [--tune name=value]
+/// Driven by the `traitors-sim` command-line tool: [--games N] [--seed S] [--transcript] [--seat] [--arena] [--cores]
+/// [--trace course] [--form x] [--scenes] [--tune name=value]
 public enum TraitorsSim {
     public static func run(arguments: [String]) {
         var games = 2000
@@ -23,6 +24,13 @@ public enum TraitorsSim {
             case "--trace":
                 if let kind = MissionKind(rawValue: args.removeFirst()) { ArenaRunner.trace(kind, seed: seed) }
                 return
+            case "--form":
+                // What a runner brings home on each course on a day of a given form, to see what skill is worth.
+                let form = Double(args.removeFirst()) ?? 0
+                for kind in MissionKind.allCases {
+                    print(String(format: "%@ %.2f bags a head at form %+.1f", kind.rawValue, ArenaRunner.par(kind, games: games, seed: seed, alive: 8, form: form).head, form))
+                }
+                return
             case "--scenes":
                 // Launch arguments that open the app on each of the rarer scenes.
                 for scene in Autopilot.scenes(seeds: seed...(seed + 400)) {
@@ -40,7 +48,7 @@ public enum TraitorsSim {
             var games = 0
             var faithfulWins = 0
             var tables = 0
-            var nights = 0, murders = 0, blocks = 0
+            var nights = 0, murders = 0, quiet = 0, groupWins = 0
             var banT = 0, banF = 0
             var firstT = 0
             var randomHit = 0.0
@@ -49,18 +57,17 @@ public enum TraitorsSim {
             var certainByDay2 = 0
             var recruited = 0
             var unfinished = 0
-            var kinds: [MissionKind: (units: Double, slips: Double, declared: Double, tUnits: Double, tSlips: Double)] = [:]
-            var faithfulSlipsOnMurderNights = 0.0, murderNights = 0.0, zeroCover = 0.0
+            var kinds: [MissionKind: (played: Double, won: Double)] = [:]
             var brier = 0.0, brierN = 0
             var bins = Array(repeating: (sum: 0.0, hit: 0.0, n: 0.0), count: 5)
-            var attempts = 0, quests = 0, missions = 0
+            var attempts = 0, sunk = 0, missions = 0
             var partnerDown = 0, bus = 0
             var lies = 0, caught = 0, callouts = 0, testimony = 0, challenges = 0
             var defences: [String: Int] = [:]
             var pairT = 0, sameT = 0, pairF = 0, sameF = 0
-            /// Sightings by kind: [seen of a questing player, questing player-missions, seen of others, other player-missions]
+            /// Sightings by kind: seen of whoever used the hand, and seen of everyone else.
             var sights = Array(repeating: (q: 0.0, f: 0.0), count: SightingKind.allCases.count)
-            var questingUnits = 0.0, otherUnits = 0.0
+            var actingUnits = 0.0, otherUnits = 0.0
             /// Who traitors point at, against who would be pointed at by chance: [said, at a partner, partners expected].
             var aim: [String: (n: Double, hit: Double, base: Double)] = [:]
             /// Per table: how often a traitor does each thing to a partner and to a faithful, and a faithful to anyone.
@@ -84,12 +91,12 @@ public enum TraitorsSim {
                     if game.phase == .missionResult, game.day != sampledDay {
                         sampledDay = game.day
                         if let run = game.mission {
-                            // What was seen of whoever was on the side quest, against everyone else.
+                            // What was seen of whoever used the hand, against everyone else.
                             for p in run.order {
-                                let questing = p == run.runner && run.runnerAttempt
-                                if questing { s.questingUnits += 1 } else { s.otherUnits += 1 }
+                                let acting = p == run.runner && run.runnerAttempt
+                                if acting { s.actingUnits += 1 } else { s.otherUnits += 1 }
                                 for sg in run.sightings where sg.subject == p {
-                                    if questing { s.sights[sg.kind.index].q += 1 } else { s.sights[sg.kind.index].f += 1 }
+                                    if acting { s.sights[sg.kind.index].q += 1 } else { s.sights[sg.kind.index].f += 1 }
                                 }
                             }
                         }
@@ -105,35 +112,11 @@ public enum TraitorsSim {
                     }
                 }
                 if game.phase != .gameOver { s.unfinished += 1; continue }
-                // Mission slips against the truth: is the declared innocent rate honest?
-                var roles = Array(repeating: Role.faithful, count: game.players.count)
-                for p in game.players where p.role == .traitor && !p.wasRecruited { roles[p.id] = .traitor }
-                var lastReport: MissionReport?
-                for event in game.log {
-                    switch event {
-                    case .mission(let r):
-                        lastReport = r
-                        for u in r.units {
-                            var k = s.kinds[r.kind] ?? (0, 0, 0, 0, 0)
-                            if u.players.contains(where: { roles[$0] == .traitor }) {
-                                k.tUnits += 1; if u.anomalous { k.tSlips += 1 }
-                            } else {
-                                k.units += 1; k.declared += u.innocentRate; if u.anomalous { k.slips += 1 }
-                            }
-                            s.kinds[r.kind] = k
-                        }
-                    case .night(_, let victim, let recruitNight):
-                        if recruitNight, victim == nil {
-                            for p in game.players where p.wasRecruited { roles[p.id] = .traitor }
-                        }
-                        if !recruitNight, victim != nil, let r = lastReport {
-                            let cover = r.units.filter { u in u.anomalous && !u.players.contains(where: { roles[$0] == .traitor }) }.count
-                            s.murderNights += 1
-                            s.faithfulSlipsOnMurderNights += Double(cover)
-                            if cover == 0 { s.zeroCover += 1 }
-                        }
-                    default: break
-                    }
+                for case .mission(let r) in game.log {
+                    var k = s.kinds[r.kind] ?? (0, 0)
+                    k.played += 1
+                    if r.groupWon { k.won += 1 }
+                    s.kinds[r.kind] = k
                 }
                 // How often two traitors write the same name, against two faithful.
                 var ballots: [Int: [(PlayerID, PlayerID, Role)]] = [:]
@@ -205,7 +188,7 @@ public enum TraitorsSim {
                     default: break
                     }
                 }
-                s.attempts += game.tally.questAttempts; s.quests += game.tally.questsDone
+                s.attempts += game.tally.sabotageAttempts; s.sunk += game.tally.daysSunk
                 s.missions += game.log.filter { if case .mission = $0 { return true } else { return false } }.count
                 s.partnerDown += game.tally.partnerDown; s.bus += game.tally.busVotes
                 s.lies += game.tally.liesTold; s.caught += game.tally.liesCaught
@@ -215,7 +198,7 @@ public enum TraitorsSim {
                 if game.winner == .faithful { s.faithfulWins += 1 }
                 let t = game.tally
                 s.tables += t.roundTables
-                s.nights += t.nights; s.murders += t.murders; s.blocks += t.shieldBlocks
+                s.nights += t.nights; s.murders += t.murders; s.quiet += t.quietNights; s.groupWins += t.groupWins
                 s.banT += t.banishedTraitors; s.banF += t.banishedFaithful
                 if t.firstBanishedTraitor == true { s.firstT += 1 }
                 s.unanimous += t.unanimous
@@ -227,7 +210,8 @@ public enum TraitorsSim {
             print("== \(label) (\(s.games) games, \(s.unfinished) unfinished)")
             print("  faithful win rate        \(pct(Double(s.faithfulWins) / n))")
             print("  round tables per game    \(String(format: "%.2f", Double(s.tables) / n))")
-            print("  murder on nights         \(pct(Double(s.murders) / Double(max(s.nights, 1))))   shield blocks \(s.blocks)")
+            print("  murder on nights         \(pct(Double(s.murders) / Double(max(s.nights, 1))))   quiet nights \(pct(Double(s.quiet) / Double(max(s.nights, 1))))")
+            print("  company won its mission  \(pct(Double(s.groupWins) / Double(max(s.missions, 1))))")
             print("  banishments hit traitor  \(pct(Double(s.banT) / Double(max(s.banT + s.banF, 1))))")
             print("  first table hits traitor \(pct(Double(s.firstT) / n))   (random: 25.0%)")
             print("  unanimous votes          \(pct(Double(s.unanimous) / Double(max(s.tables, 1))))")
@@ -237,8 +221,7 @@ public enum TraitorsSim {
             print("  public Brier score       \(String(format: "%.3f", s.brier / Double(max(s.brierN, 1))))")
             let cal = s.bins.map { $0.n > 0 ? String(format: "%.2f→%.2f", $0.sum / $0.n, $0.hit / $0.n) : "-" }.joined(separator: "  ")
             print("  calibration (said→true)  \(cal)")
-            print("  faithful slips per murder night \(String(format: "%.2f", s.faithfulSlipsOnMurderNights / max(s.murderNights, 1)))   none at all \(pct(s.zeroCover / max(s.murderNights, 1)))")
-            print("  side quest tried / done  \(pct(Double(s.attempts) / Double(max(s.missions, 1)))) / \(pct(Double(s.quests) / Double(max(s.attempts, 1))))")
+            print("  hand used / sank the day \(pct(Double(s.attempts) / Double(max(s.missions, 1)))) / \(pct(Double(s.sunk) / Double(max(s.attempts, 1))))")
             print("  partner voted for a banished traitor \(pct(Double(s.bus) / Double(max(s.partnerDown, 1))))")
             print("  same name: traitor pairs \(pct(Double(s.sameT) / Double(max(s.pairT, 1))))   faithful pairs \(pct(Double(s.sameF) / Double(max(s.pairF, 1))))")
             print("  per game: callouts \(String(format: "%.2f", Double(s.callouts) / n))  testimony \(String(format: "%.2f", Double(s.testimony) / n))  lies \(String(format: "%.2f", Double(s.lies) / n))  challenges \(String(format: "%.2f", Double(s.challenges) / n))")
@@ -251,10 +234,10 @@ public enum TraitorsSim {
                 return String(format: "%@ %.2f/%.2f", key, hit / max(base, 1e-6), (1 - hit) / max(1 - base, 1e-6))
             }
             let seen = SightingKind.allCases.map { k -> String in
-                let q = s.sights[k.index].q / max(s.questingUnits, 1), f = s.sights[k.index].f / max(s.otherUnits, 1)
+                let q = s.sights[k.index].q / max(s.actingUnits, 1), f = s.sights[k.index].f / max(s.otherUnits, 1)
                 return String(format: "%@ %.1f (%.0f%% / %.0f%%)", k.rawValue, q / max(f, 1e-6), 100 * q, 100 * f)
             }
-            print("  seen on the side quest   " + seen.joined(separator: "  "))
+            print("  seen of the hand         " + seen.joined(separator: "  "))
             print("  traitor aim (both/only)  " + ratios.joined(separator: "  "))
             let rates = s.acts.keys.sorted().map { key -> String in
                 let a = s.acts[key]!
@@ -263,39 +246,43 @@ public enum TraitorsSim {
             }
             print("  against a faithful's rate " + rates.joined(separator: "  "))
             print("  first to name a faithful \(String(format: "%.2f", (s.firstNamed.t / max(s.namers.t, 1)) / max(s.firstNamed.f / max(s.namers.f, 1), 1e-6))) times likelier from a traitor")
-            for kind in MissionKind.allCases {
-                guard let k = s.kinds[kind], k.units > 0 else { continue }
-                let actual = k.slips / k.units, declared = k.declared / k.units
-                let name = kind.rawValue.padding(toLength: 13, withPad: " ", startingAt: 0)
-                print("  \(name) faithful slip \(pct(actual)) (declared \(pct(declared)))  traitor-unit slip \(pct(k.tSlips / max(k.tUnits, 1)))")
-            }
+            print("  company wins by mission  " + MissionKind.allCases.compactMap { kind in
+                s.kinds[kind].map { "\(kind.rawValue) \(Int((100 * $0.won / max($0.played, 1)).rounded()))%" }
+            }.joined(separator: "  "))
             return s
         }
 
         if seat {
             // A scripted stand-in for the human, to check no lazy strategy beats the bots
             // and that the bots do not single the human out.
-            for (label, pref, quest, herd) in [("faithful, votes with the table", RolePreference.faithful, false, true),
-                                               ("faithful, votes at random", .faithful, false, false),
-                                               ("traitor, never does the side quest", .traitor, false, true),
-                                               ("traitor, always does the side quest", .traitor, true, true)] {
-                var wins = 0, firstOut = 0, banished = 0, murdered = 0
+            for (label, pref, hand, herd, effort) in [("faithful, votes with the table", RolePreference.faithful, false, true, 1.0),
+                                                       ("faithful, votes at random", .faithful, false, false, 1.0),
+                                                       ("faithful, idle in every mission", .faithful, false, true, 0.0),
+                                                       ("traitor, never uses the hand", .traitor, false, true, 1.0),
+                                                       ("traitor, idle in every mission", .traitor, false, true, 0.0),
+                                                       ("traitor, always uses the hand", .traitor, true, true, 1.0)] {
+                var wins = 0, firstOut = 0, banished = 0, murdered = 0, missions = 0, won = 0
                 for g in 0..<games {
                     var game = Game(seed: seed &+ UInt64(g) &* 104729, humanName: "Seat", preference: pref)
                     var r = SeededRNG(seed: UInt64(g) &+ 99)
                     var steps = 0
                     while game.phase != .gameOver, steps < 600 {
-                        game.advance(seatInput(game, quest: quest, herd: herd, rng: &r))
+                        game.advance(seatInput(game, hand: hand, herd: herd, effort: effort, rng: &r))
                         steps += 1
                     }
                     if game.players[0].role == game.winner { wins += 1 }
                     if game.players[0].fate == .banished { banished += 1; if game.players[0].fateDay == 1 { firstOut += 1 } }
                     if game.players[0].fate == .murdered { murdered += 1 }
+                    for case .mission(let r) in game.log {
+                        missions += 1
+                        if r.groupWon { won += 1 }
+                    }
                 }
                 let n = Double(games)
                 print("== seat 0: \(label)")
-                print(String(format: "  wins %.1f%%   banished %.1f%% (day 1: %.1f%%)   murdered %.1f%%",
-                             100 * Double(wins) / n, 100 * Double(banished) / n, 100 * Double(firstOut) / n, 100 * Double(murdered) / n))
+                print(String(format: "  wins %.1f%%   banished %.1f%% (day 1: %.1f%%)   murdered %.1f%%   company won its mission %.1f%%",
+                             100 * Double(wins) / n, 100 * Double(banished) / n, 100 * Double(firstOut) / n, 100 * Double(murdered) / n,
+                             100 * Double(won) / Double(max(missions, 1))))
             }
         } else if transcript {
             var game = Game(seed: seed, humanName: nil)
@@ -311,7 +298,7 @@ public enum TraitorsSim {
             }
             print("Winner: \(game.winner?.rawValue ?? "?")")
         } else if arena {
-            // Every mission played out in its mini-game by bots, so the sightings are the real thing.
+            // Every mission played out on its course by bots, so the sightings are the real thing.
             if !coresOnly { _ = run("smart vs smart, missions played out", options: GameOptions(arena: true)) }
             ArenaRunner.report(games: games, seed: seed)
         } else {
@@ -322,15 +309,11 @@ public enum TraitorsSim {
 
     }
 
-    /// An average, unimaginative player: decent at missions, silent at the table.
-    static func seatInput(_ game: Game, quest: Bool, herd: Bool, rng: inout SeededRNG) -> HumanInput {
+    /// An unimaginative player, silent at the table. `effort` is how much of an ordinary share they put into each mission.
+    static func seatInput(_ game: Game, hand: Bool, herd: Bool, effort: Double = 1, rng: inout SeededRNG) -> HumanInput {
         switch game.phase {
         case .mission:
-            guard let run = game.mission else { return .next }
-            let questing = quest && game.humanIsTraitor
-            let c = MissionRun.sample(run.kind, skill: 0.5, questing: questing, rng: &rng)
-            return .mission(MissionResult(score: Double(c) / Double(run.kind.spec.steps),
-                                          questDone: questing && rng.chance(Tuning.questSuccess)))
+            return .mission(MissionResult(effort: effort, sabotage: hand && game.humanIsTraitor ? MissionRun.sabotageCost : 0))
         case .roundTable:
             return .say(.pass, target: nil, chip: nil)
         case .voting:

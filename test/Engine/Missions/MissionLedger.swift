@@ -1,34 +1,17 @@
 import Foundation
 
-/// Everything a mini-game writes down as it is played.
+/// Everything the gauntlet writes down as it is played.
 enum EventCode: String, Codable {
-    // Every game.
-    case interactStart, interactDone, interactAbort
-    /// A traitor set off for the side quest, one piece of it was done, all of it was done.
-    case questTry, questStep, questDone
-    case enteredZone, coverStart, coverEnd, scored
-    /// Behaviour a game knows to be odd for it. `a` is the index of the `SightingKind`.
+    /// Private: a traitor used the shadow's hand. `a` is the mechanism.
+    case sabotage
+    /// A mechanism went, and this player was standing by it. Written the same whoever or whatever worked it.
+    case sprung
+    /// Stood by a mechanism and left it the moment someone came into view.
+    case balked
+    /// Behaviour the game knows to be odd. `a` is the index of the `SightingKind`.
     case tell
-    // The Bog Relay.
-    case sodPickedUp, sodDelivered, sodLost, splash
-    // Castle Lantern Run.
-    case lanternLit, lanternOut, flameCarried, darkPosition
-    // Sheep Round-Up.
-    case sheepPenned, dogCommand, gust
-    // The Shipwreck Dive.
-    case dive, surface, chestOpened, chestRaised, roomEntered
-    // Céilí Chaos.
-    case beat, formationComplete, transitionStart, transitionEnd
-    // Market Day Scramble.
-    case stallVisited, itemBought, crowdCover
-    // Cliffside Kite Race.
-    case ringPassed, snag
-    // The Hedge Maze.
-    case mapRevealed, deadEndEntered, statueInteract, hedgeShift
-    // Hurley Target Practice.
-    case shot, streakBroken, bellRung
-    // The Banquet Prep.
-    case ingredientTaken, potInteraction, orderServed, stationClaimed
+    case downed, banked, spilled
+    case darkStart, darkEnd
 }
 
 /// One thing that happened, and who could see or hear it at that moment.
@@ -45,21 +28,10 @@ struct MissionEvent: Codable, Equatable {
     var heard: SeatMask = 0
 }
 
-enum CoverKind: String, Codable {
-    case fog, dark, chaos, crowd, structure, rhythm, volley, depth
-}
-
-/// A stretch of the game when it is hard to see what anyone is doing.
-struct CoverWindow: Codable, Equatable {
-    var start: Double
-    var end: Double
-    var kind: CoverKind
-}
-
 /// What part of the arena a player is standing in, as far as the day's work goes.
 enum Zone {
     static let open: UInt8 = 0
-    /// Somewhere it is normal to stand still: a station, a firing line, the surface.
+    /// Somewhere it is normal to stand still: the hoard, the vault, the near side of a trap.
     static let task: UInt8 = 1
     /// Somewhere that does nothing for the mission. Higher numbers are other such places.
     static let off: UInt8 = 2
@@ -79,9 +51,6 @@ struct MissionLedger: Codable, Equatable {
     /// Who had each player in sight at each tick.
     var seen: [SeatMask] = []
     var events: [MissionEvent] = []
-    var cover: [CoverWindow] = []
-    /// How far from the middle of the others counts as having left the pack. 0 when a game has no pack.
-    var spread = 0.0
 
     init(seats: [PlayerID]) { self.seats = seats }
 
@@ -126,19 +95,5 @@ struct MissionLedger: Codable, Equatable {
             guard i >= n, allowed(i) else { return false }
             return abs(Int(x[i]) - Int(x[i - n])) + abs(Int(y[i]) - Int(y[i - n])) <= 1
         }
-    }
-
-    /// How far a player is from the middle of everybody else.
-    func groupDistance(of column: Int, tick: Int) -> Double {
-        let n = seats.count
-        guard n > 1 else { return 0 }
-        var sx = 0.0, sy = 0.0
-        for c in 0..<n where c != column {
-            sx += Double(x[tick * n + c])
-            sy += Double(y[tick * n + c])
-        }
-        let dx = Double(x[tick * n + column]) - sx / Double(n - 1)
-        let dy = Double(y[tick * n + column]) - sy / Double(n - 1)
-        return (dx * dx + dy * dy).squareRoot()
     }
 }

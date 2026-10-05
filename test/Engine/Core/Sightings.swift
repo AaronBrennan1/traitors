@@ -6,12 +6,12 @@ enum SightingKind: String, Codable, CaseIterable {
     case offTask
     /// Standing about somewhere out of the way.
     case loiter
-    /// Leaving the pack and going where nobody could see.
-    case brokeAway
+    /// Up at the vault with nothing to put in it.
+    case emptyHanded
     /// Stopping, turning back or looking busy the moment someone came into view.
     case startled
-    /// At something that had nothing to do with the mission.
-    case atQuestObject
+    /// Standing by a lever, a sconce or the vault door when it went.
+    case atTheWorks
     /// Watched the whole way through and did nothing odd.
     case inView
 
@@ -32,16 +32,16 @@ struct Sighting: Codable, Equatable {
     }
 }
 
-/// How often people do odd things in a mission, with and without a side quest on their mind.
+/// How often people do odd things in a mission, with and without the shadow's hand to use.
 enum SightingModel {
     /// Chance an ordinary player does this on an ordinary day.
     static func baseline(_ kind: SightingKind) -> Double {
         switch kind {
         case .offTask: return 0.15
         case .loiter: return 0.08
-        case .brokeAway: return 0.08
+        case .emptyHanded: return 0.08
         case .startled: return 0.06
-        case .atQuestObject: return 0.03
+        case .atTheWorks: return 0.03
         case .inView: return 0
         }
     }
@@ -53,7 +53,7 @@ enum SightingModel {
         return r.range(0.5, 1.5)
     }
 
-    /// How much likelier the behaviour is from this player while on the side quest.
+    /// How much likelier the behaviour is from this player while using the shadow's hand.
     /// A composed liar leaks less than the table assumes, a nervous one more.
     static func lift(_ kind: SightingKind, deceit: Double) -> Double {
         1 + (Tuning.sight(kind) - 1) * (1.42 - 0.7 * deceit)

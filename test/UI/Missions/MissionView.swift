@@ -5,7 +5,7 @@ import SpriteKit
 private struct ArenaFrame {
     let size: CGSize
     let layout: ArenaLayout
-    /// The status bar's height in the view's own points, for the scores to clear.
+    /// The status bar's height in the view's own points, for the tally to clear.
     let topInset: CGFloat
     let column: Bool
 
@@ -28,12 +28,12 @@ private struct ArenaFrame {
     }
 }
 
-/// Hosts the day's mini-game while everyone plays it, then the public scoreboard.
+/// Hosts the day's mini-game while everyone plays it, then what the company made of it.
 struct MissionView: View {
     @Environment(GameStore.self) private var store
     @Environment(\.scenePhase) private var scenePhase
     var onExit: () -> Void = {}
-    @State private var scene: ArenaHUDScene?
+    @State private var scene: ArenaScene?
 
     var body: some View {
         if let game = store.game, let run = game.mission {
@@ -43,17 +43,15 @@ struct MissionView: View {
                     ZStack {
                         if let scene {
                             ZStack {
-                                // The games seen from above are drawn in SceneKit, under the controls.
-                                if let iso = scene.stage as? IsoStage { IsoView(stage: iso) }
-                                SpriteView(scene: scene, options: [.allowsTransparency])
+                                SpriteView(scene: scene)
                                     // The thumbs go straight through to the game, VoiceOver or not.
                                     .accessibilityElement()
                                     .accessibilityLabel("\(run.kind.title), play area")
-                                    .accessibilityHint(run.kind.controls)
+                                    .accessibilityHint(MissionKind.controls.joined(separator: " "))
                                     .accessibilityDirectTouch(true, options: .silentOnTouch)
                                 ArenaHUDView(model: scene.model, topInset: frame.topInset)
                                 if !game.humanAlive, !scene.model.paused {
-                                    Button("Skip to the scores") { store.send(.next) }
+                                    Button("Skip to the result") { store.send(.next) }
                                         .buttonStyle(GhostButtonStyle())
                                         .padding(.horizontal, 60)
                                         .padding(.bottom, 40)
@@ -85,9 +83,12 @@ struct MissionView: View {
                     ScrollView {
                         VStack(alignment: .leading, spacing: 14) {
                             if let report = game.report {
-                                MissionLeaderboard(report: report, players: game.players, human: game.human)
+                                MissionResultCard(report: report)
                             }
-                            ForEach(game.feed.indices, id: \.self) { BeatRow(beat: game.feed[$0]) }
+                            // The card says how the day went; the feed adds what you saw and any traitor business.
+                            ForEach(game.feed.indices, id: \.self) { i in
+                                if game.feed[i].kind != .result, game.feed[i].kind != .host { BeatRow(beat: game.feed[i]) }
+                            }
                         }
                         .padding(16)
                     }
@@ -98,10 +99,6 @@ struct MissionView: View {
                 }
             }
         }
-    }
-
-    private func questVisible(_ game: Game, _ run: MissionRun) -> Bool {
-        game.humanAlive && game.humanIsTraitor && run.questOpen
     }
 
     private func start(_ game: Game, _ run: MissionRun, _ layout: ArenaLayout) {
@@ -118,9 +115,9 @@ struct MissionView: View {
         autopilot = UserDefaults.standard.bool(forKey: "arenaBots")
         pace = max(1, UserDefaults.standard.double(forKey: "arenaSpeed"))
         #endif
-        let made = ArenaHUDScene(config: ArenaConfig(setup: ArenaSetup(run: run, autopilot: autopilot), cast: cast,
-                                                     questVisible: questVisible(game, run), spectating: run.human == nil),
-                                 layout: layout)
+        let made = ArenaScene(config: ArenaConfig(setup: ArenaSetup(run: run, autopilot: autopilot), cast: cast,
+                                                  handVisible: game.humanAlive && game.humanIsTraitor, spectating: run.human == nil),
+                              layout: layout)
         made.pace = pace
         #if DEBUG
         if UserDefaults.standard.bool(forKey: "arenaPause") {

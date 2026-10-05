@@ -61,13 +61,13 @@ enum TraitorBrain {
         if phase != .opening, pressed, let goat = plan?.scapegoat, view.seats[goat].alive,
            !mine.contains(where: { $0.target == goat && ($0.kind == .accuse || $0.kind == .callout) }) {
             let gap = max(0, best - mask.marginal(goat) / base)
-            var chip = Chips.about(goat, view: view, noticed: nil, suspicious: true,
+            var chip = Chips.about(goat, view: view, suspicious: true,
                                    sightings: mind.seen.filter { $0.day == view.day }).first { $0.kind != .gut }
             var score = 1.1 + (plan?.lead == me ? 0.4 : 0) - stray * gap - (exposed ? 0.5 : 0)
             // A push with nothing behind it needs something behind it.
             if chip == nil, plan?.lead == me, !exposed, p.deceit > 0.55, ix.reports.last?.day == view.day,
                !ix.told.contains(where: { $0.about == goat && $0.day == view.day }), mind.rng.chance(0.45 * p.deceit * Tuning.lying) {
-                chip = Chip(kind: .sighting, subject: goat, day: view.day, sight: mind.rng.pick([.loiter, .offTask, .brokeAway]), strength: 0.8)
+                chip = Chip(kind: .sighting, subject: goat, day: view.day, sight: mind.rng.pick([.loiter, .offTask, .emptyHanded]), strength: 0.8)
                 score += 0.3
             }
             if chip != nil || view.heat[goat] >= 1 || mind.rng.chance(0.3) {
@@ -87,7 +87,7 @@ enum TraitorBrain {
                 guard phase == .rebuttals || phase == .openFloor, !exposed, view.heat[t] >= 0.8,
                       plan?.vouched.contains(me) == false,
                       !mine.contains(where: { ($0.kind == .defend || $0.kind == .vouch) && $0.target == t }) else { break }
-                if let chip = Chips.about(t, view: view, noticed: nil, suspicious: false).first(where: { $0.kind != .gut }) {
+                if let chip = Chips.about(t, view: view, suspicious: false).first(where: { $0.kind != .gut }) {
                     options.append(Proposal(intent: Intent(kind: .defend, target: t, chip: chip), score: 0.7 + 0.6 * p.deceit))
                 } else if p.deceit > 0.7, ix.reports.last?.day == view.day, mind.rng.chance(0.3 * p.deceit * Tuning.lying) {
                     let chip = Chip(kind: .inSight, subject: t, day: view.day, sight: .inView, strength: 1.1)
@@ -153,7 +153,7 @@ enum TraitorBrain {
     }
 
     static func murder(view: TableView, me: PlayerID, team: [PlayerID], mind: inout BotMind, p: Personality,
-                       shieldClaims: [PlayerID], known: [Sighting] = []) -> PlayerID? {
+                       known: [Sighting] = []) -> PlayerID? {
         let pool = view.alive.filter { !team.contains($0) }
         guard !pool.isEmpty else { return nil }
         let pub = publicBelief(view)
@@ -183,7 +183,6 @@ enum TraitorBrain {
             // Framing: a death that leaves a faithful looking guiltier than anyone.
             let framed = pool.filter { $0 != m }.map { next.marginal($0) }.max() ?? 0
             s += 1.5 * p.deceit * framed
-            if shieldClaims.contains(m) { s -= 1.5 }
             scores.append(s)
         }
         return pool[mind.rng.softmax(scores, temperature: 0.2 * (1.3 - p.deceit))]
@@ -196,13 +195,17 @@ enum TraitorBrain {
         }
     }
 
-    /// Whether to go for the side quest today: less readily when the table already has its eye on this player.
+    /// Chance of using the shadow's hand on a day when the table is calm about this player, and when it is not.
+    static var attemptCalm = 0.97, attemptHot = 0.8
+
+    /// Whether to use the shadow's hand today: less readily when the table already has its eye on this player.
+    /// The night is only the traitors' if the company falls short, and left alone it usually does not.
     static func willAttempt(view: TableView, me: PlayerID, team: [PlayerID], mind: inout BotMind, p: Personality,
                             mustKill: Bool, known: [Sighting] = []) -> Bool {
         if mustKill { return true }
         let heat = Listeners.build(view: view, team: team, known: known).heat(of: me)
         let base = Double(Rules.traitors) / Double(max(view.alive.count - 1, 1))
-        return mind.rng.chance(heat > 1.25 * base ? 0.6 : 0.92)
+        return mind.rng.chance(heat > 1.25 * base ? attemptHot : attemptCalm)
     }
 
     static func finaleEnd(view: TableView) -> Bool {

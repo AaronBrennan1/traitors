@@ -30,6 +30,8 @@ final class GameStore {
         Persistence.delete("save-v2.json")
         Persistence.delete("save-v3.json")
         Persistence.delete("save-v4.json")
+        Persistence.delete("save-v5.json")
+        Persistence.delete("save-v6.json")
         game = Persistence.load(Game.self, from: Persistence.saveFile)
         #if DEBUG
         Feedback.muted = UserDefaults.standard.bool(forKey: "mute")
@@ -129,7 +131,7 @@ final class GameStore {
 }
 
 enum Persistence {
-    static let saveFile = "save-v5.json"
+    static let saveFile = "save-v7.json"
 
     private static var folder: URL {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
@@ -155,8 +157,8 @@ enum Persistence {
 
 #if DEBUG
 /// Launch arguments that jump straight to a given point in a seeded game, for screenshots:
-/// `-autoplay 1 -seed 7 -role traitor -stopPhase voting -stopDay 2 -mission bogRelay`
-/// Add `-arenaBots 1` to have a bot play your seat in the mini-game, and `-arenaSpeed 4` to hurry it.
+/// `-autoplay 1 -seed 7 -role traitor -stopPhase voting -stopDay 2 -mission cellars`
+/// Add `-arenaBots 1` to have a bot play your seat in the gauntlet, and `-arenaSpeed 4` to hurry it.
 /// `-stopVoteRound 2` and `-stopNight offer` narrow the stop; `swift run traitors-sim --scenes` finds seeds
 /// for the rarer scenes. `-ceremony settled` opens a staged scene on its last frame. `-mute 1` keeps it silent.
 enum Autoplay {

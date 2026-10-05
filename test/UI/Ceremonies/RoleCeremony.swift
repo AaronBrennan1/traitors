@@ -164,13 +164,13 @@ struct RoleCeremony: View {
                     }
                 }
                 if partnerShown {
-                    Text("Each day, one of you must finish the secret side quest hidden inside the mission to earn a murder that night. It costs time, so mind your score. Do not get caught.")
+                    Text("If the company makes its goal in the day's mission, there is no murder that night. See that it falls short, with the shadow's hand if you must, and the night is yours. Do not get caught at it.")
                         .font(.serif(.subheadline)).foregroundStyle(Palette.parchment)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             } else {
-                Text("Two of the seven around you are traitors. Beat par in the missions, watch who falls short, weigh the votes, and banish them both.")
+                Text("Two of the seven around you are traitors. Win the missions together to keep everyone alive through the night, watch what people do out there, weigh the votes, and banish them both.")
                     .font(.serif(.body)).foregroundStyle(Palette.parchment)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)

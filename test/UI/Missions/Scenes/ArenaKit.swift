@@ -1,6 +1,6 @@
 import SpriteKit
 
-/// The arena's colours as SpriteKit and SceneKit want them. Every one comes from `Tokens`.
+/// The arena's colours as SpriteKit wants them. Every one comes from `Tokens`.
 enum Toon {
     static let outline = Tokens.Hue.outline.ui
     /// The weight a shape's edge is asked for. Painted shapes draw it at half that, in their own colour.
@@ -18,6 +18,12 @@ enum Toon {
     static let panel = Tokens.Hue.panel.ui
     static let ink = Tokens.Hue.ink.ui
     static let ember = Tokens.Hue.ember.ui
+    static let flagstone = Tokens.Hue.flagstone.ui
+    static let flagstoneHi = Tokens.Hue.flagstoneHi.ui
+    static let wallStone = Tokens.Hue.wallStone.ui
+    static let pit = Tokens.Hue.pit.ui
+    static let danger = Tokens.Hue.danger.ui
+    static let mist = Tokens.Hue.mist.ui
 
     static func cloak(_ hue: Double) -> UIColor { Tokens.Hue.cloak(hue).ui }
 }

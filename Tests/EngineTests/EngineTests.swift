@@ -7,7 +7,7 @@ import Testing
 func autoInput(_ game: Game) -> HumanInput {
     switch game.phase {
     case .mission:
-        return .mission(MissionResult(score: 0.8, questDone: false))
+        return .mission(MissionResult())
     case .roundTable:
         return .say(.pass, target: nil, chip: nil)
     case .voting:
@@ -108,20 +108,28 @@ func play(seed: UInt64, name: String?, preference: RolePreference = .random) -> 
 }
 
 @MainActor
-@Test func murderOnlyFollowsACompletedSideQuest() {
+@Test func theNightIsOnlyTheTraitorsAfterALoss() {
+    var quiet = 0, afterLoss = 0
     for seed in 1...150 {
         var game = Game(seed: UInt64(seed), humanName: nil)
-        var questDone: [Int: Bool] = [:]
+        var days: [Int: Bool] = [:]
         while game.phase != .gameOver {
-            if game.phase == .missionResult { questDone[game.day] = game.questBy != nil }
+            if game.phase == .missionResult, let r = game.report { days[game.day] = r.groupWon }
             game.advance(.next)
         }
         for event in game.log {
-            if case .night(let day, let victim, let recruitNight) = event, victim != nil, !recruitNight {
-                #expect(questDone[day] == true, "seed \(seed): murder on night \(day) without a side quest")
+            guard case .night(let day, let victim, let recruitNight) = event, let won = days[day] else { continue }
+            let acted = victim != nil || recruitNight
+            if won {
+                quiet += 1
+                #expect(!acted, "seed \(seed): the traitors had night \(day) after the company won")
+            } else {
+                afterLoss += 1
+                #expect(acted, "seed \(seed): nothing happened on night \(day), which was the traitors'")
             }
         }
     }
+    #expect(quiet > 20 && afterLoss > 20)
 }
 
 @MainActor
@@ -131,63 +139,177 @@ func playToMission(seed: UInt64, preference: RolePreference) -> Game {
     return game
 }
 
+/// Plays on from a mission that has just been handed in to the night that follows, and through it.
 @MainActor
-@Test func humanTraitorEarnsTheMurderByFinishingTheSideQuest() {
+func playThroughNight(_ game: Game) -> (choice: NightChoice, game: Game) {
+    var game = game
+    let day = game.day
+    var choice = NightChoice.none
+    var steps = 0
+    while game.phase != .gameOver, game.day == day, steps < 200 {
+        if game.phase == .night { choice = game.nightChoice }
+        game.advance(autoInput(game))
+        steps += 1
+    }
+    return (choice, game)
+}
+
+@MainActor
+func night(_ day: Int, in game: Game) -> (victim: PlayerID?, recruit: Bool)? {
+    for case .night(day, let victim, let recruit) in game.log { return (victim, recruit) }
+    return nil
+}
+
+@MainActor
+@Test func aWinKeepsTheTraitorsInWhateverTheirHandDid() {
     for seed in 1...40 {
         var game = playToMission(seed: UInt64(seed), preference: .traitor)
         game.mission?.runner = nil
-        var idle = game
-        game.advance(.mission(MissionResult(score: 0.9, questDone: true)))
-        #expect(game.questBy == 0)
-        #expect(game.report?.units.first { $0.players == [0] }?.anomalous == false)
-        idle.advance(.mission(MissionResult(score: 0.9, questDone: false)))
-        #expect(idle.questBy == nil)
-    }
-}
-
-@MainActor
-@Test func faithfulHumanCannotClaimTheSideQuest() {
-    for seed in 1...40 {
-        var game = playToMission(seed: UInt64(seed), preference: .faithful)
-        game.advance(.mission(MissionResult(score: 0.2, questDone: true)))
-        #expect(game.questBy != 0)
-        #expect(game.report?.units.first { $0.players == [0] }?.anomalous == true)
-    }
-}
-
-@MainActor
-@Test func underParIsExactlyWhatTheReportFlags() {
-    var game = Game(seed: 11, humanName: nil)
-    while game.phase != .gameOver { game.advance(.next) }
-    for event in game.log {
-        guard case .mission(let r) = event else { continue }
-        #expect(r.steps == r.kind.spec.steps && r.par == r.kind.spec.par)
-        for u in r.units { #expect(u.anomalous == (u.count < r.par)) }
-    }
-}
-
-@MainActor
-@Test func declaredSlipRateMatchesWhatHonestPlayersDo() {
-    var rng = SeededRNG(seed: 5)
-    for kind in MissionKind.allCases {
-        for skill in [0.3, 0.5, 0.8] {
-            let n = 20_000
-            let slips = (0..<n).filter { _ in MissionRun.sample(kind, skill: skill, questing: false, rng: &rng) < kind.spec.par }.count
-            #expect(abs(Double(slips) / Double(n) - MissionRun.slipRate(skill: skill)) < 0.03, "\(kind) at skill \(skill)")
+        game.advance(.mission(MissionResult(sabotage: 3, teamTotal: 999, sunkBy: 0)))
+        #expect(game.report?.groupWon == true && game.sunkBy == nil && !game.traitorsMayAct)
+        let quiet = playThroughNight(game)
+        if let n = night(1, in: quiet.game) {
+            #expect(n.victim == nil && !n.recruit, "seed \(seed)")
+            #expect(quiet.choice == .none)
+            #expect(quiet.game.feed.contains { $0.text == Host.quietNight })
         }
     }
 }
 
 @MainActor
-@Test func theBoardShowsWhatTheBotsActuallyScoredInTheGame() {
+@Test func murderFollowsAGroupLoss() {
+    for seed in 1...40 {
+        var game = playToMission(seed: UInt64(seed), preference: .traitor)
+        game.mission?.runner = nil
+        game.advance(.mission(MissionResult(teamTotal: 0)))
+        #expect(game.report?.groupWon == false && game.sunkBy == nil && game.traitorsMayAct)
+        let after = playThroughNight(game)
+        if let n = night(1, in: after.game) {
+            // The night is theirs: a murder, or a recruitment if the table has just taken one of them.
+            #expect(n.victim != nil || n.recruit, "seed \(seed)")
+            if after.game.players[0].fate != .banished { #expect(after.choice != .none) }
+        }
+    }
+}
+
+/// Games with the human faithful, stopped at a mission where one bot traitor is left with the recruitment still to use.
+@MainActor
+func loneTraitorMissions() -> [Game] {
+    var out: [Game] = []
+    for seed in 1...200 {
+        var game = Game(seed: UInt64(seed), humanName: "Tester", preference: .faithful)
+        var steps = 0
+        while game.phase != .gameOver, steps < 600 {
+            if game.phase == .mission, game.aliveTraitors.count == 1, !game.recruitmentUsed, game.alive.count >= 6 {
+                out.append(game)
+                break
+            }
+            game.advance(autoInput(game))
+            steps += 1
+        }
+        if out.count == 12 { break }
+    }
+    return out
+}
+
+@MainActor
+@Test func groupWinBlocksRecruit() {
+    let found = loneTraitorMissions()
+    #expect(found.count >= 5)
+    var blocked = 0, recruited = 0
+    for start in found {
+        let day = start.day
+        var won = start
+        won.mission?.runner = nil
+        var lost = won
+        let lone = won.aliveTraitors[0]
+
+        won.advance(.mission(MissionResult(teamTotal: 999)))
+        let quiet = playThroughNight(won).game
+        if let n = night(day, in: quiet) {
+            blocked += 1
+            #expect(n.victim == nil && !n.recruit)
+            #expect(!quiet.recruitmentUsed && !quiet.tally.recruited)
+            #expect(quiet.aliveTraitors == [lone])
+        }
+
+        lost.advance(.mission(MissionResult(teamTotal: 0)))
+        let fell = playThroughNight(lost).game
+        if let n = night(day, in: fell) {
+            recruited += 1
+            #expect(n.recruit && fell.recruitmentUsed)
+        }
+    }
+    #expect(blocked > 0 && recruited > 0)
+}
+
+@MainActor
+@Test func theHandIsOpenOnARecruitDay() {
+    var tried = 0
+    for seed in 1...150 {
+        var game = Game(seed: UInt64(seed), humanName: nil)
+        while game.phase != .gameOver {
+            game.advance(.next)
+            if game.phase == .missionResult, game.aliveTraitors.count == 1, !game.recruitmentUsed, game.mission?.runnerAttempt == true {
+                tried += 1
+            }
+        }
+    }
+    // A lone traitor only sees another mission when a win has already kept them in once.
+    #expect(tried > 3)
+}
+
+@MainActor
+@Test func aFaithfulHumanCannotSinkTheDay() {
+    for seed in 1...40 {
+        var game = playToMission(seed: UInt64(seed), preference: .faithful)
+        var claimed = game
+        game.advance(.mission(MissionResult(effort: 1, sabotage: 3)))
+        claimed.advance(.mission(MissionResult(effort: 1)))
+        // Whatever a faithful's result says about the hand is ignored.
+        #expect(game.sunkBy != 0 && game.mission?.humanAttempt == false)
+        #expect(game.report?.teamTotal == claimed.report?.teamTotal)
+    }
+}
+
+@MainActor
+@Test func aMissionKeepsNoPerPlayerNumbers() {
     var game = playToMission(seed: 4, preference: .faithful)
-    let run = game.mission!
-    let bots = run.order.filter { $0 != 0 }
-    #expect(Set(run.targets.keys) == Set(bots))
-    let seen = bots[0], unseen = bots[1]
-    game.advance(.mission(MissionResult(score: 0.8, questDone: false, rivals: [seen: 1])))
-    #expect(game.report?.units.first { $0.players == [seen] }?.count == 1)
-    #expect(game.report?.units.first { $0.players == [unseen] }?.count == run.targets[unseen])
+    game.advance(.mission(MissionResult()))
+    let report = game.report!
+    // The table is told what the company did together and nothing about anyone in it.
+    #expect(Mirror(reflecting: report).children.compactMap(\.label) == ["kind", "day", "teamTotal", "teamGoal", "groupWon", "potEarned"])
+    #expect(Mirror(reflecting: MissionResult()).children.compactMap(\.label) == ["effort", "sabotage", "teamTotal", "sunkBy", "ledger"])
+    #expect(report.groupWon == (report.teamTotal >= report.teamGoal))
+    #expect(game.feed.contains { $0.kind == .result && $0.text.contains("between you") })
+    // Nothing said about the mission names a player.
+    for beat in game.feed where beat.kind == .result || beat.kind == .host {
+        for p in game.players { #expect(!beat.text.contains(p.name), "\(beat.text)") }
+    }
+}
+
+@MainActor
+@Test func theDiceGiveTheCompanyTheOddsTheGauntletDoes() {
+    for kind in MissionKind.allCases {
+        for alive in 5...8 {
+            let alone = ArenaRunner.abstractWinRate(kind, games: 3000, seed: 3, alive: alive, effort: 1, sabotage: false)
+            #expect(abs(alone - 0.75) < 0.08, "\(kind) left alone with \(alive) alive: \(alone)")
+            let idle = ArenaRunner.abstractWinRate(kind, games: 3000, seed: 4, alive: alive, effort: 0, sabotage: false)
+            #expect(abs(idle - 0.28) < 0.08, "\(kind) with the player idle and \(alive) alive: \(idle)")
+            let against = ArenaRunner.abstractWinRate(kind, games: 3000, seed: 5, alive: alive, effort: 1, sabotage: true)
+            #expect(abs(against - 0.13) < 0.08, "\(kind) with the hand against it and \(alive) alive: \(against)")
+        }
+    }
+}
+
+@MainActor
+@Test func theHandCostsTheCompanyItsDayMoreOftenThanNot() {
+    for kind in MissionKind.allCases {
+        let alone = ArenaRunner.winRate(kind, games: 24, seed: 3, sabotage: false)
+        let against = ArenaRunner.winRate(kind, games: 24, seed: 3, sabotage: true)
+        #expect(alone > 0.5, "\(kind) left alone: \(alone)")
+        #expect(against < 0.5 && against < alone, "\(kind) with the hand against it: \(against)")
+    }
 }
 
 @MainActor
@@ -201,7 +323,7 @@ func playToMission(seed: UInt64, preference: RolePreference) -> Game {
                 watched += 1
                 game.advance(.next)
                 #expect(game.phase == .missionResult)
-                #expect(game.report?.units.contains { $0.players == [0] } == false)
+                #expect(game.mission?.human == nil)
             } else {
                 game.advance(autoInput(game))
             }
@@ -284,39 +406,56 @@ func playToMission(seed: UInt64, preference: RolePreference) -> Game {
 
 @MainActor
 @Test func sightingsAreAsTellingAsTheTableAssumes() {
-    // Eight average players, seat 1 on the side quest, over many missions.
-    var questing = 0.0, others = 0.0
-    var seenQuesting = Array(repeating: 0.0, count: SightingKind.allCases.count), seenOthers = seenQuesting
+    // Eight average players, seat 1 with the shadow's hand, over many missions.
+    var acting = 0.0, others = 0.0
+    var seenActing = Array(repeating: 0.0, count: SightingKind.allCases.count), seenOthers = seenActing
     var rng = SeededRNG(seed: 31)
     for i in 0..<6000 {
-        var run = MissionRun(kind: .bogRelay, day: 1, alive: Array(0..<Rules.seats), human: nil, traitors: [1, 2], runner: 1,
-                             caution: 0, questOdds: 0.9, questOpen: true,
+        var run = MissionRun(kind: .greatHall, day: 1, alive: Array(0..<Rules.seats), human: nil, traitors: [1, 2], runner: 1,
                              traits: Array(repeating: .average, count: Rules.seats), quirkSeed: UInt64(i), rng: rng.fork())
         run.resolve(human: nil)
         for p in run.order {
             let on = p == 1 && run.runnerAttempt
-            if on { questing += 1 } else { others += 1 }
+            if on { acting += 1 } else { others += 1 }
             for s in run.sightings where s.subject == p {
                 #expect(!s.witnesses.has(p) && s.witnesses != 0)
-                if on { seenQuesting[s.kind.index] += 1 } else { seenOthers[s.kind.index] += 1 }
+                if on { seenActing[s.kind.index] += 1 } else { seenOthers[s.kind.index] += 1 }
             }
         }
     }
-    #expect(questing > 1000)
-    for kind in [SightingKind.offTask, .loiter, .brokeAway, .startled] {
-        let ratio = (seenQuesting[kind.index] / questing) / (seenOthers[kind.index] / others)
+    #expect(acting > 1000)
+    for kind in [SightingKind.offTask, .loiter, .emptyHanded, .startled] {
+        let ratio = (seenActing[kind.index] / acting) / (seenOthers[kind.index] / others)
         #expect(abs(ratio / Tuning.sight(kind) - 1) < 0.2, "\(kind): \(ratio) against \(Tuning.sight(kind))")
     }
-    // Nobody on the side quest is ever seen to have done nothing odd.
-    #expect(seenQuesting[SightingKind.inView.index] == 0)
     #expect(seenOthers[SightingKind.inView.index] > 0)
 }
 
-/// A table of eight on day one, just after a mission in which nobody slipped.
+/// A table of eight on day one, just after a mission the company lost or won.
 @MainActor
-func quietTable() -> [PublicEvent] {
-    let units = (0..<Rules.seats).map { MissionUnit(players: [$0], count: 6, anomalous: false, innocentRate: 0.25, questRate: 0.33, detail: "") }
-    return [.mission(MissionReport(kind: .bogRelay, day: 1, steps: 10, par: 6, units: units, scores: [:], potEarned: 0, lines: []))]
+func quietTable(won: Bool = false) -> [PublicEvent] {
+    [.mission(MissionReport(kind: .greatHall, day: 1, teamTotal: won ? 50 : 40, teamGoal: 45, groupWon: won, potEarned: 0))]
+}
+
+@MainActor
+@Test func aLostDayMakesWhatWasSeenCountForMore() {
+    let n = Rules.seats
+    // Seat 0 saw seat 2 standing by a lever when its trap went.
+    var me = Observer(id: 0, gut: Array(repeating: 0, count: n), temper: 1)
+    me.sightings = [Sighting(day: 1, subject: 2, kind: .atTheWorks, witnesses: SeatMask.seat(0))]
+    func suspicion(_ log: [PublicEvent]) -> Double { Inference.compute(log: log, count: n, observer: me).marginal(2) }
+    var blank = me
+    blank.sightings = []
+    func baseline(_ log: [PublicEvent]) -> Double { Inference.compute(log: log, count: n, observer: blank).marginal(2) }
+
+    // A day the company lost is likelier to have had a hand against it, so what was seen weighs more.
+    #expect(suspicion(quietTable(won: false)) > suspicion(quietTable(won: true)) + 0.02)
+    #expect(suspicion(quietTable(won: true)) > baseline(quietTable(won: true)) + 0.02)
+    // With nothing seen of anyone, how the day went says nothing about who.
+    #expect(abs(baseline(quietTable(won: true)) - baseline(quietTable(won: false))) < 1e-9)
+    // The quiet night after a win follows from the win, and adds nothing to it.
+    let quiet = PublicEvent.night(day: 1, victim: nil, recruitNight: false)
+    #expect(abs(suspicion(quietTable(won: true) + [quiet]) - suspicion(quietTable(won: true))) < 1e-9)
 }
 
 @MainActor
@@ -328,7 +467,7 @@ func says(_ speaker: PlayerID, _ kind: StatementKind, _ target: PlayerID, _ chip
 @Test func testimonyOnlyCountsWhereTheSpeakerIsFaithful() {
     let n = Rules.seats
     let before = Inference.compute(log: quietTable(), count: n, observer: .publicView(count: n))
-    let chip = Chip(kind: .sighting, subject: 2, day: 1, sight: .brokeAway, strength: 1)
+    let chip = Chip(kind: .sighting, subject: 2, day: 1, sight: .emptyHanded, strength: 1)
     let after = Inference.compute(log: quietTable() + [says(1, .doubt, 2, chip)], count: n, observer: .publicView(count: n))
     // Seat 2 looks worse overall.
     #expect(after.marginal(2) > before.marginal(2) + 0.02)
@@ -340,14 +479,14 @@ func says(_ speaker: PlayerID, _ kind: StatementKind, _ target: PlayerID, _ chip
 @MainActor
 @Test func hearingWhatYouAlreadySawChangesNothingAboutThem() {
     let n = Rules.seats
-    let seen = Sighting(day: 1, subject: 2, kind: .brokeAway, witnesses: SeatMask.seat(0) | SeatMask.seat(1))
+    let seen = Sighting(day: 1, subject: 2, kind: .emptyHanded, witnesses: SeatMask.seat(0) | SeatMask.seat(1))
     var me = Observer.publicView(count: n)
     me.id = 0
     me.sightings = [seen]
     let before = Inference.compute(log: quietTable(), count: n, observer: me)
     // A flat statement with no target, so only the testimony itself is in play.
     let told = PublicEvent.statement(Statement(day: 1, speaker: 1, kind: .pass, target: nil,
-                                               chip: Chip(kind: .sighting, subject: 2, day: 1, sight: .brokeAway, strength: 1), text: ""))
+                                               chip: Chip(kind: .sighting, subject: 2, day: 1, sight: .emptyHanded, strength: 1), text: ""))
     let after = Inference.compute(log: quietTable() + [told], count: n, observer: me)
     let other = SeatMask.seat(2) | SeatMask.seat(5)
     #expect(abs(after.mass(team: other) / after.mass(team: SeatMask.seat(3) | SeatMask.seat(5))
@@ -361,29 +500,30 @@ func says(_ speaker: PlayerID, _ kind: StatementKind, _ target: PlayerID, _ chip
     me.id = 0
     me.sightings = [Sighting(day: 1, subject: 2, kind: .inView, witnesses: SeatMask.seat(0))]
     let before = Inference.compute(log: quietTable(), count: n, observer: me)
-    let lie = Chip(kind: .sighting, subject: 2, day: 1, sight: .brokeAway, strength: 1)
+    let lie = Chip(kind: .sighting, subject: 2, day: 1, sight: .emptyHanded, strength: 1)
     let after = Inference.compute(log: quietTable() + [says(1, .accuse, 2, lie)], count: n, observer: me)
     #expect(after.marginal(1) > 0.8)
     #expect(after.marginal(1) > before.marginal(1) + 0.3)
 }
 
 @MainActor
-@Test func aSightingFromBeforeTheyWereRecruitedIsNotHeldAgainstTheRecruit() {
+@Test func aSightingBeforeARecruitNightCountsAgainstWhoeverWasSeenAndNobodyElse() {
     let n = Rules.seats
-    let chip = Chip(kind: .sighting, subject: 2, day: 1, sight: .atQuestObject, strength: 1)
+    let chip = Chip(kind: .sighting, subject: 2, day: 1, sight: .atTheWorks, strength: 1)
     let day: [PublicEvent] = quietTable() + [says(1, .doubt, 2, chip)]
     let without: [PublicEvent] = quietTable()
-    func recruitOdds(_ log: [PublicEvent]) -> Double {
+    func after(_ log: [PublicEvent]) -> Belief {
         // Seat 7 is banished as a traitor, then the survivor recruits.
         let full = log + [.banished(day: 1, player: 7, role: .traitor), .night(day: 1, victim: nil, recruitNight: true)]
-        let b = Inference.compute(log: full, count: n, observer: .publicView(count: n))
-        // Seat 2 as the recruit of seat 4, against seat 3 as the recruit of seat 4.
-        let base = SeatMask.seat(7) | SeatMask.seat(4)
-        return b.mass(team: base | SeatMask.seat(2)) / b.mass(team: base | SeatMask.seat(3))
+        return Inference.compute(log: full, count: n, observer: .publicView(count: n))
     }
-    // With seat 4 as the original traitor, what seat 2 was seen doing has no bearing on who was recruited,
-    // beyond seat 2 now being the more suspected and so the less attractive recruit.
-    #expect(recruitOdds(day) <= recruitOdds(without) + 1e-9)
+    // The hand is open on a recruit day too, so what seat 2 was seen doing points at seat 2
+    // as the traitor who was already there.
+    #expect(after(day).marginal(2) > after(without).marginal(2) + 0.02)
+    // It has no bearing on which of two players nobody mentioned was recruited by seat 4.
+    let base = SeatMask.seat(7) | SeatMask.seat(4)
+    func odds(_ b: Belief) -> Double { b.mass(team: base | SeatMask.seat(3)) / b.mass(team: base | SeatMask.seat(5)) }
+    #expect(abs(odds(after(day)) - odds(after(without))) < 1e-9)
 }
 
 // MARK: - Planning
@@ -579,35 +719,47 @@ func says(_ speaker: PlayerID, _ kind: StatementKind, _ target: PlayerID, _ chip
     #expect(cited > 0)
 }
 
-// MARK: - Mini-games played out
+// MARK: - The gauntlet
 
 @MainActor
-@Test func everyMissionHasASaneSpec() {
-    #expect(MissionKind.allCases.count == 10)
+@Test func everyCourseIsWellMade() {
+    #expect(MissionKind.allCases.count == 5)
     for kind in MissionKind.allCases {
         let spec = kind.spec
-        #expect(spec.par > 0 && spec.par < spec.steps, "\(kind)")
-        #expect(MissionRun.threshold(kind) > 0.4 && MissionRun.threshold(kind) < 0.7, "\(kind)")
-        #expect(spec.teamGoal(alive: 8) > spec.par * 8 / 2 && spec.teamGoal(alive: 8) <= spec.steps * 8, "\(kind)")
-        #expect(kind.questText(steps: 1) != kind.questText(steps: 2), "\(kind)")
+        for alive in 5...8 {
+            // More than everyone but one could manage on an ordinary day, and less than everyone could.
+            let goal = Double(spec.teamGoal(alive: alive)), head = spec.head(alive: alive)
+            #expect(head > 3, "\(kind)")
+            #expect(goal > head * Double(alive - 1) && goal < head * Double(alive), "\(kind)")
+        }
+        for row in Courses.blueprint(kind).rows { #expect(row.count == Course.cols, "\(kind): \(row)") }
+        let course = Course(kind)
+        // There is a way on foot from the hoard to the vault, and somewhere to wake up along it.
+        #expect((course.index(at: course.hoard).map { course.toVault[$0] } ?? -1) > 20, "\(kind)")
+        #expect((course.index(at: course.vault).map { course.toHoard[$0] } ?? -1) > 20, "\(kind)")
+        #expect(course.braziers.count == 3, "\(kind)")
+        // A lever, a sconce and the vault door: the hand always has more than one thing to work.
+        #expect(course.mechanisms.contains { if case .lever = $0.kind { return true } else { return false } }, "\(kind)")
+        #expect(course.mechanisms.contains { if case .sconce = $0.kind { return true } else { return false } }, "\(kind)")
+        #expect(course.mechanisms.last?.kind == .vault)
+        #expect(course.hazards.count >= 5, "\(kind)")
     }
 }
 
 @MainActor
-@Test func noTwoEasyGamesForATraitorFallOnConsecutiveDays() {
-    for seed in 1...500 {
+@Test func theDeckOpensInTheGreatHall() {
+    for seed in 1...200 {
         var rng = SeededRNG(seed: UInt64(seed))
         let deck = MissionDeck.deal(rng: &rng)
-        #expect(Set(deck) == Set(MissionKind.allCases))
-        #expect(MissionDeck.balanced(deck), "seed \(seed)")
+        #expect(deck.first == .greatHall && Set(deck) == Set(MissionKind.allCases) && deck.count == MissionKind.allCases.count)
     }
 }
 
 @MainActor
 @Test func theLedgerSurvivesASave() throws {
-    let result = ArenaRunner.play(ArenaRunner.sample(.bogRelay, seed: 3, questing: true))
+    let result = ArenaRunner.play(ArenaRunner.sample(.greatHall, seed: 3, sabotage: true))
     let ledger = try #require(result.ledger)
-    #expect(ledger.ticks > 300 && ledger.x.count == ledger.ticks * ledger.seats.count)
+    #expect(ledger.ticks > 100 && ledger.x.count == ledger.ticks * ledger.seats.count)
     let back = try JSONDecoder().decode(MissionLedger.self, from: JSONEncoder().encode(ledger))
     #expect(back == ledger)
 }
@@ -634,24 +786,25 @@ func derived(_ l: MissionLedger) -> [Sighting] {
     let watcher = SeatMask.seat(0)
     // Watched all game and nothing odd: vouched for.
     #expect(derived(stillLedger(seen: watcher)) == [Sighting(day: 1, subject: 1, kind: .inView, witnesses: watcher)])
-    // Standing about away from any station.
+    // Standing about away from the work.
     #expect(derived(stillLedger(seen: watcher, zone: Zone.open)).contains(Sighting(day: 1, subject: 1, kind: .loiter, witnesses: watcher)))
     // Somewhere that does nothing for the mission.
     #expect(derived(stillLedger(seen: watcher, zone: Zone.off)).contains(Sighting(day: 1, subject: 1, kind: .offTask, witnesses: watcher)))
 
-    for (event, kind) in [(MissionEvent(tick: 5, actor: 1, code: .questStep, seen: watcher), SightingKind.atQuestObject),
-                          (MissionEvent(tick: 5, actor: 1, code: .interactDone, b: SightingDeriver.offMission, seen: watcher), .atQuestObject),
-                          (MissionEvent(tick: 5, actor: 1, code: .interactAbort, b: SightingDeriver.offMission, seen: watcher), .startled),
-                          (MissionEvent(tick: 5, actor: 1, code: .tell, a: SightingKind.brokeAway.index, seen: watcher), .brokeAway)] {
+    for (event, kind) in [(MissionEvent(tick: 5, actor: 1, code: .sprung, seen: watcher), SightingKind.atTheWorks),
+                          (MissionEvent(tick: 5, actor: 1, code: .balked, seen: watcher), .startled),
+                          (MissionEvent(tick: 5, actor: 1, code: .tell, a: SightingKind.emptyHanded.index, seen: watcher), .emptyHanded)] {
         var l = stillLedger(seen: watcher)
         l.events = [event]
         // Something odd was seen, so nobody says they did nothing odd.
         #expect(derived(l) == [Sighting(day: 1, subject: 1, kind: kind, witnesses: watcher)])
     }
-    // Ordinary work at a station is nothing to mention, and nobody is a witness to themselves.
+    // The truth of whose hand it was is never a sighting, ordinary work is nothing to mention,
+    // and nobody is a witness to themselves.
     var l = stillLedger()
-    l.events = [MissionEvent(tick: 5, actor: 1, code: .interactDone, seen: watcher),
-                MissionEvent(tick: 6, actor: 2, code: .questStep, seen: SeatMask.seat(2))]
+    l.events = [MissionEvent(tick: 5, actor: 1, code: .sabotage, seen: watcher),
+                MissionEvent(tick: 5, actor: 1, code: .banked, seen: watcher),
+                MissionEvent(tick: 6, actor: 2, code: .sprung, seen: SeatMask.seat(2))]
     #expect(derived(l).isEmpty)
 }
 
@@ -662,98 +815,240 @@ func derived(_ l: MissionLedger) -> [Sighting] {
     let partner = game.aliveTraitors.first { $0 != 0 }!
     let faithful = game.aliveFaithful[0]
     var ledger = stillLedger()
-    ledger.events = [MissionEvent(tick: 5, actor: partner, code: .questStep, seen: SeatMask.seat(0))]
+    ledger.events = [MissionEvent(tick: 5, actor: partner, code: .sprung, seen: SeatMask.seat(0))]
 
-    // A faithful cannot be credited with the side quest, whatever the game says.
+    // A faithful cannot be blamed for the day, whatever the game says.
     var wrong = game
-    wrong.advance(.mission(MissionResult(score: 0.8, questDone: false, teamTotal: 70, questBy: faithful, ledger: ledger)))
-    #expect(wrong.questBy == nil)
+    wrong.advance(.mission(MissionResult(teamTotal: 10, sunkBy: faithful, ledger: ledger)))
+    #expect(wrong.sunkBy == nil && wrong.traitorsMayAct)
 
-    game.advance(.mission(MissionResult(score: 0.8, questDone: false, teamTotal: 70, questBy: partner, ledger: ledger)))
-    #expect(game.questBy == partner)
+    var lost = game
+    lost.advance(.mission(MissionResult(teamTotal: 10, sunkBy: partner, ledger: ledger)))
+    #expect(lost.sunkBy == partner && lost.traitorsMayAct)
     // What was seen is exactly what the record shows, not the dice.
-    #expect(game.mission?.sightings == [Sighting(day: 1, subject: partner, kind: .atQuestObject, witnesses: SeatMask.seat(0))])
+    #expect(lost.mission?.sightings == [Sighting(day: 1, subject: partner, kind: .atTheWorks, witnesses: SeatMask.seat(0))])
+
     // The pot is the team's haul against its goal.
+    game.advance(.mission(MissionResult(teamTotal: 999, ledger: ledger)))
     let report = game.report!
-    #expect(report.teamTotal == 70 && report.teamGoal == report.kind.spec.teamGoal(alive: 8))
+    #expect(report.teamTotal == 999 && report.teamGoal == report.kind.spec.teamGoal(alive: 8) && report.groupWon)
     #expect(report.potEarned == 3200)
 }
 
 @MainActor
-@Test func theSideQuestIsLongerOnceFewAreLeft() {
-    for seed in 1...30 {
-        var game = Game(seed: UInt64(seed), humanName: nil)
-        while game.phase != .gameOver {
-            game.advance(.next)
-            if game.phase == .missionResult, let run = game.mission {
-                #expect(run.questSteps == (run.order.count <= 6 ? 2 : 1))
-            }
-        }
-    }
-}
-
-@MainActor
-@Test func breakfastOnlyNamesAFailedSideQuestWhenThereWasOne() {
+@Test func breakfastOnlyAsksWhoWasOutOfSightAfterALostDay() {
     var told = 0
     for seed in 1...80 {
         var game = Game(seed: UInt64(seed), humanName: nil)
-        var open = false, done = false
+        var won = false
         while game.phase != .gameOver {
-            if game.phase == .missionResult, let run = game.mission { open = run.questOpen; done = game.questBy != nil }
+            if game.phase == .missionResult, let r = game.report { won = r.groupWon }
             let day = game.day
             game.advance(.next)
             guard game.day == day + 1 else { continue }
-            let clue = game.feed.contains { $0.text.contains("shadow's task went undone") }
+            let clue = game.feed.contains { $0.text.contains("never out of sight") }
             if clue { told += 1 }
-            if clue { #expect(open && !done, "seed \(seed) day \(day)") }
-            open = false
+            #expect(!(clue && won), "seed \(seed) day \(day)")
+            won = true
         }
     }
     #expect(told > 20)
 }
 
 @MainActor
-@Test func everyMiniGamePlaysItselfOutTheSameWayTwice() {
+@Test func everyCoursePlaysItselfOutTheSameWayTwice() {
     for kind in MissionKind.allCases {
-        let setup = ArenaRunner.sample(kind, seed: 12, questing: true)
+        let setup = ArenaRunner.sample(kind, seed: 12, sabotage: true)
         let a = ArenaRunner.play(setup), b = ArenaRunner.play(setup)
         #expect(a == b, "\(kind) is not deterministic")
-        // Nobody can score more than the mission allows, and the record covers the whole game.
-        #expect(a.rivals?.values.allSatisfy { $0 >= 0 && $0 <= kind.spec.steps } == true)
-        #expect(Double(a.ledger?.ticks ?? 0) > kind.spec.baseSeconds * Double(MissionLedger.hz) * 0.9)
+        #expect((a.teamTotal ?? 0) > 0, "\(kind)")
+
+        // However the frames fall, it is the same game.
+        let ragged = ArenaRunner(setup)
+        var frame = 0
+        while ragged.stage != .finished {
+            ragged.advance([1.0 / 60, 1.0 / 120, 1.0 / 30, 0.05, 0.004][frame % 5], input: ArenaInput())
+            frame += 1
+        }
+        #expect(ragged.result() == a, "\(kind) depends on the frame rate")
     }
 }
 
 @MainActor
-@Test func botsInTheMiniGamesLandNearTheirCountsAndTheSideQuestMostlyComesOff() {
+@Test func nobodyEndsUpInAWallOrInsideAnyoneElse() {
     for kind in MissionKind.allCases {
-        var miss = 0.0, seats = 0.0, done = 0.0
-        let games = 40
-        for g in 0..<games {
-            let setup = ArenaRunner.sample(kind, seed: UInt64(100 + g), questing: true)
-            let r = ArenaRunner.play(setup)
-            for s in setup.cast {
-                miss += abs(Double((r.rivals?[s.id] ?? 0) - s.target))
-                seats += 1
+        let core = Gauntlet(ArenaRunner.sample(kind, seed: 21, sabotage: true))
+        var worst = 2 * Feel.radius
+        while !core.finished {
+            core.step()
+            for (i, r) in core.runners.enumerated() where r.up {
+                #expect(!course(core).grid.isSolid(r.pos), "\(kind): seat \(r.id) is in a wall")
+                #expect(r.pos.x >= 0 && r.pos.y >= 0 && r.pos.x <= core.course.size.x && r.pos.y <= core.course.size.y)
+                #expect(r.speed <= Feel.dashSpeed + Feel.shove + 1, "\(kind): seat \(r.id) at \(r.speed)")
+                #expect(r.carry >= 0 && r.carry <= Feel.maxCarry)
+                for o in core.runners[(i + 1)...] where o.up { worst = min(worst, o.pos.distance(to: r.pos)) }
             }
-            if r.questBy == 1 { done += 1 }
-            #expect(r.questBy == nil || r.questBy == 1)
+        }
+        // A crowd in a corner can be squeezed a little, and no more.
+        #expect(worst > 2 * Feel.radius - 6, "\(kind): two runners \(worst) apart")
+        #expect(core.tick <= core.totalTicks + Feel.overtime)
+    }
+}
+
+@MainActor
+private func course(_ core: Gauntlet) -> Course { core.course }
+
+/// A straight corridor with a drop across it some tiles deep, and one player at the controls.
+@MainActor
+func gapRun(tiles: Int) -> Gauntlet {
+    var rows = ["#############", "#VVVVVVVVVVV#", "#VVVVVVVVVVV#", "#...........#", "#.....B.....#", "#...........#"]
+    rows += Array(repeating: "#           #", count: tiles)
+    rows += ["#...........#", "#.....B.....#", "#...........#", "#.....B.....#", "#...........#", "#HHHHHHHHHHH#", "#HHHHHHHHHHH#", "#############"]
+    let setup = ArenaSetup(kind: .greatHall, day: 1, seed: 1, quirkSeed: 1,
+                           cast: [ArenaSeat(id: 0, skill: 0.5, perception: 0.5, deceit: 0.5, isHuman: true)], saboteurs: [], autopilot: false)
+    return Gauntlet(setup, course: Course(.greatHall, Blueprint(rows: rows, traps: [])))
+}
+
+/// Whether running straight up and dashing some way short of the drop gets a runner across it.
+@MainActor
+func clears(tiles: Int, dashAt short: Double) -> Bool {
+    let core = gapRun(tiles: tiles)
+    // The drop starts above the five rows of floor over the hoard.
+    let edge = Course.cell * 8
+    core.input.move = Vec2(0, 1)
+    var pressed = false
+    for _ in 0..<Feel.ticks(6) {
+        let r = core.runners[0]
+        if !r.up { return false }
+        if r.pos.y > edge + Double(tiles) * Course.cell + Feel.radius, r.dash == 0, core.standable(r.pos) { return true }
+        if !pressed, r.pos.y >= edge - short {
+            pressed = true
+            core.press()
+        }
+        core.step()
+    }
+    return false
+}
+
+@MainActor
+@Test func aDashClearsTwoTilesAndNeverThree() {
+    let tries = stride(from: -14.0, through: 40, by: 2)
+    #expect(tries.contains { clears(tiles: 2, dashAt: $0) })
+    #expect(!tries.contains { clears(tiles: 3, dashAt: $0) })
+    // Walking off the edge is a fall, with a moment's grace.
+    #expect(!clears(tiles: 1, dashAt: -1000))
+}
+
+@MainActor
+@Test func everyTrapWarnsBeforeItStrikes() {
+    for kind in MissionKind.allCases {
+        for (i, start) in Course(kind).hazards.enumerated() where start.kind != .blade && start.kind != .gust {
+            var h = start
+            var warned = 0
+            for t in 0..<Feel.ticks(80) {
+                let act = min(2, t / Feel.ticks(25))
+                // Set it off out of turn now and then, as a hand or a foot on a plate would.
+                if t % 400 == 399 { _ = h.trip(by: nil) }
+                if t % 400 == 199 { _ = h.plate() }
+                let was = h.state
+                _ = h.step(act: act)
+                if h.state == .warn { warned += 1 }
+                if h.state == .live, was != .live {
+                    // The step it strikes on is the last of the warning.
+                    #expect(was == .warn && warned + 1 >= Feel.ticks(0.4), "\(kind) trap \(i) struck after \(warned + 1) steps of warning")
+                    warned = 0
+                }
+                if h.state == .rest { warned = 0 }
+            }
+        }
+    }
+}
+
+@MainActor
+@Test func aPressIsNeverLostBetweenFrames() {
+    let runner = ArenaRunner(ArenaRunner.sample(.greatHall, seed: 2, sabotage: false, hand: .idle))
+    while runner.stage == .countdown { runner.advance(0.1, input: ArenaInput()) }
+    // A frame too short for a step, and the press still lands on the next one.
+    runner.press()
+    runner.advance(0.001, input: ArenaInput())
+    #expect(runner.core.runners[0].dash == 0)
+    runner.advance(1.0 / 60, input: ArenaInput())
+    runner.advance(1.0 / 60, input: ArenaInput())
+    #expect(runner.core.runners[0].dash > 0)
+
+    // A press a moment before the dash is ready again goes off when it is.
+    let core = runner.core
+    while core.runners[0].cooldown > 5 { core.step() }
+    #expect(core.runners[0].cooldown > 0 && core.runners[0].dash == 0)
+    core.press()
+    for _ in 0..<6 { core.step() }
+    #expect(core.runners[0].dash > 0)
+}
+
+@MainActor
+@Test func onlyTheSeatWithTheHandEverUsesIt() {
+    var used = 0
+    for kind in MissionKind.allCases {
+        let clean = ArenaRunner.play(ArenaRunner.sample(kind, seed: 5, sabotage: false))
+        #expect(clean.sunkBy == nil)
+        #expect(clean.ledger?.events.contains { $0.code == .sabotage } == false, "\(kind)")
+        for seed in 1...4 {
+            let setup = ArenaRunner.sample(kind, seed: UInt64(seed), sabotage: true)
+            let r = ArenaRunner.play(setup)
+            #expect(r.sunkBy == nil || r.sunkBy == 1)
+            for e in r.ledger?.events ?? [] where e.code == .sabotage {
+                used += 1
+                #expect(e.actor == 1, "\(kind)")
+            }
             for s in SightingDeriver.derive(r.ledger!, day: 1, perception: setup.cast.map(\.perception), human: nil, seed: setup.seed).sightings {
                 #expect(!s.witnesses.has(s.subject) && s.witnesses != 0)
             }
         }
-        #expect(miss / seats < 0.9, "\(kind): bots finish \(miss / seats) off their counts")
-        #expect(done / Double(games) > 0.45 && done / Double(games) <= 1, "\(kind): side quest done \(done / Double(games))")
     }
+    #expect(used > 20)
 }
 
 @MainActor
-@Test func nobodyGetsTheSideQuestInAGameWithoutOne() {
-    for kind in MissionKind.allCases {
-        let r = ArenaRunner.play(ArenaRunner.sample(kind, seed: 5, questing: false))
-        #expect(r.questBy == nil)
-        #expect(r.ledger?.events.contains { $0.code == .questStep || $0.code == .questTry } == false, "\(kind)")
+@Test func standingByAMechanismReadsTheSameWhoeverWorkedIt() {
+    func sprung(by hand: PlayerID?) -> [MissionEvent] {
+        let core = Gauntlet(ArenaRunner.sample(.greatHall, seed: 4, sabotage: true))
+        let m = core.course.mechanisms.firstIndex { if case .lever = $0.kind { return true } else { return false } }!
+        let at = core.course.mechanisms[m].pos
+        // Seats 1 and 2 stand at the lever with seat 0 close by and looking; everyone else is far off.
+        for i in core.runners.indices { core.runners[i].pos = core.course.hoard }
+        core.runners[1].pos = at + Vec2(30, 0)
+        core.runners[2].pos = at + Vec2(40, 8)
+        core.runners[0].pos = at + Vec2(90, 0)
+        for i in 1...2 {
+            core.runners[i].vel = .zero
+            core.runners[i].seenBy = SeatMask.seat(0)
+        }
+        core.spring(m, by: hand)
+        return core.ledger.events.filter { $0.code == .sprung }
     }
+    let castle = sprung(by: nil), traitor = sprung(by: 1)
+    // The same two names, seen by the same eyes, whether it was the castle or seat 1.
+    #expect(castle == traitor)
+    #expect(castle.map(\.actor).sorted() == [1, 2])
+    #expect(castle.allSatisfy { $0.seen == SeatMask.seat(0) })
+}
+
+@MainActor
+@Test func aFullVaultSealsUnlessItIsSpilled() {
+    let core = Gauntlet(ArenaRunner.sample(.greatHall, seed: 6, sabotage: false, hand: .idle))
+    core.teamTotal = core.goal
+    for _ in 0..<Feel.seal / 2 { core.step() }
+    #expect(core.sealing > 0.3 && !core.finished)
+    // Gold back out of the vault breaks the seal, and it starts again from nothing.
+    let before = core.teamTotal
+    core.spring(core.course.mechanisms.count - 1, by: nil)
+    #expect(core.teamTotal < before)
+    core.step()
+    #expect(core.sealing == 0 && !core.finished)
+    core.teamTotal = core.goal + 50
+    for _ in 0..<Feel.seal { core.step() }
+    #expect(core.finished && core.won)
+    #expect(core.tick < core.totalTicks / 2)
 }
 
 // MARK: - Staging

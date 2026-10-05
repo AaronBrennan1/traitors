@@ -194,22 +194,13 @@ struct LogIndex {
 }
 
 enum Chips {
-    /// Citable evidence about `x`. `noticed` limits mission slips to those the observer spotted
-    /// (nil = saw everything); `sightings` is what the observer saw for themselves. Strongest first.
-    static func about(_ x: PlayerID, view: TableView, noticed: Set<Int>?, suspicious: Bool,
-                      sightings: [Sighting] = []) -> [Chip] {
+    /// Citable evidence about `x`. `sightings` is what the observer saw for themselves. Strongest first.
+    static func about(_ x: PlayerID, view: TableView, suspicious: Bool, sightings: [Sighting] = []) -> [Chip] {
         let ix = view.index
         var chips: [Chip] = []
         if suspicious {
             for s in sightings where s.subject == x && s.kind.suspicious {
                 chips.append(Chip(kind: .sighting, subject: x, day: s.day, sight: s.kind, strength: Tuning.sight(s.kind) / 5))
-            }
-            for r in ix.reports {
-                guard let u = r.unitIndex(of: x), r.units[u].anomalous else { continue }
-                if let noticed, !noticed.contains(r.day * 100 + u) { continue }
-                // A poor score is thin evidence: plenty of faithful are simply bad at games.
-                chips.append(Chip(kind: .missionSlip, subject: x, day: r.day, unit: u,
-                                  strength: clamp(0.15 / r.units[u].innocentRate, 0.3, 0.7)))
             }
             for b in ix.banishments {
                 guard let role = b.role, let target = ix.firstVote(day: b.day, voter: x) else { continue }
@@ -262,10 +253,6 @@ enum Chips {
             for b in ix.blame where b.role == .traitor && b.firstNamer == x {
                 chips.append(Chip(kind: .firstOnTraitor, subject: x, day: b.day, other: b.player, strength: 1.1))
             }
-            let played = ix.reports.filter { $0.unitIndex(of: x) != nil }
-            if !played.isEmpty, played.allSatisfy({ !$0.units[$0.unitIndex(of: x)!].anomalous }) {
-                chips.append(Chip(kind: .cleanMissions, subject: x, day: view.day, strength: 0.4))
-            }
             chips.append(Chip(kind: .gut, subject: x, day: view.day, strength: 0.2))
         }
         return chips.sorted { $0.strength > $1.strength }
@@ -278,7 +265,7 @@ enum Chips {
         if chip.kind == .tableAgreed {
             return view.index.blame.contains { $0.player == chip.other && $0.day == chip.day && $0.votes == chip.unit }
         }
-        return about(chip.subject, view: view, noticed: nil, suspicious: chip.kind.isSuspicious)
+        return about(chip.subject, view: view, suspicious: chip.kind.isSuspicious)
             .contains { $0.kind == chip.kind && $0.day == chip.day && $0.other == chip.other }
     }
 }

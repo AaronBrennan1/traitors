@@ -1,30 +1,34 @@
 import Foundation
 
-/// What the human's mini-game hands back to the engine.
+/// What the human's run of the gauntlet hands back to the engine.
 struct MissionResult: Codable, Equatable {
-    /// Share of the mission's steps completed, 0...1.
-    var score: Double
-    /// Whether the traitor's secret objective was completed along the way.
-    var questDone: Bool
-    /// The count each bot finished on in the same game, by seat. Nil when the game was not played out.
-    var rivals: [PlayerID: Int]? = nil
-    /// What the team brought home between them, bonuses included. Nil when the game was not played out.
+    /// How the human pulled their weight when the game was not played out: 0 did nothing, 1 an
+    /// ordinary day's share. Ignored when `teamTotal` says what was actually brought home.
+    var effort = 1.0
+    /// What a human traitor's hand took off the company when the game was not played out, in
+    /// players' shares. Ignored from a faithful.
+    var sabotage = 0.0
+    /// What the company brought home between them. Nil when the game was not played out.
     var teamTotal: Int? = nil
-    /// The traitor who finished the side quest in the game, if anyone did.
-    var questBy: PlayerID? = nil
+    /// The traitor whose hand made the difference between the goal and falling short, if one did.
+    var sunkBy: PlayerID? = nil
     /// The record of the game as it was played. With one, what people saw is worked out from it
     /// and not from the dice.
     var ledger: MissionLedger? = nil
 }
 
-/// One day's mission. Everyone plays the same game together and comes back with a count that is
-/// read out against par. A traitor may also complete the side quest hidden inside the game; it
-/// eats time, so it tends to show up as a poor score, the same as an honest bad day.
+/// One day's mission. Everyone runs the same course together and what they bring home goes on one
+/// pile, which either reaches the goal or does not. Nobody's own share is kept. A traitor may
+/// use the shadow's hand to see that it does not.
 struct MissionRun: Codable {
-    /// Spread of a player's showing from one day to the next, as a share of the steps.
-    static let sigma = 0.16
-    /// What going after the side quest costs a bot, as a share of the steps.
-    static let questPenalty = 0.05
+    /// How far the bots' day swings between them, in players' shares. One roll for the whole company.
+    static var spread = 0.83
+    /// How much of one player's share the goal lets the company off. With this and `spread`, a
+    /// company left alone makes the goal about three days in four.
+    static var handicap = 0.5
+    /// What a bot using the shadow's hand costs the company, in players' shares. With it the
+    /// company makes the goal about one day in six.
+    static var sabotageCost = 1.5
 
     var kind: MissionKind
     var day: Int
@@ -32,153 +36,132 @@ struct MissionRun: Codable {
     var human: PlayerID?
     /// Private: living traitors. Never copied into the public report.
     var traitors: [PlayerID]
-    /// Private: the bot traitor who means to do the side quest today, if any.
+    /// Private: the bot traitor who means to use the shadow's hand today, if any.
     var runner: PlayerID?
-    /// Private: how readily the runner backs out when nobody else has slipped.
-    var caution: Double
-    /// Private: chance the runner pulls the side quest off once they go for it.
-    var questOdds: Double
-    /// False on a recruit night, when there is no murder to earn.
-    var questOpen: Bool
+    /// How quick and tidy each player is about the work.
     var skill: [Double]
     var perception: [Double]
     var deceit: [Double]
     /// Seeds each player's own habits, which stay the same all game.
     var quirkSeed: UInt64
     var rng: SeededRNG
-    /// Seeds the layout of the mini-game, so a resumed game deals the same board.
+    /// Seeds the course and everything on it, so a resumed game deals the same run.
     var layoutSeed: UInt64
 
     var done = false
     var planned = false
-    /// Private: the count each bot is headed for, settled before play.
-    var targets: [PlayerID: Int] = [:]
-    /// Private: the runner goes for the side quest today and pulls it off.
-    var runnerQuest = false
-    /// Private: the runner went for the side quest, whether or not it came off.
+    /// Private: how good a day the bots are having between them. It is one number for all of them.
+    var form = 0.0
+    /// Private: the runner used the hand, whether or not it sank the day.
     var runnerAttempt = false
+    /// Private: the human used the hand.
+    var humanAttempt = false
     /// Private: who had eyes on each player from start to finish, by seat.
     var coverage: [SeatMask] = []
     /// Private: what was seen during the mission and by whom.
     var sightings: [Sighting] = []
-    var counts: [PlayerID: Int] = [:]
-    /// Private: the traitor whose side quest earned tonight's murder, if any.
-    var questCompletedBy: PlayerID?
-    /// How many pieces the side quest has today. It grows late in the game.
-    var questSteps = 1
+    /// Private: the traitor whose hand cost the company its day, if one did.
+    var sunkBy: PlayerID?
     var teamTotal = 0
+    var groupWon = false
     /// Private: who was in somebody's sight nearly all mission.
     var neverAlone: [PlayerID] = []
 
     init(kind: MissionKind, day: Int, alive: [PlayerID], human: PlayerID?, traitors: [PlayerID],
-         runner: PlayerID?, caution: Double, questOdds: Double, questOpen: Bool, traits: [Personality],
-         quirkSeed: UInt64, rng: SeededRNG, questSteps: Int = 1) {
+         runner: PlayerID?, traits: [Personality], quirkSeed: UInt64, rng: SeededRNG) {
         self.kind = kind
         self.day = day
         self.human = human
         self.traitors = traitors
         self.runner = runner
-        self.caution = caution
-        self.questOdds = questOdds
-        self.questOpen = questOpen
         self.skill = traits.map(\.skill)
         self.perception = traits.map(\.perception)
         self.deceit = traits.map(\.deceit)
         self.quirkSeed = quirkSeed
-        self.questSteps = questSteps
         self.rng = rng
         self.order = self.rng.shuffled(alive)
         self.layoutSeed = self.rng.next()
     }
 
+    var teamGoal: Int { kind.spec.teamGoal(alive: order.count) }
+
     // MARK: - Running
 
-    /// Settles the bots before anyone plays: the count each is headed for, and whether the
-    /// runner goes after the side quest. The mini-game plays the bots towards these.
+    /// Settles the bots before anyone plays: how good a day the company is going to have, and
+    /// whether the runner uses the hand.
     mutating func plan() {
         guard !planned else { return }
         planned = true
-        let spec = kind.spec
         // Who happens to be watching whom all the way through.
         var eyes = SeededRNG.derived(layoutSeed, 1)
-        coverage = Array(repeating: 0, count: skill.count)
+        coverage = Array(repeating: 0, count: perception.count)
         for p in order {
             for w in order where w != p && eyes.chance(SightingModel.cover(perception[w])) {
                 coverage[p] |= SeatMask.seat(w)
             }
         }
-        for p in order where p != human && p != runner {
-            targets[p] = Self.sample(kind, skill: skill[p], questing: false, rng: &rng)
-        }
         if let r = runner, r != human {
-            // The runner reads the room first: an honest player headed under par is cover.
-            let cover = order.filter { !traitors.contains($0) && $0 != human && (targets[$0] ?? spec.steps) < spec.par }.count
-            var attempt = questOpen
-            if attempt, cover == 0, rng.chance(caution) { attempt = false }
             // Somebody has not taken their eyes off the runner: only the brazen go ahead.
-            if attempt, coverage[r] != 0, rng.chance(1 - 0.6 * deceit[r]) { attempt = false }
-            targets[r] = Self.sample(kind, skill: skill[r], questing: attempt, rng: &rng)
-            runnerAttempt = attempt
-            runnerQuest = attempt && rng.chance(questOdds)
+            runnerAttempt = !(coverage[r] != 0 && rng.chance(1 - 0.6 * deceit[r]))
         }
+        form = rng.gaussian()
     }
 
-    /// Settles the whole mission from what the mini-game hands back: the human's result and the
-    /// count each bot actually finished on. A bot the game did not report keeps its planned count.
+    /// Settles the whole mission from what the game hands back: what the company brought home and
+    /// what was seen. With no game played, the bots bring what their day was good for.
     mutating func resolve(human result: MissionResult?) {
         guard !done else { return }
         plan()
-        let spec = kind.spec
-        if let me = human {
-            let r = result ?? MissionResult(score: 0, questDone: false)
-            counts[me] = Int((clamp(r.score, 0, 1) * Double(spec.steps)).rounded())
-            if r.questDone, questOpen, traitors.contains(me) { questCompletedBy = me }
-        }
-        for p in order where p != human {
-            counts[p] = min(spec.steps, max(0, result?.rivals?[p] ?? targets[p] ?? 0))
-        }
+        let me = human.flatMap { traitors.contains($0) ? $0 : nil }
         if let ledger = result?.ledger {
-            // The game was played out: who did the side quest and what was seen come from the record.
-            if let by = result?.questBy, questOpen, traitors.contains(by) { questCompletedBy = by }
-            if let r = runner, r != human {
-                runnerAttempt = ledger.events.contains { $0.actor == r && $0.code == .questTry }
-                runnerQuest = questCompletedBy == r
-            }
+            // The game was played out: who used the hand and what was seen come from the record.
+            if let r = runner, r != human { runnerAttempt = ledger.events.contains { $0.actor == r && $0.code == .sabotage } }
+            humanAttempt = me != nil && ledger.events.contains { $0.actor == me && $0.code == .sabotage }
             let seen = SightingDeriver.derive(ledger, day: day, perception: perception, human: human, seed: layoutSeed)
             sightings = seen.sightings
             neverAlone = seen.neverAlone
+            teamTotal = result?.teamTotal ?? 0
+            groupWon = teamTotal >= teamGoal
+            if !groupWon, let by = result?.sunkBy, traitors.contains(by) { sunkBy = by }
         } else {
-            if let r = runner, r != human, runnerQuest, questCompletedBy == nil { questCompletedBy = r }
+            let head = kind.spec.head(alive: order.count)
+            let bots = Double(order.filter { $0 != human }.count)
+            let theirs = runnerAttempt ? Self.sabotageCost : 0
+            let mine = me == nil ? 0 : clamp(result?.sabotage ?? 0, 0, 3)
+            humanAttempt = mine > 0
+            let effort = human == nil ? 0 : clamp(result?.effort ?? 0, 0, 2)
+            teamTotal = result?.teamTotal ?? max(0, Int(((bots + Self.spread * form - theirs + effort - mine) * head).rounded()))
+            groupWon = teamTotal >= teamGoal
+            if !groupWon, Double(teamTotal) + (theirs + mine) * head >= Double(teamGoal) { sunkBy = mine > theirs ? me : runner }
             observe()
             neverAlone = order.filter { coverage[$0] != 0 }
         }
-        teamTotal = max(result?.teamTotal ?? 0, order.reduce(0) { $0 + (counts[$1] ?? 0) })
         done = true
     }
 
     /// Works out what everybody saw of everybody else. Honest players have their own odd
-    /// habits, so nothing here is proof; the side quest only makes the same things likelier.
+    /// habits, so nothing here is proof; the hand only makes the same things likelier.
     private mutating func observe() {
         var eyes = SeededRNG.derived(layoutSeed, 2)
         for p in order {
-            let questing = p == human ? questCompletedBy == p : (p == runner && runnerAttempt)
+            let acting = p == human ? humanAttempt : (p == runner && runnerAttempt)
             var odd = false
             for kind in SightingKind.allCases where kind.suspicious {
                 var rate = SightingModel.baseline(kind) * SightingModel.quirk(seed: quirkSeed, player: p, kind: kind)
-                if questing {
+                if acting {
                     // The player's own sleight of hand is not measured, so they get the benefit of the doubt.
                     rate *= SightingModel.lift(kind, deceit: p == human ? 1 : deceit[p])
                 } else if p == human {
                     // The player is not held to a bot's habits they never chose.
-                    rate = kind == .atQuestObject ? 0 : rate * 0.8
+                    rate = kind == .atTheWorks ? 0 : rate * 0.8
                 }
                 var happened = eyes.chance(min(rate, 0.9))
                 var seenBy: SeatMask = 0
                 for w in order where w != p && eyes.chance(SightingModel.watch(perception[w])) {
                     seenBy |= SeatMask.seat(w)
                 }
-                // The side quest cannot be done unseen under somebody's nose.
-                if questing, kind == .atQuestObject, coverage[p] != 0 { happened = true }
+                // The hand cannot be used unseen under somebody's nose.
+                if acting, kind == .atTheWorks, coverage[p] != 0 { happened = true }
                 guard happened else { continue }
                 odd = true
                 seenBy |= coverage[p]
@@ -190,56 +173,12 @@ struct MissionRun: Codable {
         }
     }
 
-    // MARK: - Skill curves
-
-    /// The share of steps below which a player is under par.
-    static func threshold(_ kind: MissionKind) -> Double {
-        (Double(kind.spec.par) - 0.5) / Double(kind.spec.steps)
-    }
-
-    /// How far above the par line a player of this skill sits on an average day.
-    static func margin(_ s: Double) -> Double { 0.08 + 0.18 * (s - 0.5) }
-
-    /// Chance an honest player of this skill finishes under par.
-    static func slipRate(skill s: Double) -> Double {
-        0.5 * erfc(margin(s) / sigma / 2.0.squareRoot())
-    }
-
-    /// Chance a player of this skill finishes under par with the side quest to do as well.
-    static func questRate(skill s: Double) -> Double {
-        0.5 * erfc((margin(s) - questPenalty) / sigma / 2.0.squareRoot())
-    }
-
-    static func sample(_ kind: MissionKind, skill s: Double, questing: Bool, rng: inout SeededRNG) -> Int {
-        let steps = Double(kind.spec.steps)
-        var x = threshold(kind) + margin(s) + sigma * rng.gaussian()
-        if questing { x -= questPenalty }
-        return Int(clamp((x * steps).rounded(), 0, steps))
-    }
-
     // MARK: - Public report
 
-    func report(names: [String]) -> MissionReport {
+    func report() -> MissionReport {
         let spec = kind.spec
-        var units: [MissionUnit] = []
-        var lines: [String] = []
-        var scores: [PlayerID: Double] = [:]
-        for p in order {
-            let c = counts[p] ?? 0
-            let under = c < spec.par
-            let detail = "\(names[p]) came back with \(c) of \(spec.steps) \(spec.unit)" + (under ? ", under par." : ".")
-            units.append(MissionUnit(players: [p], count: c, anomalous: under,
-                                     innocentRate: Self.slipRate(skill: skill[p]),
-                                     questRate: Self.questRate(skill: skill[p]), detail: detail))
-            if under { lines.append(detail) }
-            scores[p] = Double(c) / Double(spec.steps)
-        }
-        if lines.isEmpty { lines = ["A clean run. Everybody made par."] }
-        // The pot is the team's: everyone's haul against what was asked of them together.
-        let goal = spec.teamGoal(alive: order.count)
-        let share = min(1, Double(teamTotal) / Double(goal))
+        let share = min(1, Double(teamTotal) / Double(teamGoal))
         let pot = Int((Double(spec.potPerHead * order.count) * share / 10).rounded()) * 10
-        return MissionReport(kind: kind, day: day, steps: spec.steps, par: spec.par, units: units,
-                             scores: scores, potEarned: pot, lines: lines, teamTotal: teamTotal, teamGoal: goal)
+        return MissionReport(kind: kind, day: day, teamTotal: teamTotal, teamGoal: teamGoal, groupWon: groupWon, potEarned: pot)
     }
 }

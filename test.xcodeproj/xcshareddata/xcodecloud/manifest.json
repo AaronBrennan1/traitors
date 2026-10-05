@@ -1,0 +1,9 @@
+{
+  "id" : "f609d177-37c3-43af-9867-379ab6bded6c",
+  "targets" : [
+    {
+      "id" : "034d38da-13fa-4559-9ef4-da39584bf2f3",
+      "name" : "test"
+    }
+  ]
+}

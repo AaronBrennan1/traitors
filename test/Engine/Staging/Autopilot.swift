@@ -34,7 +34,7 @@ enum Autopilot {
     static func input(for game: Game) -> HumanInput {
         switch game.phase {
         case .mission:
-            return .mission(MissionResult(score: game.humanIsTraitor ? 0.5 : 0.85, questDone: game.humanIsTraitor))
+            return .mission(MissionResult(effort: game.humanIsTraitor ? 0.7 : 1.2, sabotage: game.humanIsTraitor ? MissionRun.sabotageCost : 0))
         case .roundTable:
             if let t = game.choices.first, let chip = game.notebook(about: t, suspicious: true).first, game.tableStep == 1 {
                 return .say(.accuse, target: t, chip: chip)
@@ -57,7 +57,7 @@ enum Autopilot {
     static func scenes(seeds: ClosedRange<UInt64>) -> [(name: String, arguments: String)] {
         var found: [String: String] = [:]
         let wanted = ["tie, human votes again", "fate decides", "human banished", "human murdered",
-                      "human murders", "recruitment offer", "human recruits", "spectator vote", "finale choice", "shield blocks the murder"]
+                      "human murders", "recruitment offer", "human recruits", "spectator vote", "finale choice", "quiet night"]
         for seed in seeds {
             for pref in [RolePreference.faithful, .traitor] {
                 var g = Game(seed: seed, humanName: "Aaron", preference: pref)
@@ -66,7 +66,7 @@ enum Autopilot {
                     if found[name] == nil { found[name] = "-autoplay 1 -seed \(seed) -role \(pref.rawValue) \(stop)" }
                 }
                 while g.phase != .gameOver, steps < 600 {
-                    let before = g.tally.shieldBlocks
+                    let before = g.tally.quietNights
                     g.advance(input(for: g))
                     steps += 1
                     switch g.phase {
@@ -81,7 +81,7 @@ enum Autopilot {
                     case .breakfast:
                         let stop = "-stopPhase breakfast -stopDay \(g.day)"
                         if let me = g.human, g.players[me].fate == .murdered, g.players[me].fateDay == g.day - 1 { note("human murdered", stop) }
-                        if g.tally.shieldBlocks > before, g.humanIsTraitor { note("shield blocks the murder", stop) }
+                        if g.tally.quietNights > before { note("quiet night", stop) }
                     case .night:
                         if g.nightChoice == .murder { note("human murders", "-stopPhase night -stopDay \(g.day) -stopNight murder") }
                         if g.nightChoice == .offer { note("recruitment offer", "-stopPhase night -stopDay \(g.day) -stopNight offer") }

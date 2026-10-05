@@ -28,11 +28,9 @@ struct ArenaSeat {
     let perception: Double
     let deceit: Double
     let isHuman: Bool
-    /// The count the engine expects of a bot today. The game plays the bot towards it.
-    let target: Int
 }
 
-/// Everything a mini-game is dealt before it starts.
+/// Everything a run of the gauntlet is dealt before it starts.
 struct ArenaSetup {
     let kind: MissionKind
     let day: Int
@@ -40,105 +38,68 @@ struct ArenaSetup {
     let quirkSeed: UInt64
     /// Everyone playing, in seat order.
     let cast: [ArenaSeat]
-    /// Who has the side quest to do today: the bot who means to try it, and a human traitor.
-    let questers: [PlayerID]
-    let questSteps: Int
+    /// Who has the shadow's hand today: the bot who means to use it, and a human traitor.
+    let saboteurs: [PlayerID]
+    /// How good a day the bots are having, as one roll for all of them. 0 is an ordinary day.
+    let form: Double
     /// A bot plays the human's seat, for tests and unattended runs.
     var autopilot: Bool
 
-    init(kind: MissionKind, day: Int, seed: UInt64, quirkSeed: UInt64, cast: [ArenaSeat], questers: [PlayerID],
-         questSteps: Int = 1, autopilot: Bool = true) {
+    init(kind: MissionKind, day: Int, seed: UInt64, quirkSeed: UInt64, cast: [ArenaSeat], saboteurs: [PlayerID],
+         form: Double = 0, autopilot: Bool = true) {
         self.kind = kind
         self.day = day
         self.seed = seed
         self.quirkSeed = quirkSeed
         self.cast = cast
-        self.questers = questers
-        self.questSteps = questSteps
+        self.saboteurs = saboteurs
+        self.form = form
         self.autopilot = autopilot
     }
 
     /// The day's mission as the engine planned it.
     init(run: MissionRun, autopilot: Bool) {
-        var dice = SeededRNG.derived(run.layoutSeed, 3)
-        var questers: [PlayerID] = []
-        if run.questOpen {
-            if let r = run.runner, r != run.human, run.runnerAttempt { questers.append(r) }
-            if let h = run.human, run.traitors.contains(h) { questers.append(h) }
-        }
-        let cast = run.order.sorted().map { p -> ArenaSeat in
-            let mine = p == run.human
-            let target = run.targets[p] ?? MissionRun.sample(run.kind, skill: run.skill[p], questing: questers.contains(p), rng: &dice)
-            return ArenaSeat(id: p, skill: run.skill[p], perception: run.perception[p], deceit: run.deceit[p],
-                             isHuman: mine, target: target)
+        var saboteurs: [PlayerID] = []
+        if let r = run.runner, r != run.human, run.runnerAttempt { saboteurs.append(r) }
+        if let h = run.human, run.traitors.contains(h) { saboteurs.append(h) }
+        let cast = run.order.sorted().map { p in
+            ArenaSeat(id: p, skill: run.skill[p], perception: run.perception[p], deceit: run.deceit[p], isHuman: p == run.human)
         }
         self.init(kind: run.kind, day: run.day, seed: run.layoutSeed, quirkSeed: run.quirkSeed, cast: cast,
-                  questers: questers, questSteps: run.questSteps, autopilot: autopilot)
+                  saboteurs: saboteurs, form: run.form, autopilot: autopilot)
     }
 }
 
-/// What the human is doing with their thumbs this frame.
+/// What the human is doing with their thumb this frame. A press of Dash goes through
+/// `ArenaRunner.press()`, which holds on to it until a step can take it.
 struct ArenaInput {
-    /// The stick, length 0...1, already turned into the arena's own axes.
+    /// The stick, length 0...1, in the course's own axes.
     var move = Vec2.zero
-    var interact = false
-    /// A strike let go this frame: which way and how hard, length 0...1.
-    var shot: Vec2?
 }
 
-/// Everything a stage knows how to draw.
-enum PropKind: String {
-    case stone, turfLight, turfHeavy, stack, hollow, bogOak
-    case brazier, lantern
-    case sheep, pen, dog
-    case chest, eel, boat
-    case tile, crack
-    case stall, cart, shopper
-    case ring, spire, kite, gull
-    case sigil, post, bell, statue
-    case target, ball
-    case station, pot, herbShelf
-}
-
-/// One thing in the arena, as the stage should show it this frame.
-struct Prop {
-    var id: Int
-    var kind: PropKind
-    var pos: Vec2
-    /// Height off the ground.
-    var z = 0.0
-    /// What it is doing, in the game's own terms: lit or out, which colour, how full.
-    var state = 0
-    var value = 0.0
-    /// Seat whose colour it wears, or -1.
-    var tint = -1
-    /// Carries the mark only a traitor on the side quest can see.
-    var secret = false
-    var hidden = false
-}
-
-/// Somewhere a player can stand and hold Interact.
-struct Spot {
-    let id: Int
-    var pos: Vec2
-    var reach = 30.0
-    var hold = 1.0
-    /// What kind of thing it is, in the game's own terms.
-    var tag = 0
-    /// Has nothing to do with the day's work, so being seen at it is worth mentioning.
-    var offMission = false
-}
-
-/// Things for the screen to do that do not change the game.
+/// Things for the screen and the speaker to do that do not change the game.
 enum ArenaCue {
-    case popup(String, Vec2, seat: PlayerID?, bad: Bool)
-    case banner(String)
-    case flash(bad: Bool)
-    case shake
-    case burst(Vec2, seat: PlayerID?)
+    case pickup(PlayerID)
+    case banked(PlayerID, bags: Int, bonus: Int, at: Vec2)
+    case downed(PlayerID, at: Vec2, fell: Bool)
+    case woke(PlayerID)
+    case dash(PlayerID)
+    case bump(Vec2)
+    case nearMiss(PlayerID, at: Vec2)
+    /// A trap, by its place in the course's list, has begun to warn or has gone off.
+    case warned(Int)
+    case fired(Int)
+    case cracked(Vec2)
+    case gave(Vec2)
+    case lights(band: Int, out: Bool)
+    case spilled(Vec2, bags: Int)
+    case act(Int)
+    case sealing, unsealed, sealed, overtime
+    /// The shadow's hand was used. Only that player's own screen may show it.
+    case hand(PlayerID)
 }
 
-/// A square grid of walls for the games that have them. It blocks feet, sight or both.
+/// A square grid of walls. It blocks feet, sight or both.
 struct ArenaGrid {
     let cols: Int
     let rows: Int

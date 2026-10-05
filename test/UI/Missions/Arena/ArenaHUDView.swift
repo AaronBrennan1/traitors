@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// What the scores along the top of a mini-game show. The scene writes it; the view only reads.
+/// What the top of a mini-game shows. The scene writes it; the view only reads.
 @Observable
 final class ArenaHUDModel {
     struct Seat: Identifiable {
@@ -12,35 +12,46 @@ final class ArenaHUDModel {
 
     /// How the round came out, for the card at the end.
     struct Summary {
-        let count: Int
+        /// What the player did themselves. Only they are ever shown it.
+        struct Own {
+            let bags: Int
+            let streak: Int
+            let near: Int
+            let best: Int
+            let record: Bool
+        }
+        /// What a traitor's hand did.
+        struct Hand {
+            let uses: Int
+            let cost: Int
+            let sank: Bool
+        }
         let teamTotal: Int
-        /// Nil unless a traitor was on the side quest.
-        let quest: Bool?
+        let own: Own?
+        /// Nil unless the player is a traitor.
+        let hand: Hand?
     }
 
     let kind: MissionKind
     let title: String
     let unit: String
-    let steps: Int
-    let par: Int
     let teamGoal: Int
     let seats: [Seat]
     /// The human is out of the game, or a bot is playing the seat.
     let watching: Bool
-    /// Zero unless a traitor is on the side quest.
-    let questGoal: Int
-    let questText: String?
+    /// What the shadow's hand does, for a traitor. Nil for everyone else.
+    let handText: String?
 
     var seconds = 0
     var timeFraction = 1.0
     var urgent = false
-    var count = 0
     var teamTotal = 0
-    var questProgress = 0
-    var counts: [PlayerID: Int] = [:]
-    var order: [PlayerID]
-    var meterLabel: String?
-    var meterValue = 1.0
+    /// Bags each seat has put in the vault, in the order of `seats`.
+    var banked: [Int] = []
+    /// 0...1 while the vault is sealing on a full pile.
+    var sealing = 0.0
+    var carry = 0
+    var streak = 0
     var toast = ""
     var toastCount = 0
     /// The number on screen before the start and after a pause.
@@ -54,18 +65,15 @@ final class ArenaHUDModel {
     /// Nobody is at the controls, so the round hands itself back.
     let autoAdvance: Bool
 
-    init(config: ArenaConfig, core: ArenaCore) {
+    init(config: ArenaConfig, core: Gauntlet) {
         kind = config.setup.kind
         title = kind.title
-        unit = core.spec.unit
-        steps = core.spec.steps
-        par = core.spec.par
-        teamGoal = core.teamGoal
+        unit = kind.spec.unit
+        teamGoal = core.goal
         seats = config.cast.map { Seat(id: $0.id, name: $0.name, color: Color(uiColor: $0.color), isHuman: $0.isHuman && !config.spectating) }
         watching = config.spectating || !config.cast.contains { $0.isHuman }
-        questGoal = config.questVisible ? core.questGoal : 0
-        questText = config.questVisible ? kind.questText(steps: config.setup.questSteps) : nil
-        order = config.cast.map(\.id)
+        handText = config.handVisible ? MissionKind.hand : nil
+        banked = Array(repeating: 0, count: config.cast.count)
         autoAdvance = config.setup.autopilot || watching
     }
 
@@ -96,8 +104,8 @@ struct ArenaToken: View {
     }
 }
 
-/// The scores over a mini-game: the clock, your count against par, the team's haul, the traitor's
-/// quest and everyone's standing. Only the pause button takes a touch; the rest lets the thumbs through.
+/// What sits over the gauntlet: the clock, what the company has in the vault against its goal, and
+/// who has put how much in. Only the pause button takes a touch; the rest lets the thumbs through.
 struct ArenaHUDView: View {
     let model: ArenaHUDModel
     /// The status bar's height, in the view's own points.
@@ -106,19 +114,19 @@ struct ArenaHUDView: View {
     @State private var cardShown = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    private var atPar: Bool { model.count >= model.par }
+    private var made: Bool { model.teamTotal >= model.teamGoal }
 
     var body: some View {
         ZStack(alignment: .top) {
             VStack(spacing: 7) {
                 clockRow
                 countRow
-                standings
-                if let label = model.meterLabel { meter(label) }
+                goalBar
+                pips
             }
             .padding(.horizontal, 12)
             .padding(.top, topInset + 6)
-            .padding(.bottom, 26)
+            .padding(.bottom, 22)
             .background {
                 LinearGradient(stops: [.init(color: Palette.ink.opacity(0.94), location: 0), .init(color: Palette.ink.opacity(0.80), location: 0.7),
                                        .init(color: Palette.ink.opacity(0), location: 1)], startPoint: .top, endPoint: .bottom)
@@ -177,117 +185,76 @@ struct ArenaHUDView: View {
 
     private var countRow: some View {
         HStack(alignment: .center, spacing: 8) {
-            if model.watching {
-                Text("Watching").font(.system(size: 24, weight: .heavy, design: .serif)).foregroundStyle(Palette.parchment)
-                Text("par \(model.par)").font(.system(size: 12, weight: .medium, design: .serif)).foregroundStyle(Palette.muted)
-            } else {
-                Text("\(model.count)")
-                    .font(.system(size: 36, weight: .heavy, design: .serif)).monospacedDigit()
-                    .foregroundStyle(atPar ? Palette.faithful : Palette.gold)
-                    .contentTransition(.numericText())
-                    .animation(.snappy(duration: 0.25), value: model.count)
-                VStack(alignment: .leading, spacing: 0) {
-                    Text("of \(model.steps) \(model.unit)").font(.system(size: 13, weight: .semibold, design: .serif)).foregroundStyle(Palette.parchment)
-                    HStack(spacing: 3) {
-                        if atPar { Image(systemName: "checkmark.seal.fill").font(.system(size: 10)).foregroundStyle(Palette.faithful) }
-                        Text(atPar ? "par \(model.par) made" : "par \(model.par)")
-                            .font(.system(size: 11, weight: .medium, design: .serif)).foregroundStyle(atPar ? Palette.faithful : Palette.muted)
-                    }
+            Text("\(model.teamTotal)")
+                .font(.system(size: 36, weight: .heavy, design: .serif)).monospacedDigit()
+                .foregroundStyle(made ? Palette.faithful : Palette.gold)
+                .contentTransition(.numericText())
+                .animation(.snappy(duration: 0.25), value: model.teamTotal)
+            VStack(alignment: .leading, spacing: 0) {
+                Text("of \(model.teamGoal) \(model.unit)").font(.system(size: 13, weight: .semibold, design: .serif)).foregroundStyle(Palette.parchment)
+                HStack(spacing: 3) {
+                    if made { Image(systemName: "checkmark.seal.fill").font(.system(size: 10)).foregroundStyle(Palette.faithful) }
+                    Text(model.sealing > 0 ? "sealing the vault" : made ? "goal made" : model.watching ? "watching" : "between you all")
+                        .font(.system(size: 11, weight: .medium, design: .serif)).foregroundStyle(made ? Palette.faithful : Palette.muted)
                 }
             }
             Spacer(minLength: 6)
-            if model.questGoal > 0 { quest }
-            team
+            if !model.watching { load }
         }
         .frame(height: 40)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("The company has \(model.teamTotal) of \(model.teamGoal) \(model.unit)\(made ? ", goal made" : "")")
     }
 
-    private var quest: some View {
-        HStack(spacing: 4) {
-            Image(systemName: "eye.slash.fill").font(.system(size: 11))
-            ForEach(0..<model.questGoal, id: \.self) { i in
-                Image(systemName: i < model.questProgress ? "diamond.fill" : "diamond").font(.system(size: 10, weight: .bold))
+    /// What the player has in their arms, and how many deliveries they have made without going down.
+    private var load: some View {
+        HStack(spacing: 5) {
+            ForEach(0..<Feel.maxCarry, id: \.self) { i in
+                Image(systemName: i < model.carry ? "bag.fill" : "bag").font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(i < model.carry ? Palette.gold : Palette.muted.opacity(0.6))
+            }
+            if model.streak >= Feel.streakBonus {
+                Text("x\(model.streak)").font(.system(size: 12, weight: .heavy, design: .serif)).foregroundStyle(Palette.parchment)
             }
         }
-        .foregroundStyle(Palette.blood)
-        .padding(.horizontal, 8)
+        .padding(.horizontal, 9)
         .padding(.vertical, 6)
-        .background(Palette.blood.opacity(0.14), in: Capsule())
-        .overlay(Capsule().stroke(Palette.blood.opacity(0.5), lineWidth: 1))
+        .background(Palette.parchment.opacity(0.08), in: Capsule())
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Side quest, \(model.questProgress) of \(model.questGoal)")
+        .accessibilityLabel("Carrying \(model.carry) of \(Feel.maxCarry)")
     }
 
-    private var team: some View {
-        let made = model.teamTotal >= model.teamGoal
-        return VStack(alignment: .trailing, spacing: 3) {
-            HStack(spacing: 4) {
-                Text("TEAM").font(.system(size: 9, weight: .heavy, design: .serif)).tracking(1.5).foregroundStyle(Palette.gold)
-                if made { Image(systemName: "checkmark").font(.system(size: 9, weight: .heavy)).foregroundStyle(Palette.faithful) }
-            }
-            Text("\(model.teamTotal)/\(model.teamGoal)")
-                .font(.system(size: 15, weight: .bold, design: .serif)).monospacedDigit()
-                .foregroundStyle(made ? Palette.faithful : Palette.parchment)
-                .contentTransition(.numericText())
-            ZStack(alignment: .leading) {
-                Capsule().fill(Palette.parchment.opacity(0.14))
-                Capsule().fill(made ? Palette.faithful : Palette.gold.opacity(0.8))
-                    .frame(width: 58 * min(1, Double(model.teamTotal) / Double(max(model.teamGoal, 1))))
-            }
-            .frame(width: 58, height: 3)
-        }
-        .animation(.easeOut(duration: 0.25), value: model.teamTotal)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Team, \(model.teamTotal) of \(model.teamGoal)")
-    }
-
-    /// Everyone's count, kept in score order.
-    private var standings: some View {
+    /// Everyone's token with what they have put in the vault. It is for the player's eyes: the table never hears it.
+    private var pips: some View {
         HStack(spacing: 0) {
-            ForEach(model.order, id: \.self) { id in
-                if let seat = model.seat(id) {
-                    let n = model.counts[id] ?? 0
-                    HStack(spacing: 3) {
-                        ArenaToken(seat: seat, size: 19)
-                        Text("\(n)").font(.system(size: 13, weight: .bold, design: .serif)).monospacedDigit()
-                            .foregroundStyle(n >= model.par ? Palette.faithful : Palette.parchment)
-                            .overlay(alignment: .bottom) {
-                                if n >= model.par { Rectangle().fill(Palette.faithful).frame(height: 1.5).offset(y: 2) }
-                            }
-                    }
-                    .padding(.horizontal, 4)
-                    .padding(.vertical, 3)
-                    .background {
-                        if seat.isHuman {
-                            Capsule().fill(Palette.gold.opacity(0.18)).overlay(Capsule().stroke(Palette.gold.opacity(0.8), lineWidth: 1))
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
-                    .accessibilityElement(children: .ignore)
-                    .accessibilityLabel("\(seat.isHuman ? "You" : seat.name), \(n)\(n >= model.par ? ", par made" : "")")
+            ForEach(Array(model.seats.enumerated()), id: \.element.id) { i, seat in
+                HStack(spacing: 3) {
+                    ArenaToken(seat: seat, size: 15)
+                    Text("\(i < model.banked.count ? model.banked[i] : 0)")
+                        .font(.system(size: 11, weight: .bold, design: .serif)).monospacedDigit()
+                        .foregroundStyle(seat.isHuman ? Palette.gold : Palette.parchment.opacity(0.8))
                 }
+                .frame(maxWidth: .infinity)
             }
         }
-        .animation(reduceMotion ? nil : .easeOut(duration: Tokens.Motion.standard), value: model.order)
+        .frame(height: 18)
+        .accessibilityHidden(true)
     }
 
-    private func meter(_ label: String) -> some View {
-        let low = model.meterValue < 0.25
-        return HStack(spacing: 8) {
-            Text(label).font(.system(size: 10, weight: .heavy, design: .serif)).tracking(1.2)
-                .foregroundStyle(low ? Palette.blood : Palette.parchment)
+    /// How far the company is towards its goal.
+    private var goalBar: some View {
+        GeometryReader { geo in
             ZStack(alignment: .leading) {
                 Capsule().fill(Palette.parchment.opacity(0.14))
-                Capsule().fill(low ? Palette.blood : Palette.faithful).frame(width: max(4, 120 * model.meterValue))
+                Capsule().fill(made ? Palette.faithful.opacity(0.45) : Palette.gold.opacity(0.85))
+                    .frame(width: max(5, geo.size.width * min(1, Double(model.teamTotal) / Double(max(model.teamGoal, 1)))))
+                // The seal closing over a full vault.
+                if model.sealing > 0 { Capsule().fill(Palette.faithful).frame(width: max(5, geo.size.width * model.sealing)) }
             }
-            .frame(width: 120, height: 6)
-            if low { Image(systemName: "exclamationmark.triangle.fill").font(.system(size: 10)).foregroundStyle(Palette.blood) }
-            Spacer()
         }
-        .padding(.top, 2)
-        .animation(.linear(duration: 0.15), value: model.meterValue)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(label), \(Int(model.meterValue * 100)) percent")
+        .frame(height: 5)
+        .animation(reduceMotion ? nil : .easeOut(duration: 0.25), value: model.teamTotal)
+        .accessibilityHidden(true)
     }
 
     // MARK: Over the top
@@ -317,7 +284,7 @@ struct ArenaHUDView: View {
             .padding(.vertical, 8)
             .background(Palette.ink.opacity(0.82), in: Capsule())
             .overlay(Capsule().stroke(Palette.gold.opacity(0.5), lineWidth: 1))
-            .padding(.top, topInset + 172)
+            .padding(.top, topInset + 150)
             .scaleEffect(toastShown ? 1 : 0.85)
             .opacity(toastShown ? 1 : 0)
             .allowsHitTesting(false)
@@ -350,12 +317,13 @@ struct ArenaHUDView: View {
         .accessibilityLabel("\(model.title). Starting in \(number)")
     }
 
-    /// "Time", and then how you did: your count against par, the team's haul, and for a traitor the quest.
+    /// How the round ended, and then how the company did against its goal, what the player did
+    /// themselves, and for a traitor what their hand cost.
     private var endCard: some View {
         ZStack {
             Palette.ink.opacity(0.72)
             VStack(spacing: 18) {
-                Text("Time")
+                Text(made ? "Sealed" : "Time")
                     .font(.system(size: cardShown ? 30 : 64, weight: .heavy, design: .serif)).tracking(2)
                     .foregroundStyle(cardShown ? Palette.gold : Palette.parchment)
                     .shadow(color: Palette.gold.opacity(0.35), radius: 18)
@@ -374,42 +342,42 @@ struct ArenaHUDView: View {
     }
 
     private func resultCard(_ summary: ArenaHUDModel.Summary) -> some View {
-        let full = summary.count >= model.steps, made = summary.count >= model.par
         let teamMade = summary.teamTotal >= model.teamGoal
         return VStack(spacing: 14) {
-            if !model.watching {
-                VStack(spacing: 4) {
-                    Label(full ? "Full haul" : made ? "Par made" : "Under par",
-                          systemImage: full ? "crown.fill" : made ? "checkmark.seal.fill" : "flag.fill")
-                        .font(.serif(.caption, weight: .heavy)).textCase(.uppercase).tracking(2)
-                        .foregroundStyle(made ? Palette.faithful : Palette.blood)
-                    HStack(alignment: .firstTextBaseline, spacing: 6) {
-                        Text("\(summary.count)").font(.system(size: 64, weight: .heavy, design: .serif)).monospacedDigit()
-                            .foregroundStyle(made ? Palette.faithful : Palette.parchment)
-                        Text("of \(model.steps) \(model.unit)").font(.serif(.headline)).foregroundStyle(Palette.muted)
-                    }
-                    Text(made ? "Par was \(model.par)." : "Par was \(model.par). The whole table will see it.")
-                        .font(.serif(.footnote)).foregroundStyle(Palette.muted)
+            VStack(spacing: 4) {
+                Label(teamMade ? "Goal made" : "Fell short", systemImage: teamMade ? "checkmark.seal.fill" : "xmark.seal.fill")
+                    .font(.serif(.caption, weight: .heavy)).textCase(.uppercase).tracking(2)
+                    .foregroundStyle(teamMade ? Palette.faithful : Palette.blood)
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                    Text("\(summary.teamTotal)").font(.system(size: 64, weight: .heavy, design: .serif)).monospacedDigit()
+                        .foregroundStyle(teamMade ? Palette.faithful : Palette.parchment)
+                    Text("of \(model.teamGoal) \(model.unit)").font(.serif(.headline)).foregroundStyle(Palette.muted)
                 }
+                Text(teamMade ? "Between you all. Nobody is murdered tonight."
+                              : "Between you all. The traitors have their night.")
+                    .font(.serif(.footnote)).foregroundStyle(Palette.muted)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            if let own = summary.own {
                 Rectangle().fill(Palette.line).frame(height: 1)
-            }
-            HStack {
-                Label("Team", systemImage: "person.3.fill").font(.serif(.subheadline, weight: .semibold)).foregroundStyle(Palette.gold)
-                Spacer()
-                if teamMade { Image(systemName: "checkmark").font(.caption.weight(.heavy)).foregroundStyle(Palette.faithful) }
-                Text("\(summary.teamTotal) of \(model.teamGoal)").font(.serif(.subheadline, weight: .bold)).monospacedDigit()
-                    .foregroundStyle(teamMade ? Palette.faithful : Palette.parchment)
-            }
-            if let quest = summary.quest {
-                HStack {
-                    Label("Side quest", systemImage: "eye.slash.fill").font(.serif(.subheadline, weight: .semibold))
-                    Spacer()
-                    Text(quest ? "Done" : "Not done").font(.serif(.subheadline, weight: .bold))
+                HStack(spacing: 0) {
+                    stat("\(own.bags)", own.record ? "your best yet" : "your bags, best \(own.best)", gold: own.record)
+                    stat("\(own.streak)", "in a row")
+                    stat("\(own.near)", "near misses")
                 }
-                .foregroundStyle(quest ? Palette.blood : Palette.muted)
+            }
+            if let hand = summary.hand {
+                HStack {
+                    Label("The Shadow's Hand", systemImage: "eye.slash.fill").font(.serif(.subheadline, weight: .semibold))
+                    Spacer()
+                    Text(hand.uses == 0 ? "Not used" : hand.sank ? "Sank the day" : "Cost them \(hand.cost)")
+                        .font(.serif(.subheadline, weight: .bold))
+                }
+                .foregroundStyle(hand.uses > 0 ? Palette.blood : Palette.muted)
             }
             if !model.autoAdvance {
-                Button("See the scoreboard") {
+                Button("See the result") {
                     Feedback.play(.tap)
                     model.proceed = true
                 }
@@ -421,5 +389,15 @@ struct ArenaHUDView: View {
         .background(Palette.panel.opacity(0.96), in: RoundedRectangle(cornerRadius: Tokens.Radius.sheet))
         .overlay(RoundedRectangle(cornerRadius: Tokens.Radius.sheet).stroke(Palette.gold.opacity(0.4), lineWidth: 1))
         .transition(reduceMotion ? .opacity : .scale(scale: 0.9).combined(with: .opacity))
+    }
+
+    private func stat(_ value: String, _ label: String, gold: Bool = false) -> some View {
+        VStack(spacing: 2) {
+            Text(value).font(.system(size: 24, weight: .heavy, design: .serif)).monospacedDigit()
+                .foregroundStyle(gold ? Palette.gold : Palette.parchment)
+            Text(label).font(.serif(.caption2)).foregroundStyle(gold ? Palette.gold : Palette.muted)
+                .lineLimit(1).minimumScaleFactor(0.7)
+        }
+        .frame(maxWidth: .infinity)
     }
 }

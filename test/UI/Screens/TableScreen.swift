@@ -138,12 +138,8 @@ struct Composer: View {
                         Button("Defend") { action = .defend }.buttonStyle(GhostButtonStyle(tint: Palette.faithful))
                         Button("Question") { action = .question }.buttonStyle(GhostButtonStyle(tint: Palette.gold))
                     }
-                    HStack(spacing: 8) {
-                        Button("Claim the shield") { store.send(.say(.claimShield, target: nil, chip: nil)) }
-                            .buttonStyle(GhostButtonStyle())
-                        Button("Stay quiet") { store.send(.say(.pass, target: nil, chip: nil)) }
-                            .buttonStyle(GhostButtonStyle())
-                    }
+                    Button("Stay quiet") { store.send(.say(.pass, target: nil, chip: nil)) }
+                        .buttonStyle(GhostButtonStyle())
                 }
             }
         }

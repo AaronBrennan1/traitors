@@ -2,12 +2,11 @@ import Foundation
 
 /// Numbers that shape how evidence is weighed. Tuned with the headless simulator.
 enum Tuning {
-    /// Assumed chance the traitors go for the side quest on a given day.
-    static var attemptRate = 0.66
-    /// Assumed chance an attempted side quest comes off.
-    static var questSuccess = 0.9
-    /// Assumed chance a murder is blocked by the shield.
-    static var shieldRate = 0.13
+    /// Assumed chance a traitor uses the shadow's hand on a given day.
+    static var attemptRate = 0.75
+    /// Assumed chance the company falls short on a day the hand is used against it, and on a day it is not.
+    static var sinkRate = 0.78
+    static var baseLoss = 0.24
     /// How strongly "the victim had gone after you" counts as motive. Small, because traitors
     /// who plan their murders avoid exactly the kills that would point back at them.
     static var motive = 0.1
@@ -29,10 +28,10 @@ enum Tuning {
     static var recruitBias = 6.0
     /// Two honest witnesses flatly contradicting each other.
     static var lieConflict = 0.05
-    /// How much likelier each behaviour is from a player actually on the side quest, by
-    /// `SightingKind.index`. Only one traitor quests on a given day, so across all traitors
-    /// these come out near 1.5, 2, 2.5, 2 and 4 against a faithful.
-    static var sightLift = [2.25, 3.5, 4.75, 3.5, 8.5, 0.15]
+    /// How much likelier each behaviour is from a player actually using the shadow's hand, by
+    /// `SightingKind.index`. Only one traitor uses it on a given day, so across all traitors
+    /// these come out lower against a faithful. Measured from the gauntlet as bots play it.
+    static var sightLift = [2.3, 2.4, 5, 3, 10, 0.1]
 
     static func sight(_ kind: SightingKind) -> Double { sightLift[kind.index] }
 
@@ -45,8 +44,23 @@ enum Tuning {
     static func set(_ name: String, _ x: Double) {
         switch name {
         case "attemptRate": attemptRate = x
-        case "questSuccess": questSuccess = x
-        case "shieldRate": shieldRate = x
+        case "sinkRate": sinkRate = x
+        case "baseLoss": baseLoss = x
+        case "spread": MissionRun.spread = x
+        case "handicap": MissionRun.handicap = x
+        case "sabotageCost": MissionRun.sabotageCost = x
+        case "formGain": Gauntlet.formGain = x
+        case "spillBags": Gauntlet.spillBags = Int(x)
+        case "spillThrow": Gauntlet.spillThrow = x
+        case "witness": Gauntlet.witness = x
+        case "liftWorks": sightLift[SightingKind.atTheWorks.index] = x
+        case "nerves": Gauntlet.nerves = x
+        case "inViewShare": SightingDeriver.inViewShare = x
+        case "sticks": Hazard.sticks = Int(x)
+        case "sabotageActs": Gauntlet.sabotageActs = Int(x)
+        case "lostCause": Gauntlet.lostCause = x
+        case "attemptCalm": TraitorBrain.attemptCalm = x
+        case "attemptHot": TraitorBrain.attemptHot = x
         case "motive": motive = x
         case "voteBoth": voteBoth = x
         case "voteOnly": voteOnly = x
@@ -79,19 +93,13 @@ struct Observer {
     var gut: [Double]
     /// 0...1 exponent on the evidence; below 1 the mind under-reacts.
     var temper: Double
-    /// Mission slips this mind actually spotted (day * 100 + unit). Nil = spotted all.
-    var noticed: Set<Int>?
-    /// How much room is left for "a traitor slipped and I missed it".
-    var missFloor: Double
     /// What this mind saw for itself during missions.
     var sightings: [Sighting] = []
     /// Share of soft evidence still remembered after each night.
     var decay = 1.0
-    /// How far this mind over-reads a poor score ("bad at games, so a traitor").
-    var slipBias = 0.0
 
     static func publicView(count: Int) -> Observer {
-        Observer(id: nil, gut: Array(repeating: 0, count: count), temper: 1, noticed: nil, missFloor: 0.08)
+        Observer(id: nil, gut: Array(repeating: 0, count: count), temper: 1)
     }
 
     /// Whether this mind knows first-hand that a claimed sighting cannot be true.
@@ -280,6 +288,12 @@ struct Replay {
             named = Array(repeating: nil, count: count)
 
         case .night(let day, let victim, let recruitNight):
+            // The traitors only get their night by the shadow's task or by the company falling
+            // short, so what happened says something about the day whichever kind of night it was.
+            if let r = pending, r.day == day {
+                let term = missionTerm(report: r, acted: victim != nil || recruitNight)
+                for h in masks.indices { add(.mission, h, term[h]) }
+            }
             if recruitNight {
                 if let victim {
                     // The offer was refused and the refuser was killed: they were faithful.
@@ -288,16 +302,10 @@ struct Replay {
                 } else {
                     recruit()
                 }
-            } else {
-                if let r = pending, r.day == day {
-                    let term = missionTerm(report: r, murdered: victim != nil)
-                    for h in masks.indices { add(.mission, h, term[h]) }
-                }
-                if let victim {
-                    keep { !$0.has(victim) }
-                    motive(victim)
-                    aliveMask &= ~SeatMask.seat(victim)
-                }
+            } else if let victim {
+                keep { !$0.has(victim) }
+                motive(victim)
+                aliveMask &= ~SeatMask.seat(victim)
             }
             pending = nil
             told = []
@@ -375,7 +383,7 @@ struct Replay {
         var p = prior
         if let r = pending {
             // Mission done, night still to come: weigh what was seen on its own.
-            let term = missionTerm(report: r, murdered: nil)
+            let term = missionTerm(report: r, acted: nil)
             for h in m.indices { e[h * Self.kinds + EvidenceKind.mission.rawValue] += term[h] }
         }
         if m.isEmpty {
@@ -457,33 +465,29 @@ struct Replay {
         }
     }
 
-    /// Joint likelihood, per team, of everything known about the day's mission (scores, what
-    /// was seen, who was watched throughout) and whether a murder followed.
-    private func missionTerm(report: MissionReport, murdered: Bool?) -> [Double] {
-        // What this mind knows for itself about each player, as a ratio of "was on the side
-        // quest" to "was not".
+    /// Joint likelihood, per team, of what was seen during the day's mission and of the night
+    /// that followed. `acted` is whether the traitors murdered or recruited, nil while the night
+    /// is still to come.
+    private func missionTerm(report: MissionReport, acted: Bool?) -> [Double] {
+        // What this mind saw for itself of each player, as a ratio of "used the shadow's hand"
+        // to "did not".
         var own = Array(repeating: 1.0, count: count)
         var ownSeen = Array(repeating: 0, count: count)
-        for t in 0..<count where aliveAtMission.has(t) {
-            guard let u = report.unitIndex(of: t) else { continue }
-            let unit = report.units[u]
-            let seen = unit.anomalous && (observer.noticed?.contains(report.day * 100 + u) ?? true)
-            let r = clamp(unit.innocentRate, 0.05, 0.95), q = clamp(unit.questRate, 0.05, 0.95)
-            if seen {
-                own[t] = pow(q / r, 1 + observer.slipBias)
-            } else {
-                own[t] = max(observer.missFloor / r, (1 - q) / (1 - r))
-            }
-        }
         for s in observer.sightings where s.day == report.day && ownSeen[s.subject] & (1 << s.kind.index) == 0 {
             ownSeen[s.subject] |= 1 << s.kind.index
             own[s.subject] *= Tuning.sight(s.kind)
         }
 
-        let a = Tuning.attemptRate, shield = Tuning.shieldRate, k = Tuning.questSuccess
+        // How likely the day's result is with the hand in play and without, and how much of that
+        // the hand accounts for. Whether the traitors then had their night adds nothing: it
+        // follows from the result.
+        let a = Tuning.attemptRate
+        let with = report.groupWon ? 1 - Tuning.sinkRate : Tuning.sinkRate
+        let without = report.groupWon ? 1 - Tuning.baseLoss : Tuning.baseLoss
+        let quiet = (1 - a) * without
         return masks.map { mask in
             let team = mask & aliveAtMission
-            guard team != 0 else { return murdered == true ? -6 : 0 }
+            guard team != 0 else { return acted == true ? -6 : 0 }
             var sum = 0.0
             var members = 0
             for t in 0..<count where team.has(t) {
@@ -498,11 +502,8 @@ struct Replay {
                 sum += f
             }
             let mean = sum / Double(members)
-            switch murdered {
-            case .some(true): return log(mean)
-            case .some(false): return log((1 - a) + a * mean * ((1 - k) + k * shield))
-            case .none: return log((1 - a) + a * mean)
-            }
+            // Scaled so that a day on which nothing was seen of anyone says nothing.
+            return log((quiet + a * with * mean) / (quiet + a * with))
         }
     }
 }

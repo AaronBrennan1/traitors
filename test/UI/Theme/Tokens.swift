@@ -35,6 +35,14 @@ enum Tokens {
         static let ember = Swatch(1.00, 0.74, 0.36)
         static let mist = Swatch(0.70, 0.78, 0.76)
 
+        // The gauntlet: stone that reads at a glance, a drop that is plainly a drop, and one
+        // colour kept for whatever is about to hurt.
+        static let flagstone = Swatch(0.34, 0.37, 0.38)
+        static let flagstoneHi = Swatch(0.43, 0.46, 0.46)
+        static let wallStone = Swatch(0.15, 0.17, 0.19)
+        static let pit = Swatch(0.02, 0.03, 0.035)
+        static let danger = Swatch(0.98, 0.30, 0.22)
+
         // Scenery, all a step darker and greyer than daylight.
         static let grass = Swatch(0.27, 0.42, 0.26)
         static let mossGreen = Swatch(0.30, 0.44, 0.28)

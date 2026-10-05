@@ -42,8 +42,8 @@ enum Defences {
         if let b = wrong {
             // The reason this player had at the time.
             let then = mind.seen.filter { $0.day <= b.day }
-            if let chip = Chips.about(b.player, view: view, noticed: mind.noticed, suspicious: true, sightings: then)
-                .first(where: { $0.kind == .sighting || $0.kind == .missionSlip }) {
+            if let chip = Chips.about(b.player, view: view, suspicious: true, sightings: then)
+                .first(where: { $0.kind == .sighting }) {
                 out.append(DefenceOption(defence: .evidence, chip: chip, credibility: 0.35 + 0.3 * chip.strength))
             }
             if let first = b.firstNamer, first != me, view.seats[first].alive {
@@ -62,21 +62,15 @@ enum Defences {
             }
         }
 
-        let record = Chips.about(me, view: view, noticed: nil, suspicious: false)
+        let record = Chips.about(me, view: view, suspicious: false)
             .filter { [.votedTraitor, .firstOnTraitor, .flaggedEarly, .accusedByTraitor].contains($0.kind) }
         if let chip = record.first {
             out.append(DefenceOption(defence: .trackRecord, chip: chip,
                                      credibility: min(1, 0.45 + 0.25 * record.reduce(0) { $0 + $1.strength })))
         }
 
-        if charge?.kind == .missionSlip {
-            // Accused on the score alone. It carries if someone has said they had eyes on this player.
-            let alibi = ix.told.contains { $0.about == me && $0.day == view.day && $0.kind == .inView }
-            out.append(DefenceOption(defence: .badAtThis, credibility: alibi ? 0.85 : 0.5))
-        }
-
         let base = FaithfulBrain.baseRate(view, belief)
-        if let chip = Chips.about(accuser, view: view, noticed: mind.noticed, suspicious: true,
+        if let chip = Chips.about(accuser, view: view, suspicious: true,
                                   sightings: mind.seen.filter({ $0.day == view.day })).first(where: { $0.kind != .gut }) {
             let lift = belief.marginal(accuser) / base
             out.append(DefenceOption(defence: .counterattack, target: accuser, chip: chip,
@@ -85,7 +79,7 @@ enum Defences {
 
         if let top = FaithfulBrain.topSuspect(view, belief, me: me, among: others.filter({ $0 != accuser })),
            belief.marginal(top) / base > 1.15 {
-            let chip = FaithfulBrain.bestChip(top, view, mind.noticed, suspicious: true,
+            let chip = FaithfulBrain.bestChip(top, view, suspicious: true,
                                               sightings: mind.seen.filter { $0.day == view.day }, belief: belief)
             out.append(DefenceOption(defence: .redirect, target: top, chip: chip,
                                      credibility: 0.2 + 0.3 * min(chip?.strength ?? 0, 1)))

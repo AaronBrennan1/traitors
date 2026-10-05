@@ -14,7 +14,7 @@ enum BeatKind: String, Codable {
     /// Something a player says at the table.
     case speech
     case vote, banish, murder
-    /// Shown only to the human: traitor business, shield, whispers.
+    /// Shown only to the human: traitor business, whispers.
     case secret
     case result
 }
@@ -29,7 +29,7 @@ struct Beat: Codable {
 }
 
 enum HumanSay: String, Codable {
-    case accuse, defend, question, claimShield, pass
+    case accuse, defend, question, pass
 }
 
 enum HumanInput {
@@ -73,15 +73,15 @@ struct Tally: Codable {
     var roundTables = 0
     var nights = 0
     var murders = 0
-    var shieldBlocks = 0
     var unanimous = 0
     var firstTableSplit = false
     var firstBanishedTraitor: Bool? = nil
     var banishedTraitors = 0
     var banishedFaithful = 0
     var recruited = false
-    var questAttempts = 0
-    var questsDone = 0
+    /// Missions a traitor used the shadow's hand in, and missions it made the difference.
+    var sabotageAttempts = 0
+    var daysSunk = 0
     /// Days a traitor was banished with a partner still at the table, and how many partners voted for it.
     var partnerDown = 0
     var busVotes = 0
@@ -91,5 +91,8 @@ struct Tally: Codable {
     var testimony = 0
     var challenges = 0
     var framings = 0
+    /// Missions the company won, and nights the traitors were kept in by one.
+    var groupWins = 0
+    var quietNights = 0
     var defences: [String: Int] = [:]
 }

@@ -5,8 +5,6 @@ struct BotMind: Codable {
     var id: PlayerID
     /// Log-odds hunch about each player; grows into a grudge when they come after this bot.
     var gut: [Double]
-    /// Mission slips this bot spotted (day * 100 + unit).
-    var noticed: Set<Int> = []
     /// What this bot saw other people do in missions.
     var seen: [Sighting] = []
     /// What this bot did in missions that somebody else saw, and who.
@@ -50,8 +48,7 @@ enum TablePhase {
 /// Decision-making for a bot that is faithful.
 enum FaithfulBrain {
     static func observer(_ mind: BotMind, _ p: Personality) -> Observer {
-        Observer(id: mind.id, gut: mind.gut, temper: 0.55 + 0.45 * p.logic, noticed: mind.noticed, missFloor: 0.15,
-                 sightings: mind.seen, decay: 0.9 + 0.1 * p.logic, slipBias: 2.5 * max(0, 0.8 - p.logic))
+        Observer(id: mind.id, gut: mind.gut, temper: 0.55 + 0.45 * p.logic, sightings: mind.seen, decay: 0.9 + 0.1 * p.logic)
     }
 
     /// Chance a random other living player is a traitor, as a yardstick for "more suspicious than average".
@@ -102,7 +99,7 @@ enum FaithfulBrain {
             for x in others where !raised(x) {
                 let l = lift(x)
                 if l > bar {
-                    let chip = bestChip(x, view, mind.noticed, suspicious: true, sightings: fresh, belief: belief)
+                    let chip = bestChip(x, view, suspicious: true, sightings: fresh, belief: belief)
                     out.append(Proposal(intent: Intent(kind: .accuse, target: x, chip: chip), score: l))
                 } else if phase == .openFloor, l > 1.05, !today.contains(where: { $0.kind == .doubt }) {
                     out.append(Proposal(intent: Intent(kind: .doubt, target: x, chip: nil), score: l - 0.45))
@@ -137,7 +134,7 @@ enum FaithfulBrain {
                 let chip = Chip(kind: .inSight, subject: x, day: view.day, sight: .inView, strength: 1.1)
                 out.append(Proposal(intent: Intent(kind: .vouch, target: x, chip: chip), score: 1.6 + 0.2 * view.heat[x]))
             } else if view.heat[x] >= 1.0 {
-                let chip = bestChip(x, view, mind.noticed, suspicious: false, belief: belief)
+                let chip = bestChip(x, view, suspicious: false, belief: belief)
                 out.append(Proposal(intent: Intent(kind: .defend, target: x, chip: chip), score: 1.0 + 0.2 * view.heat[x]))
             }
         }
@@ -176,9 +173,9 @@ enum FaithfulBrain {
 
     /// The chip to cite about `x`. Given the belief, it is the one that best matches why this
     /// mind actually thinks what it thinks, so what a bot says is what moved it.
-    static func bestChip(_ x: PlayerID, _ view: TableView, _ noticed: Set<Int>?, suspicious: Bool,
+    static func bestChip(_ x: PlayerID, _ view: TableView, suspicious: Bool,
                          sightings: [Sighting] = [], belief: Belief? = nil) -> Chip? {
-        let chips = Chips.about(x, view: view, noticed: noticed, suspicious: suspicious, sightings: sightings)
+        let chips = Chips.about(x, view: view, suspicious: suspicious, sightings: sightings)
         if suspicious, let belief {
             for reason in belief.reasons(for: x) {
                 guard let kind = reason.kind else { break }
@@ -190,7 +187,7 @@ enum FaithfulBrain {
 
     private static func cites(_ kind: EvidenceKind) -> [ChipKind] {
         switch kind {
-        case .mission: return [.sighting, .missionSlip]
+        case .mission: return [.sighting]
         case .vote: return [.sparedTraitor, .votedOutFaithful]
         case .defend: return [.sworeBy, .defendedTraitor]
         case .firstNamer: return [.firstNamed, .pushedHardest]

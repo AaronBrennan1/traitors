@@ -186,7 +186,7 @@ struct SetupView: View {
         switch p {
         case .random: return "One chance in four of being a traitor."
         case .faithful: return "Find both traitors before they outnumber you."
-        case .traitor: return "Murder by night, lie by day, and do the side quest unseen."
+        case .traitor: return "Lie by day, spoil the company's win unseen, and murder by night."
         }
     }
     private func icon(_ p: RolePreference) -> String {

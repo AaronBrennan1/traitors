@@ -265,14 +265,14 @@ struct SectionTitle: View {
     }
 }
 
-/// The traitor's secret objective, pinned above a mini-game.
+/// What only a traitor is told about a mission.
 struct QuestBanner: View {
     let text: String
 
     var body: some View {
         HStack(alignment: .top, spacing: 8) {
             Image(systemName: "eye.slash.fill").foregroundStyle(Palette.blood)
-            Text("Side quest: \(text)")
+            Text(text)
                 .font(.serif(.footnote))
                 .foregroundStyle(Palette.parchment)
                 .fixedSize(horizontal: false, vertical: true)
