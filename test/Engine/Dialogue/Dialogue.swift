@@ -130,9 +130,9 @@ enum Dialogue {
         switch kind {
         case .offTask: return "drifting off into the corners"
         case .loiter: return "standing about out of the way"
-        case .emptyHanded: return "up at the vault with nothing to put in it"
+        case .emptyHanded: return "turning up where the work is handed in with nothing to hand in"
         case .startled: return "jump and look busy when watched"
-        case .atTheWorks: return "standing right by the works when they went"
+        case .atTheWorks: return "standing right there when something went wrong"
         case .inView, .none: return "in plain sight throughout"
         }
     }
@@ -250,8 +250,8 @@ enum Dialogue {
                 ])
             case .emptyHanded:
                 return rng.pick([
-                    "{T} was up at the vault door in {M} with nothing in their arms. Doing what?",
-                    "Halfway through {M}, {T} walked up to the vault empty-handed. Why would you?",
+                    "{T} turned up empty-handed in {M}, right where the work gets handed in. Doing what?",
+                    "Halfway through {M}, {T} came over with nothing to hand in and just stood there. Why would you?",
                 ])
             case .startled:
                 return rng.pick([
@@ -261,7 +261,7 @@ enum Dialogue {
             default:
                 return rng.pick([
                     "Something went off out of turn in {M}, and {T} was standing right beside it.",
-                    "{T} was stood at the works in {M} the moment they went. I saw it.",
+                    "{T} was stood right there in {M} the moment it all went wrong. I saw it.",
                 ])
             }
         case .inSight:

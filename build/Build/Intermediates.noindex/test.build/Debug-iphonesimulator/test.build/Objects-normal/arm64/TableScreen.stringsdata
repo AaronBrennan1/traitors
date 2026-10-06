@@ -76,6 +76,14 @@
       },
       {
         "comment": "",
+        "key": "Stay quiet",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 141
+        }
+      },
+      {
+        "comment": "",
         "key": "Back",
         "location": {
           "startingColumn": 32,
@@ -104,22 +112,6 @@
         "location": {
           "startingColumn": 32,
           "startingLine": 139
-        }
-      },
-      {
-        "comment": "",
-        "key": "Claim the shield",
-        "location": {
-          "startingColumn": 32,
-          "startingLine": 142
-        }
-      },
-      {
-        "comment": "",
-        "key": "Stay quiet",
-        "location": {
-          "startingColumn": 32,
-          "startingLine": 144
         }
       }
     ]

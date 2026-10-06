@@ -24,14 +24,14 @@ struct TutorialView: View {
             "At the Round Table you talk, vote, and banish one player. Then night falls.",
         ]),
         Page(title: "Missions", lines: [
-            "Every mission is the gauntlet: carry the castle's gold from the hoard to the vault, through blades, barrels, spikes and whatever else that part of the castle has in the way.",
-            "Get caught and you drop what you carry and wake at the last brazier. Every trap shows itself before it strikes, and a dash will carry you over a gap.",
-            "Everything goes in one vault, and the vault has a goal. Fill it between you and there is no murder that night. Fall short and the traitors have their night.",
+            "Every day is a different game. One day you are stacking turf across a bog, the next herding sheep, diving a wreck, dancing a céilí or running gold through the castle's traps. Each plays its own way, and the card before it says how.",
+            "Everyone plays at once. The row of tokens along the top shows who has brought home what, and it shuffles as people overtake one another.",
+            "It all counts towards one goal. Make it between you and there is no murder that night. Fall short and the traitors have their night.",
         ]),
         Page(title: "The shadow's hand", lines: [
-            "A traitor runs the same gauntlet with one thing more. Standing still beside a lever, a candle sconce or the vault door, a tap of Dash trips the trap, puts out the light or spills gold back out of the vault.",
+            "A traitor plays the same game with one thing more. Every game has something that can be made to go wrong: a stack that slumps, a gate that bursts, a cart that tips. Stand still beside it and tap the button, and the team loses some of what it had.",
             "The traitors only get their night if the company falls short, so the hand is how they see to it.",
-            "Nothing on the screen says whose hand it was. But the castle's own traps slip now and then, and anyone close by sees who was standing there when it went.",
+            "Nothing on the screen says whose hand it was. But these things go by themselves now and then too, and anyone close by sees who was standing there when it went.",
         ]),
         Page(title: "What you saw", lines: [
             "The mission does not say who did how much. What people saw is the evidence: you are told what you noticed, and can say it at the table.",
@@ -124,8 +124,8 @@ struct TutorialView: View {
                 step("moon.stars.fill", "Night")
             }
         case 2:
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 5), spacing: 14) {
-                ForEach(MissionKind.allCases, id: \.self) { k in
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: 14) {
+                ForEach(MissionKind.games + [.greatHall], id: \.self) { k in
                     Image(systemName: k.icon).font(.title2).foregroundStyle(Palette.gold)
                 }
             }
@@ -139,7 +139,7 @@ struct TutorialView: View {
                     Image(systemName: "circle.fill").foregroundStyle(Palette.gold)
                 }
                 .font(.title2)
-                QuestBanner(text: "Known only to traitors: a lever, a candle, the vault door.")
+                QuestBanner(text: "Known only to traitors: what can be made to go wrong, marked in red.")
             }
         case 4:
             HStack(spacing: 22) {

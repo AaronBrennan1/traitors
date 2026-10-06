@@ -3,8 +3,9 @@ import Foundation
 /// The looping sound of a room.
 nonisolated enum Bed: String, Sendable {
     case hall, morning, grounds, table, turret, chamber, fire
-    /// Not a room: the pulse under a mission.
-    case gauntlet
+    /// Not rooms: what plays under a mission. The gauntlet has its pulse, and the other games
+    /// share four airs between them by where they are set.
+    case gauntlet, reel, shore, dusk, green
 }
 
 /// A single sound laid over the room.
@@ -48,6 +49,26 @@ nonisolated enum Synth {
             mix(&out, drone(n, [73.5, 110.25, 147]), 0.20)
             mix(&out, pulse(n, beats: 16), 0.55)
             mix(&out, ostinato(n, beats: 16, notes: [293.66, 349.23, 440, 349.23, 293.66, 261.63, 220, 261.63]), 0.16)
+        case .reel:
+            // D major and quick on its feet, for the dance floor, the market and the kitchen.
+            mix(&out, drone(n, [73.42, 146.83]), 0.10)
+            mix(&out, pulse(n, beats: 24), 0.30)
+            mix(&out, ostinato(n, beats: 24, notes: [293.66, 369.99, 440, 587.33, 493.88, 440, 369.99, 329.63, 293.66, 329.63, 369.99, 440]), 0.20)
+        case .shore:
+            // Wind off the water and a slow figure over it, for the bog, the wreck and the cliffs.
+            mix(&out, wind(n, seed: 81, low: 0.010, high: 0.050), 0.34)
+            mix(&out, drone(n, [82.41, 123.47]), 0.16)
+            mix(&out, ostinato(n, beats: 8, notes: [246.94, 329.63, 293.66, 246.94]), 0.12)
+        case .dusk:
+            // Low and watchful, for the ramparts by night and the maze.
+            mix(&out, drone(n, [65.41, 98, 155.56]), 0.22)
+            mix(&out, ticks(n, every: 0.75), 0.14)
+            mix(&out, ostinato(n, beats: 12, notes: [196, 233.08, 261.63, 233.08, 196, 174.61]), 0.13)
+        case .green:
+            // Birds and an easy step, for the hillside and the lawn.
+            mix(&out, birds(n, seed: 91, perSecond: 0.9), 0.26)
+            mix(&out, pulse(n, beats: 12), 0.22)
+            mix(&out, ostinato(n, beats: 12, notes: [392, 493.88, 587.33, 493.88, 440, 392]), 0.14)
         case .fire:
             mix(&out, rumble(n, seed: 71), 0.40)
             mix(&out, crackle(n, seed: 72, perSecond: 14), 0.34)

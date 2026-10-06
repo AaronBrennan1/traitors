@@ -722,8 +722,10 @@ func says(_ speaker: PlayerID, _ kind: StatementKind, _ target: PlayerID, _ chip
 // MARK: - The gauntlet
 
 @MainActor
-@Test func everyCourseIsWellMade() {
-    #expect(MissionKind.allCases.count == 5)
+@Test func everyGameAsksForADaysWorkAndNoMore() {
+    // Five courses of the gauntlet and ten games of their own. Fails when a game is added: give it a goal.
+    #expect(MissionKind.courses.count == 5 && MissionKind.games.count == 10)
+    #expect(Set(MissionKind.courses + MissionKind.games) == Set(MissionKind.allCases))
     for kind in MissionKind.allCases {
         let spec = kind.spec
         for alive in 5...8 {
@@ -732,6 +734,13 @@ func says(_ speaker: PlayerID, _ kind: StatementKind, _ target: PlayerID, _ chip
             #expect(head > 3, "\(kind)")
             #expect(goal > head * Double(alive - 1) && goal < head * Double(alive), "\(kind)")
         }
+        #expect(kind.controls.count == 3 && !kind.hand.isEmpty && !kind.twist.isEmpty, "\(kind)")
+    }
+}
+
+@MainActor
+@Test func everyCourseIsWellMade() {
+    for kind in MissionKind.courses {
         for row in Courses.blueprint(kind).rows { #expect(row.count == Course.cols, "\(kind): \(row)") }
         let course = Course(kind)
         // There is a way on foot from the hoard to the vault, and somewhere to wake up along it.
@@ -747,12 +756,20 @@ func says(_ speaker: PlayerID, _ kind: StatementKind, _ target: PlayerID, _ chip
 }
 
 @MainActor
-@Test func theDeckOpensInTheGreatHall() {
+@Test func theDeckDealsEveryGameOnceAndOneCourseOfTheGauntlet() {
+    var courses: Set<MissionKind> = [], openers: Set<MissionKind> = []
     for seed in 1...200 {
         var rng = SeededRNG(seed: UInt64(seed))
         let deck = MissionDeck.deal(rng: &rng)
-        #expect(deck.first == .greatHall && Set(deck) == Set(MissionKind.allCases) && deck.count == MissionKind.allCases.count)
+        #expect(deck.count == MissionKind.games.count + 1 && Set(deck).count == deck.count, "seed \(seed)")
+        #expect(Set(deck.filter { !$0.isGauntlet }) == Set(MissionKind.games), "seed \(seed)")
+        #expect(deck.filter(\.isGauntlet).count == 1, "seed \(seed)")
+        courses.formUnion(deck.filter(\.isGauntlet))
+        openers.insert(deck[0])
     }
+    // Every course turns up in some game, and no game always comes first.
+    #expect(courses == Set(MissionKind.courses))
+    #expect(openers.count > MissionKind.games.count)
 }
 
 @MainActor
@@ -876,7 +893,7 @@ func derived(_ l: MissionLedger) -> [Sighting] {
 
 @MainActor
 @Test func nobodyEndsUpInAWallOrInsideAnyoneElse() {
-    for kind in MissionKind.allCases {
+    for kind in MissionKind.courses {
         let core = Gauntlet(ArenaRunner.sample(kind, seed: 21, sabotage: true))
         var worst = 2 * Feel.radius
         while !core.finished {
@@ -941,7 +958,7 @@ func clears(tiles: Int, dashAt short: Double) -> Bool {
 
 @MainActor
 @Test func everyTrapWarnsBeforeItStrikes() {
-    for kind in MissionKind.allCases {
+    for kind in MissionKind.courses {
         for (i, start) in Course(kind).hazards.enumerated() where start.kind != .blade && start.kind != .gust {
             var h = start
             var warned = 0
@@ -971,18 +988,105 @@ func clears(tiles: Int, dashAt short: Double) -> Bool {
     // A frame too short for a step, and the press still lands on the next one.
     runner.press()
     runner.advance(0.001, input: ArenaInput())
-    #expect(runner.core.runners[0].dash == 0)
+    #expect(runner.gauntlet!.runners[0].dash == 0)
     runner.advance(1.0 / 60, input: ArenaInput())
     runner.advance(1.0 / 60, input: ArenaInput())
-    #expect(runner.core.runners[0].dash > 0)
+    #expect(runner.gauntlet!.runners[0].dash > 0)
 
     // A press a moment before the dash is ready again goes off when it is.
-    let core = runner.core
+    let core = runner.gauntlet!
     while core.runners[0].cooldown > 5 { core.step() }
     #expect(core.runners[0].cooldown > 0 && core.runners[0].dash == 0)
     core.press()
     for _ in 0..<6 { core.step() }
     #expect(core.runners[0].dash > 0)
+}
+
+/// A game other than the gauntlet, to step by hand.
+@MainActor
+func core(_ kind: MissionKind, seed: UInt64, sabotage: Bool = true, hand: ArenaRunner.Hand = .bot) -> ArenaCore {
+    ArenaGames.make(ArenaRunner.sample(kind, seed: seed, sabotage: sabotage, hand: hand)) as! ArenaCore
+}
+
+@MainActor
+@Test func everyGameKeepsEveryoneOnTheFloor() {
+    for kind in MissionKind.games {
+        let game = core(kind, seed: 21)
+        var step = 0
+        var walled = Array(repeating: 0, count: game.actors.count)
+        while !game.finished {
+            game.step()
+            step += 1
+            // Every step is a lot to look at. A few times a second is enough to catch anyone going through a wall.
+            guard step % 7 == 0 else { continue }
+            for (i, a) in game.actors.enumerated() {
+                #expect(a.pos.x >= 0 && a.pos.y >= 0 && a.pos.x <= game.size.x && a.pos.y <= game.size.y, "\(kind): seat \(a.id) at \(a.pos)")
+                // A bot may clip the corner of a wall as it cuts round it. It may not stay in one.
+                walled[i] = game.grid?.isSolid(a.pos) == true && a.stun <= 0 ? walled[i] + 1 : 0
+                #expect(walled[i] < 3, "\(kind): seat \(a.id) is in a wall")
+            }
+            #expect(game.teamTotal >= 0)
+        }
+        // The clock is the only thing that ends one of these, and the record runs the length of it.
+        #expect(abs(game.time - game.totalTime) < 0.1, "\(kind)")
+        #expect(abs(Double(game.ledger.ticks) - game.totalTime * Double(MissionLedger.hz)) <= 2, "\(kind)")
+        #expect(game.ledger.x.count == game.ledger.ticks * game.actors.count, "\(kind)")
+        #expect(game.tally.count == game.actors.count && game.tally.reduce(0, +) > 0, "\(kind)")
+    }
+}
+
+@MainActor
+@Test func aPressOrAStrikeIsNeverLostBetweenFramesInAnyGame() {
+    // A whistle in the round-up: the dog is sent on the press, however short the frame it came in.
+    let herd = ArenaRunner(ArenaRunner.sample(.sheepRoundUp, seed: 2, sabotage: false, hand: .idle))
+    while herd.stage == .countdown { herd.advance(0.1, input: ArenaInput()) }
+    let sheep = herd.game as! SheepCore
+    #expect(sheep.dogBy == nil)
+    herd.press()
+    herd.advance(0.001, input: ArenaInput())
+    #expect(sheep.dogBy == nil)
+    herd.advance(1.0 / 30, input: ArenaInput())
+    herd.advance(1.0 / 30, input: ArenaInput())
+    #expect(sheep.dogBy == 0)
+
+    // A strike on the lawn: one sliotar gone, and a ball in the air.
+    let lawn = ArenaRunner(ArenaRunner.sample(.hurley, seed: 2, sabotage: false, hand: .idle))
+    while lawn.stage == .countdown { lawn.advance(0.1, input: ArenaInput()) }
+    let hurley = lawn.game as! HurleyCore
+    let before = hurley.actors[0].aux
+    lawn.shoot(Vec2(0, 0.6))
+    lawn.advance(0.001, input: ArenaInput())
+    #expect(hurley.actors[0].aux == before)
+    lawn.advance(1.0 / 30, input: ArenaInput())
+    lawn.advance(1.0 / 30, input: ArenaInput())
+    #expect(hurley.actors[0].aux == before - 1 && hurley.balls.contains { $0.by == 0 })
+}
+
+@MainActor
+@Test func theWorksGoByThemselvesInEveryGameAndTheRecordReadsTheSame() {
+    for kind in MissionKind.games {
+        // Nobody has the hand, and things still go: somebody is written down as standing by, or nobody was there.
+        var slips = 0
+        for seed in 1...3 {
+            let game = core(kind, seed: UInt64(seed), sabotage: false)
+            while !game.finished { game.step() }
+            slips += game.ledger.events.filter { $0.code == .spilled }.count
+            #expect(!game.ledger.events.contains { $0.code == .sabotage }, "\(kind)")
+            #expect(game.loss.allSatisfy { $0 == 0 } && game.sunkBy == nil, "\(kind)")
+        }
+        #expect(slips >= 3, "\(kind): the works slipped \(slips) times in three games")
+
+        // With the hand in play, each use is written down privately, and whoever used it is among those standing by.
+        let game = core(kind, seed: 7)
+        while !game.finished { game.step() }
+        let events = game.ledger.events
+        for (i, e) in events.enumerated() where e.code == .sabotage {
+            #expect(e.actor == 1, "\(kind)")
+            #expect(events[i...].prefix(12).contains { $0.code == .sprung && $0.actor == 1 }, "\(kind): the hand left no mark of who was there")
+        }
+        #expect(game.acts[1] == events.filter { $0.code == .sabotage }.count, "\(kind)")
+        #expect(game.loss[1] <= Double(game.acts[1] * type(of: game).handCost), "\(kind)")
+    }
 }
 
 @MainActor

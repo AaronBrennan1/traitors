@@ -6,11 +6,11 @@ enum SightingKind: String, Codable, CaseIterable {
     case offTask
     /// Standing about somewhere out of the way.
     case loiter
-    /// Up at the vault with nothing to put in it.
+    /// Turning up where the work is handed in with nothing to hand in.
     case emptyHanded
     /// Stopping, turning back or looking busy the moment someone came into view.
     case startled
-    /// Standing by a lever, a sconce or the vault door when it went.
+    /// Standing by something the hand can work at the moment it went.
     case atTheWorks
     /// Watched the whole way through and did nothing odd.
     case inView

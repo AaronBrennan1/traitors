@@ -346,8 +346,6 @@ extern "C" {
 #endif
 @import CoreFoundation;
 @import Foundation;
-@import ObjectiveC;
-@import SceneKit;
 @import SpriteKit;
 #endif
 
@@ -376,14 +374,16 @@ extern "C" {
 @class SKView;
 @class UITouch;
 @class UIEvent;
-/// Runs a mini-game and everything the thumbs touch: the stick, the Interact button, the strike in
-/// the hurling. The game itself is an <code>ArenaCore</code>, a stage underneath draws it, and the scores along
-/// the top are SwiftUI, fed through <code>model</code>.
-SWIFT_CLASS("_TtC4test13ArenaHUDScene")
-@interface ArenaHUDScene : SKScene
+/// Runs the gauntlet and everything the thumbs touch: the stick and the Dash button. The game
+/// itself is a <code>Gauntlet</code>, the stage underneath draws it, and the tally along the top is SwiftUI,
+/// fed through <code>model</code>.
+SWIFT_CLASS("_TtC4test10ArenaScene")
+@interface ArenaScene : SKScene
 - (nullable instancetype)initWithCoder:(NSCoder * _Nonnull)coder OBJC_DESIGNATED_INITIALIZER;
 - (void)didMoveToView:(SKView * _Nonnull)view;
 - (void)update:(NSTimeInterval)currentTime;
+/// The stick can be taken up at any time, the countdown included, so a thumb that is already
+/// down when the round starts is already steering.
 - (void)touchesBegan:(NSSet<UITouch *> * _Nonnull)touches withEvent:(UIEvent * _Nullable)event;
 - (void)touchesMoved:(NSSet<UITouch *> * _Nonnull)touches withEvent:(UIEvent * _Nullable)event;
 - (void)touchesEnded:(NSSet<UITouch *> * _Nonnull)touches withEvent:(UIEvent * _Nullable)event;
@@ -393,39 +393,14 @@ SWIFT_CLASS("_TtC4test13ArenaHUDScene")
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
-/// A game seen at an angle from above, drawn in SceneKit with a camera that has no perspective.
-/// The HUD and the controls sit on top in SpriteKit, and drive this from there.
-SWIFT_CLASS("_TtC4test8IsoStage")
-@interface IsoStage : NSObject
-- (nonnull instancetype)init SWIFT_UNAVAILABLE;
-+ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
-@end
-
-/// The Banquet Prep: the castle kitchen, with the pantry walled off along the far side.
-SWIFT_CLASS("_TtC4test12BanquetStage")
-@interface BanquetStage : IsoStage
-@end
-
-/// A side-on game drawn in SpriteKit: a backdrop in layers that slide past each other, the
-/// players as little hooded figures, and whatever the core says is lying about.
-SWIFT_CLASS("_TtC4test11SideOnStage")
-@interface SideOnStage : SKNode
+/// Draws a course and everything on it, flat and from straight above. The rules live in the
+/// <code>Gauntlet</code>; the stage only shows what is there, a little way between one step and the next so
+/// that it moves as smoothly as the screen can show it.
+SWIFT_CLASS("_TtC4test11CourseStage")
+@interface CourseStage : SKNode
 - (nullable instancetype)initWithCoder:(NSCoder * _Nonnull)coder OBJC_DESIGNATED_INITIALIZER;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
-@end
-
-/// The Bog Relay: a Connemara bog at dawn, seen from the side. Three lanes run away from the
-/// camera, so the back lane is drawn higher up and smaller.
-SWIFT_CLASS("_TtC4test8BogStage")
-@interface BogStage : SideOnStage
-- (nullable instancetype)initWithCoder:(NSCoder * _Nonnull)coder OBJC_DESIGNATED_INITIALIZER;
-@end
-
-/// Céilí Chaos: the chequered floor of the great hall. Each dancer’s tile for the coming beat
-/// is lit in their colour, with a ring that closes as the beat arrives.
-SWIFT_CLASS("_TtC4test10CeiliStage")
-@interface CeiliStage : IsoStage
 @end
 
 /// The little hooded figure every player is in the arena: a cloak in their colour, a face, two feet.
@@ -436,62 +411,11 @@ SWIFT_CLASS("_TtC4test8Courtier")
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
-/// Hurley Target Practice on the castle lawn. The lawn runs away from the camera to the outer
-/// wall, so things further up it are drawn smaller and closer together.
-SWIFT_CLASS("_TtC4test11HurleyStage")
-@interface HurleyStage : SideOnStage
-- (nullable instancetype)initWithCoder:(NSCoder * _Nonnull)coder OBJC_DESIGNATED_INITIALIZER;
-@end
-
-/// The round button that does whatever there is to do where you are standing. It always says
-/// Interact, so it never gives away that there is something secret within reach.
-SWIFT_CLASS("_TtC4test14InteractButton")
-@interface InteractButton : SKNode
+/// The one button. It always says Dash, and for a traitor standing by something they could work
+/// it wears the faintest red rim: nothing anyone looking over a shoulder would notice.
+SWIFT_CLASS("_TtC4test10DashButton")
+@interface DashButton : SKNode
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
-- (nullable instancetype)initWithCoder:(NSCoder * _Nonnull)coder OBJC_DESIGNATED_INITIALIZER;
-@end
-
-/// A player in a game seen from above: the same hooded figure as in the side-on games, a bell
-/// cloak in their colour, a pale face under a pointed hood, and a name.
-SWIFT_CLASS("_TtC4test9IsoFigure")
-@interface IsoFigure : SCNNode
-- (nullable instancetype)initWithCoder:(NSCoder * _Nonnull)coder OBJC_DESIGNATED_INITIALIZER;
-- (nonnull instancetype)init SWIFT_UNAVAILABLE;
-+ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
-@end
-
-/// Cliffside Kite Race: the cliff path along the bottom, sea stacks in the middle distance and
-/// the open sea behind. The camera runs with the player.
-SWIFT_CLASS("_TtC4test9KiteStage")
-@interface KiteStage : SideOnStage
-- (nullable instancetype)initWithCoder:(NSCoder * _Nonnull)coder OBJC_DESIGNATED_INITIALIZER;
-@end
-
-/// Castle Lantern Run: the ramparts at night. There is next to no light of its own, so what
-/// can be seen is whatever the brazier and the lit lanterns reach.
-SWIFT_CLASS("_TtC4test12LanternStage")
-@interface LanternStage : IsoStage
-@end
-
-/// Market Day Scramble: a village square with nine stalls, a cart and a crowd.
-SWIFT_CLASS("_TtC4test11MarketStage")
-@interface MarketStage : IsoStage
-@end
-
-/// The Hedge Maze: tall hedges, a bell tower in the middle, and statues down the dead ends.
-SWIFT_CLASS("_TtC4test9MazeStage")
-@interface MazeStage : IsoStage
-@end
-
-/// Sheep Round-Up: a windy hillside with three pens, a flock and a dog.
-SWIFT_CLASS("_TtC4test10SheepStage")
-@interface SheepStage : IsoStage
-@end
-
-/// The Shipwreck Dive in cross-section: the boat on the surface, the water column, and the
-/// wreck’s rooms on the seabed. The whole bay fits on screen.
-SWIFT_CLASS("_TtC4test9ShipStage")
-@interface ShipStage : SideOnStage
 - (nullable instancetype)initWithCoder:(NSCoder * _Nonnull)coder OBJC_DESIGNATED_INITIALIZER;
 @end
 

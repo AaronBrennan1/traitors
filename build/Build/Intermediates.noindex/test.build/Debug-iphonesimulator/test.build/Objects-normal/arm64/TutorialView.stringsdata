@@ -7,7 +7,7 @@
         "key": "How to play",
         "location": {
           "startingColumn": 26,
-          "startingLine": 62
+          "startingLine": 58
         }
       },
       {
@@ -15,7 +15,7 @@
         "key": "Skip",
         "location": {
           "startingColumn": 28,
-          "startingLine": 64
+          "startingLine": 60
         }
       }
     ]

@@ -92,7 +92,7 @@
       },
       {
         "comment": "",
-        "key": "Each day, one of you must finish the secret side quest hidden inside the mission to earn a murder that night. It costs time, so mind your score. Do not get caught.",
+        "key": "If the company makes its goal in the day's mission, there is no murder that night. See that it falls short, with the shadow's hand if you must, and the night is yours. Do not get caught at it.",
         "location": {
           "startingColumn": 26,
           "startingLine": 167
@@ -100,7 +100,7 @@
       },
       {
         "comment": "",
-        "key": "Two of the seven around you are traitors. Beat par in the missions, watch who falls short, weigh the votes, and banish them both.",
+        "key": "Two of the seven around you are traitors. Win the missions together to keep everyone alive through the night, watch what people do out there, weigh the votes, and banish them both.",
         "location": {
           "startingColumn": 22,
           "startingLine": 173

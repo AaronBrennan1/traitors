@@ -1,37 +1,37 @@
 {
-  "/Users/aaronbrennan/Documents/test/test/Engine/Arena/Games/BanquetCore.swift" : {
-    "const-values" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/BanquetCore.swiftconstvalues",
-    "dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/BanquetCore.d",
-    "diagnostics" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/BanquetCore.dia",
-    "object" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/BanquetCore.o",
-    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/BanquetCore.swiftdeps"
+  "/Users/aaronbrennan/Documents/test/test/Engine/AI/TeamPlanner.swift" : {
+    "const-values" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/TeamPlanner.swiftconstvalues",
+    "dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/TeamPlanner.d",
+    "diagnostics" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/TeamPlanner.dia",
+    "object" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/TeamPlanner.o",
+    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/TeamPlanner.swiftdeps"
   },
-  "/Users/aaronbrennan/Documents/test/test/Engine/Arena/Games/BogCore.swift" : {
-    "const-values" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/BogCore.swiftconstvalues",
-    "dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/BogCore.d",
-    "diagnostics" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/BogCore.dia",
-    "object" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/BogCore.o",
-    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/BogCore.swiftdeps"
+  "/Users/aaronbrennan/Documents/test/test/Engine/AI/TraitorPlanner.swift" : {
+    "const-values" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/TraitorPlanner.swiftconstvalues",
+    "dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/TraitorPlanner.d",
+    "diagnostics" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/TraitorPlanner.dia",
+    "object" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/TraitorPlanner.o",
+    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/TraitorPlanner.swiftdeps"
   },
-  "/Users/aaronbrennan/Documents/test/test/Engine/Arena/Games/CeiliCore.swift" : {
-    "const-values" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/CeiliCore.swiftconstvalues",
-    "dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/CeiliCore.d",
-    "diagnostics" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/CeiliCore.dia",
-    "object" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/CeiliCore.o",
-    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/CeiliCore.swiftdeps"
+  "/Users/aaronbrennan/Documents/test/test/Engine/Arena/ArenaRunner.swift" : {
+    "const-values" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/ArenaRunner.swiftconstvalues",
+    "dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/ArenaRunner.d",
+    "diagnostics" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/ArenaRunner.dia",
+    "object" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/ArenaRunner.o",
+    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/ArenaRunner.swiftdeps"
   },
-  "/Users/aaronbrennan/Documents/test/test/Engine/Arena/Games/HurleyCore.swift" : {
-    "const-values" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/HurleyCore.swiftconstvalues",
-    "dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/HurleyCore.d",
-    "diagnostics" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/HurleyCore.dia",
-    "object" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/HurleyCore.o",
-    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/HurleyCore.swiftdeps"
+  "/Users/aaronbrennan/Documents/test/test/Engine/Arena/ArenaTypes.swift" : {
+    "const-values" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/ArenaTypes.swiftconstvalues",
+    "dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/ArenaTypes.d",
+    "diagnostics" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/ArenaTypes.dia",
+    "object" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/ArenaTypes.o",
+    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/ArenaTypes.swiftdeps"
   },
-  "/Users/aaronbrennan/Documents/test/test/Engine/Arena/Games/KiteCore.swift" : {
-    "const-values" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/KiteCore.swiftconstvalues",
-    "dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/KiteCore.d",
-    "diagnostics" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/KiteCore.dia",
-    "object" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/KiteCore.o",
-    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/KiteCore.swiftdeps"
+  "/Users/aaronbrennan/Documents/test/test/Engine/Arena/Course.swift" : {
+    "const-values" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Course.swiftconstvalues",
+    "dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Course.d",
+    "diagnostics" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Course.dia",
+    "object" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Course.o",
+    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Course.swiftdeps"
   }
 }

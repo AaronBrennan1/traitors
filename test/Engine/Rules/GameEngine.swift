@@ -264,9 +264,9 @@ struct Game: Codable {
             if humanOnTeam, let me = human {
                 if pub.marginal(cand) > pub.marginal(me) + 0.05 {
                     go = false
-                    whisper = "\(players[cand].name) whispers: \"Too many eyes on me. If anyone spoils the run today it has to be you.\""
+                    whisper = "\(players[cand].name) whispers: \"Too many eyes on me. If anyone spoils the day it has to be you.\""
                 } else if go {
-                    whisper = "\(players[cand].name) whispers: \"Leave the traps to me. Keep your hands clean.\""
+                    whisper = "\(players[cand].name) whispers: \"Leave the dirty work to me. Keep your hands clean.\""
                 } else {
                     whisper = "\(players[cand].name) whispers: \"I'm lying low today. If they look like making their goal, it is on you.\""
                 }
@@ -284,7 +284,7 @@ struct Game: Codable {
         feed = [Beat(kind: .narration, text: kind.brief),
                 Beat(kind: .host, text: Host.missionRule(goal: run.teamGoal, unit: kind.spec.unit))]
         if humanOnTeam {
-            feed.append(Beat(kind: .secret, text: "\(MissionKind.hand) Keep the company short of its goal and the traitors may \(night) tonight."))
+            feed.append(Beat(kind: .secret, text: "\(kind.hand) Keep the company short of its goal and the traitors may \(night) tonight."))
             if let whisper { feed.append(Beat(kind: .secret, text: whisper)) }
         }
         phase = .missionBrief

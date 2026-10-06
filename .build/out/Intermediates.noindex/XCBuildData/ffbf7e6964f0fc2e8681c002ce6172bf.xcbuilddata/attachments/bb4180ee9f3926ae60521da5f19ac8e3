@@ -1,0 +1,16 @@
+{
+  "" : {
+    "const-values" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Release/traitors-sim-p.build/Objects-normal/arm64/traitors-sim-primary.swiftconstvalues",
+    "dependencies" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Release/traitors-sim-p.build/Objects-normal/arm64/traitors-sim-primary.d",
+    "diagnostics" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Release/traitors-sim-p.build/Objects-normal/arm64/traitors-sim-primary.dia",
+    "emit-module-dependencies" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Release/traitors-sim-p.build/Objects-normal/arm64/traitors-sim-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Release/traitors-sim-p.build/Objects-normal/arm64/traitors-sim-primary-emit-module.dia",
+    "pch" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Release/traitors-sim-p.build/Objects-normal/arm64/traitors-sim-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Release/traitors-sim-p.build/Objects-normal/arm64/traitors-sim-primary.swiftdeps"
+  },
+  "/Users/aaronbrennan/Documents/test/Tools/Sim/main.swift" : {
+    "index-unit-output-path" : "/TraitorsEngine.build/Release/traitors-sim-p.build/Objects-normal/arm64/main.o",
+    "llvm-bc" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Release/traitors-sim-p.build/Objects-normal/arm64/main.bc",
+    "object" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Release/traitors-sim-p.build/Objects-normal/arm64/main.o"
+  }
+}

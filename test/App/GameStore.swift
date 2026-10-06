@@ -32,6 +32,7 @@ final class GameStore {
         Persistence.delete("save-v4.json")
         Persistence.delete("save-v5.json")
         Persistence.delete("save-v6.json")
+        Persistence.delete("save-v7.json")
         game = Persistence.load(Game.self, from: Persistence.saveFile)
         #if DEBUG
         Feedback.muted = UserDefaults.standard.bool(forKey: "mute")
@@ -131,7 +132,7 @@ final class GameStore {
 }
 
 enum Persistence {
-    static let saveFile = "save-v7.json"
+    static let saveFile = "save-v8.json"
 
     private static var folder: URL {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]

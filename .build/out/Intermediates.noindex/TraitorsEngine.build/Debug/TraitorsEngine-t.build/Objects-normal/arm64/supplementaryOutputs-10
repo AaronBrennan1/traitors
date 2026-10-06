@@ -1,0 +1,23 @@
+{
+  "/Users/aaronbrennan/Documents/test/test/Engine/Staging/MorningScript.swift" : {
+    "const-values" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/MorningScript.swiftconstvalues",
+    "dependencies" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/MorningScript.d",
+    "diagnostics" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/MorningScript.dia",
+    "object" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/MorningScript.o",
+    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/MorningScript.swiftdeps"
+  },
+  "/Users/aaronbrennan/Documents/test/test/Engine/Staging/Place.swift" : {
+    "const-values" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/Place.swiftconstvalues",
+    "dependencies" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/Place.d",
+    "diagnostics" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/Place.dia",
+    "object" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/Place.o",
+    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/Place.swiftdeps"
+  },
+  "/Users/aaronbrennan/Documents/test/test/Engine/Staging/VoteScript.swift" : {
+    "const-values" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/VoteScript.swiftconstvalues",
+    "dependencies" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/VoteScript.d",
+    "diagnostics" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/VoteScript.dia",
+    "object" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/VoteScript.o",
+    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/VoteScript.swiftdeps"
+  }
+}

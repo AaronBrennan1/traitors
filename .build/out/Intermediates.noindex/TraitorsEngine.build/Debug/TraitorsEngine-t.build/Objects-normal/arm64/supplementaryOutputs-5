@@ -1,0 +1,30 @@
+{
+  "/Users/aaronbrennan/Documents/test/test/Engine/Core/Events.swift" : {
+    "const-values" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/Events.swiftconstvalues",
+    "dependencies" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/Events.d",
+    "diagnostics" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/Events.dia",
+    "object" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/Events.o",
+    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/Events.swiftdeps"
+  },
+  "/Users/aaronbrennan/Documents/test/test/Engine/Core/GameState.swift" : {
+    "const-values" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/GameState.swiftconstvalues",
+    "dependencies" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/GameState.d",
+    "diagnostics" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/GameState.dia",
+    "object" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/GameState.o",
+    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/GameState.swiftdeps"
+  },
+  "/Users/aaronbrennan/Documents/test/test/Engine/Core/Models.swift" : {
+    "const-values" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/Models.swiftconstvalues",
+    "dependencies" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/Models.d",
+    "diagnostics" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/Models.dia",
+    "object" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/Models.o",
+    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/Models.swiftdeps"
+  },
+  "/Users/aaronbrennan/Documents/test/test/Engine/Core/Random.swift" : {
+    "const-values" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/Random.swiftconstvalues",
+    "dependencies" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/Random.d",
+    "diagnostics" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/Random.dia",
+    "object" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/Random.o",
+    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/Random.swiftdeps"
+  }
+}

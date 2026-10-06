@@ -4,58 +4,50 @@
     "Localizable": [
       {
         "comment": "",
-        "key": "The gold line is par. Anyone short of it is flagged for the whole table to see.",
+        "key": "The vault is sealed. Nobody is murdered tonight.",
         "location": {
-          "startingColumn": 18,
-          "startingLine": 31
+          "startingColumn": 25,
+          "startingLine": 39
         }
       },
       {
         "comment": "",
-        "key": "Par %lld of %lld %@",
+        "key": "The traitors have their night.",
         "location": {
-          "startingColumn": 23,
-          "startingLine": 22
+          "startingColumn": 25,
+          "startingLine": 40
         }
       },
       {
         "comment": "",
-        "key": "%lld. %@, %lld of %lld%@",
+        "key": "Goal made",
         "location": {
-          "startingColumn": 29,
-          "startingLine": 93
+          "startingColumn": 30,
+          "startingLine": 18
+        }
+      },
+      {
+        "comment": "",
+        "key": "Fell short",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 18
         }
       },
       {
         "comment": "",
         "key": "%lld",
-        "location": {
-          "startingColumn": 18,
-          "startingLine": 51
-        }
-      },
-      {
-        "comment": "",
-        "key": "%lld",
-        "location": {
-          "startingColumn": 18,
-          "startingLine": 76
-        }
-      },
-      {
-        "comment": "",
-        "key": "%lld of %lld %@",
         "location": {
           "startingColumn": 22,
-          "startingLine": 104
+          "startingLine": 23
         }
       },
       {
         "comment": "",
-        "key": "Team",
+        "key": "of %lld %@",
         "location": {
-          "startingColumn": 23,
-          "startingLine": 101
+          "startingColumn": 22,
+          "startingLine": 26
         }
       },
       {
@@ -63,7 +55,7 @@
         "key": "Added to the pot",
         "location": {
           "startingColumn": 26,
-          "startingLine": 118
+          "startingLine": 46
         }
       },
       {
@@ -71,7 +63,7 @@
         "key": "€%@",
         "location": {
           "startingColumn": 26,
-          "startingLine": 120
+          "startingLine": 48
         }
       }
     ]

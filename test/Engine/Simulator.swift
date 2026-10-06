@@ -1,7 +1,7 @@
 import Foundation
 
 /// Headless all-bot games, for balancing and for checking the bots earn their keep.
-/// Driven by the `traitors-sim` command-line tool: [--games N] [--seed S] [--transcript] [--seat] [--arena] [--cores]
+/// Driven by the `traitors-sim` command-line tool: [--games N] [--seed S] [--transcript] [--seat] [--arena] [--cores] [--only kind,kind]
 /// [--trace course] [--form x] [--scenes] [--tune name=value]
 public enum TraitorsSim {
     public static func run(arguments: [String]) {
@@ -11,6 +11,7 @@ public enum TraitorsSim {
         var seat = false
         var arena = false
         var coresOnly = false
+        var only: [MissionKind] = []
         var args = Array(arguments.dropFirst())
         while !args.isEmpty {
             let a = args.removeFirst()
@@ -21,6 +22,7 @@ public enum TraitorsSim {
             case "--seat": seat = true
             case "--arena": arena = true
             case "--cores": arena = true; coresOnly = true
+            case "--only": only = args.removeFirst().split(separator: ",").compactMap { MissionKind(rawValue: String($0)) }
             case "--trace":
                 if let kind = MissionKind(rawValue: args.removeFirst()) { ArenaRunner.trace(kind, seed: seed) }
                 return
@@ -300,7 +302,7 @@ public enum TraitorsSim {
         } else if arena {
             // Every mission played out on its course by bots, so the sightings are the real thing.
             if !coresOnly { _ = run("smart vs smart, missions played out", options: GameOptions(arena: true)) }
-            ArenaRunner.report(games: games, seed: seed)
+            ArenaRunner.report(games: games, seed: seed, kinds: only.isEmpty ? MissionKind.allCases : only)
         } else {
             _ = run("smart vs smart", options: GameOptions())
             _ = run("random faithful", options: GameOptions(randomFaithful: true))

@@ -10,6 +10,8 @@ enum Courses {
         case .armoury: return armoury
         case .battlements: return battlements
         case .crypt: return crypt
+        // The other games have floors of their own. Nothing asks for a course for one.
+        default: return greatHall
         }
     }
 

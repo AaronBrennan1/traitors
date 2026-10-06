@@ -166,11 +166,6 @@
   },
   {
     "isFramework" : false,
-    "moduleName" : "SceneKit",
-    "modulePath" : "\/Applications\/Xcode.app\/Contents\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphonesimulator\/prebuilt-modules\/27.0\/SceneKit.swiftmodule\/arm64-apple-ios-simulator.swiftmodule"
-  },
-  {
-    "isFramework" : false,
     "moduleName" : "Spatial",
     "modulePath" : "\/Applications\/Xcode.app\/Contents\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphonesimulator\/prebuilt-modules\/27.0\/Spatial.swiftmodule\/arm64-apple-ios-simulator.swiftmodule"
   },
@@ -253,11 +248,6 @@
     "isFramework" : false,
     "moduleName" : "_DarwinFoundation3",
     "modulePath" : "\/Applications\/Xcode.app\/Contents\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphonesimulator\/prebuilt-modules\/27.0\/_DarwinFoundation3.swiftmodule\/arm64-apple-ios-simulator.swiftmodule"
-  },
-  {
-    "isFramework" : true,
-    "moduleName" : "_SceneKit_SwiftUI",
-    "modulePath" : "\/Applications\/Xcode.app\/Contents\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphonesimulator\/prebuilt-modules\/27.0\/_SceneKit_SwiftUI.swiftmodule\/arm64-apple-ios-simulator.swiftmodule"
   },
   {
     "isFramework" : true,
@@ -537,13 +527,6 @@
     "isBridgingHeaderDependency" : false,
     "isFramework" : false,
     "moduleName" : "QuartzCore"
-  },
-  {
-    "clangModuleMapPath" : "\/Applications\/Xcode.app\/Contents\/Developer\/Platforms\/iPhoneSimulator.platform\/Developer\/SDKs\/iPhoneSimulator.sdk\/System\/Library\/Frameworks\/SceneKit.framework\/Modules\/module.modulemap",
-    "clangModulePath" : "\/Users\/aaronbrennan\/Documents\/test\/build\/SDKExplicitPrecompiledModules\/SceneKit-ABOTMUCSCU7RYWA46GNC6SPJX.pcm",
-    "isBridgingHeaderDependency" : false,
-    "isFramework" : false,
-    "moduleName" : "SceneKit"
   },
   {
     "clangModuleMapPath" : "\/Applications\/Xcode.app\/Contents\/Developer\/Platforms\/iPhoneSimulator.platform\/Developer\/SDKs\/iPhoneSimulator.sdk\/System\/Library\/Frameworks\/Security.framework\/Modules\/module.modulemap",

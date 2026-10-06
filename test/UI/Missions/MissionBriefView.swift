@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Before each mission: which course it is, how the gauntlet is played, and for a traitor the shadow's hand.
+/// Before each mission: which game it is, how it is played, and for a traitor the shadow's hand.
 struct MissionBriefView: View {
     @Environment(GameStore.self) private var store
 
@@ -21,14 +21,15 @@ struct MissionBriefView: View {
 
                         VStack(alignment: .leading, spacing: 8) {
                             SectionTitle(text: "How to play")
-                            ForEach(Array((MissionKind.controls + [kind.twist]).enumerated()), id: \.offset) { _, line in
+                            ForEach(Array((kind.controls + [kind.twist]).enumerated()), id: \.offset) { _, line in
                                 HStack(alignment: .firstTextBaseline, spacing: 9) {
                                     Image(systemName: "diamond.fill").font(.system(size: 6)).foregroundStyle(Palette.gold)
                                     Text(line).font(.serif(.subheadline)).foregroundStyle(Palette.parchment)
                                         .fixedSize(horizontal: false, vertical: true)
                                 }
                             }
-                            Text("Everyone runs at once and everything goes in one vault. Fill it to the goal between you and it seals: nobody is murdered tonight. Fall short and the traitors have their night.")
+                            Text(kind.isGauntlet ? "Everyone runs at once and everything goes in one vault. Fill it to the goal between you and it seals: nobody is murdered tonight. Fall short and the traitors have their night."
+                                 : "Everyone plays at once and everything counts towards one goal. Make it between you and nobody is murdered tonight. Fall short and the traitors have their night. The row of tokens at the top shows who has brought home what.")
                                 .font(.serif(.caption)).foregroundStyle(Palette.muted)
                                 .fixedSize(horizontal: false, vertical: true)
                                 .padding(.top, 2)
@@ -109,7 +110,7 @@ struct MissionBriefView: View {
 }
 
 extension MissionKind {
-    /// The colour of each course's light, for the card that introduces it.
+    /// The colour of each game's light, for the card that introduces it.
     var tint: Color {
         switch self {
         case .greatHall: return Color(red: 0.50, green: 0.30, blue: 0.16)
@@ -117,6 +118,29 @@ extension MissionKind {
         case .armoury: return Color(red: 0.28, green: 0.32, blue: 0.40)
         case .battlements: return Color(red: 0.16, green: 0.22, blue: 0.40)
         case .crypt: return Color(red: 0.12, green: 0.30, blue: 0.26)
+        case .bogRelay: return Color(red: 0.42, green: 0.27, blue: 0.20)
+        case .lanternRun: return Color(red: 0.12, green: 0.16, blue: 0.36)
+        case .sheepRoundUp: return Color(red: 0.22, green: 0.38, blue: 0.20)
+        case .shipwreckDive: return Color(red: 0.10, green: 0.30, blue: 0.38)
+        case .ceiliChaos: return Color(red: 0.52, green: 0.34, blue: 0.12)
+        case .marketDay: return Color(red: 0.50, green: 0.24, blue: 0.18)
+        case .kiteRace: return Color(red: 0.24, green: 0.36, blue: 0.48)
+        case .hedgeMaze: return Color(red: 0.12, green: 0.30, blue: 0.18)
+        case .hurley: return Color(red: 0.46, green: 0.26, blue: 0.30)
+        case .banquetPrep: return Color(red: 0.48, green: 0.30, blue: 0.14)
+        }
+    }
+}
+
+extension MissionKind {
+    /// What plays under the game.
+    var bed: Bed {
+        switch self {
+        case .greatHall, .cellars, .armoury, .battlements, .crypt: return .gauntlet
+        case .ceiliChaos, .marketDay, .banquetPrep: return .reel
+        case .bogRelay, .shipwreckDive, .kiteRace: return .shore
+        case .lanternRun, .hedgeMaze: return .dusk
+        case .sheepRoundUp, .hurley: return .green
         }
     }
 }

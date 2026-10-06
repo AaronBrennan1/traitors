@@ -44,9 +44,9 @@ struct GameView: View {
                 try? await Task.sleep(for: .seconds(1.9))
                 if !Task.isCancelled { lifted = key }
             }
-            .task(id: "\(place.rawValue)-\(game.phase == .mission)") {
-                // The gauntlet has a pulse of its own in place of the room.
-                Soundscape.shared.setBed(game.phase == .mission ? .gauntlet : place.bed, level: game.phase == .mission ? 0.8 : 1)
+            .task(id: "\(place.rawValue)-\(game.phase == .mission)-\(game.day)") {
+                // A mission has an air of its own in place of the room.
+                Soundscape.shared.setBed(game.phase == .mission ? (game.mission?.kind.bed ?? .gauntlet) : place.bed, level: game.phase == .mission ? 0.8 : 1)
             }
             .onChange(of: game.phase) { stage.clear() }
             .onChange(of: scenePhase) {

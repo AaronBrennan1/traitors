@@ -1,0 +1,23 @@
+{
+  "/Users/aaronbrennan/Documents/test/test/Engine/Dialogue/Flavour.swift" : {
+    "const-values" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/Flavour.swiftconstvalues",
+    "dependencies" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/Flavour.d",
+    "diagnostics" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/Flavour.dia",
+    "object" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/Flavour.o",
+    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/Flavour.swiftdeps"
+  },
+  "/Users/aaronbrennan/Documents/test/test/Engine/Dialogue/Host.swift" : {
+    "const-values" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/Host.swiftconstvalues",
+    "dependencies" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/Host.d",
+    "diagnostics" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/Host.dia",
+    "object" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/Host.o",
+    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/Host.swiftdeps"
+  },
+  "/Users/aaronbrennan/Documents/test/test/Engine/Missions/MissionDeck.swift" : {
+    "const-values" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/MissionDeck.swiftconstvalues",
+    "dependencies" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/MissionDeck.d",
+    "diagnostics" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/MissionDeck.dia",
+    "object" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/MissionDeck.o",
+    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/.build/out/Intermediates.noindex/TraitorsEngine.build/Debug/TraitorsEngine-t.build/Objects-normal/arm64/MissionDeck.swiftdeps"
+  }
+}

@@ -6,6 +6,13 @@
     "object" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/GameStore.o",
     "swift-dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/GameStore.swiftdeps"
   },
+  "/Users/aaronbrennan/Documents/test/test/App/Settings.swift" : {
+    "const-values" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Settings.swiftconstvalues",
+    "dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Settings.d",
+    "diagnostics" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Settings.dia",
+    "object" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Settings.o",
+    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Settings.swiftdeps"
+  },
   "/Users/aaronbrennan/Documents/test/test/Engine/AI/Belief.swift" : {
     "const-values" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Belief.swiftconstvalues",
     "dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Belief.d",
@@ -13,25 +20,25 @@
     "object" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Belief.o",
     "swift-dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Belief.swiftdeps"
   },
+  "/Users/aaronbrennan/Documents/test/test/Engine/AI/BotMind.swift" : {
+    "const-values" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/BotMind.swiftconstvalues",
+    "dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/BotMind.d",
+    "diagnostics" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/BotMind.dia",
+    "object" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/BotMind.o",
+    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/BotMind.swiftdeps"
+  },
+  "/Users/aaronbrennan/Documents/test/test/Engine/AI/Defences.swift" : {
+    "const-values" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Defences.swiftconstvalues",
+    "dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Defences.d",
+    "diagnostics" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Defences.dia",
+    "object" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Defences.o",
+    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Defences.swiftdeps"
+  },
   "/Users/aaronbrennan/Documents/test/test/Engine/AI/ListenerModel.swift" : {
     "const-values" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/ListenerModel.swiftconstvalues",
     "dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/ListenerModel.d",
     "diagnostics" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/ListenerModel.dia",
     "object" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/ListenerModel.o",
     "swift-dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/ListenerModel.swiftdeps"
-  },
-  "/Users/aaronbrennan/Documents/test/test/Engine/AI/TeamPlanner.swift" : {
-    "const-values" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/TeamPlanner.swiftconstvalues",
-    "dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/TeamPlanner.d",
-    "diagnostics" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/TeamPlanner.dia",
-    "object" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/TeamPlanner.o",
-    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/TeamPlanner.swiftdeps"
-  },
-  "/Users/aaronbrennan/Documents/test/test/Engine/AI/TraitorPlanner.swift" : {
-    "const-values" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/TraitorPlanner.swiftconstvalues",
-    "dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/TraitorPlanner.d",
-    "diagnostics" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/TraitorPlanner.dia",
-    "object" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/TraitorPlanner.o",
-    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/TraitorPlanner.swiftdeps"
   }
 }

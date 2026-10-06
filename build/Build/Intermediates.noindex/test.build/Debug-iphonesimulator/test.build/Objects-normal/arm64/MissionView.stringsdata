@@ -7,15 +7,15 @@
         "key": "%@, play area",
         "location": {
           "startingColumn": 57,
-          "startingLine": 51
+          "startingLine": 49
         }
       },
       {
         "comment": "",
-        "key": "Skip to the scores",
+        "key": "Skip to the result",
         "location": {
           "startingColumn": 44,
-          "startingLine": 56
+          "startingLine": 54
         }
       },
       {
@@ -23,7 +23,7 @@
         "key": "To the Round Table",
         "location": {
           "startingColumn": 32,
-          "startingLine": 96
+          "startingLine": 97
         }
       }
     ]

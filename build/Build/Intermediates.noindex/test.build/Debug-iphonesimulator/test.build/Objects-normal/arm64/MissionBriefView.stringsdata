@@ -7,15 +7,15 @@
         "key": "%@, %@ %@",
         "location": {
           "startingColumn": 29,
-          "startingLine": 113
+          "startingLine": 107
         }
       },
       {
         "comment": "",
-        "key": "Everyone plays at once and every score goes up on the board. Finish under par and the whole table will see it. The pot is filled by what the team brings home between them.",
+        "key": "Everyone runs at once and everything goes in one vault. Fill it to the goal between you and it seals: nobody is murdered tonight. Fall short and the traitors have their night.",
         "location": {
           "startingColumn": 34,
-          "startingLine": 32
+          "startingLine": 31
         }
       },
       {
@@ -23,7 +23,7 @@
         "key": "Begin the mission",
         "location": {
           "startingColumn": 46,
-          "startingLine": 49
+          "startingLine": 48
         }
       },
       {
@@ -31,7 +31,7 @@
         "key": "Watch the mission",
         "location": {
           "startingColumn": 68,
-          "startingLine": 49
+          "startingLine": 48
         }
       }
     ]

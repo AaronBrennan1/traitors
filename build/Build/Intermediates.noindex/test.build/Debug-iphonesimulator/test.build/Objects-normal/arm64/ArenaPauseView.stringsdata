@@ -31,7 +31,7 @@
         "key": "The mission starts again from the top when you come back.",
         "location": {
           "startingColumn": 30,
-          "startingLine": 62
+          "startingLine": 64
         }
       },
       {
@@ -39,7 +39,7 @@
         "key": "Resume",
         "location": {
           "startingColumn": 32,
-          "startingLine": 60
+          "startingLine": 62
         }
       },
       {
@@ -47,7 +47,7 @@
         "key": "Save and leave",
         "location": {
           "startingColumn": 32,
-          "startingLine": 61
+          "startingLine": 63
         }
       }
     ]

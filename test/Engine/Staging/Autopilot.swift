@@ -18,6 +18,10 @@ enum Autopilot {
 
     static func play(seed: UInt64, name: String, preference: RolePreference, stop: Stop, mission: MissionKind? = nil) -> Game {
         var g = Game(seed: seed, humanName: name, preference: preference)
+        if let mission, mission.isGauntlet, let slot = g.missionDeck.firstIndex(where: \.isGauntlet) {
+            // The deck holds one course of the gauntlet. Make it the one asked for.
+            g.missionDeck[slot] = mission
+        }
         if let mission, let at = g.missionDeck.firstIndex(of: mission) {
             // Deal the deck so the requested mission falls on the day we stop.
             g.missionDeck.swapAt(at, (stop.day - 1) % g.missionDeck.count)

@@ -27,9 +27,10 @@ Two things are unusual and shape the whole design:
 - **The bots reason honestly.** A bot is handed only the public record and its own private
   notes, and does exact Bayesian inference over every possible traitor team. Nothing passes it
   the hidden roles.
-- **The mission is a real-time mini-game** (the gauntlet) whose record of who stood where and who
-  could see them becomes the evidence argued over at the table. The same simulation runs on
-  screen at 60 Hz and headless for balancing.
+- **The mission is a real-time mini-game** whose record of who stood where and who could see
+  them becomes the evidence argued over at the table. There are eleven: the gauntlet (on one of
+  five courses) and ten games of their own. The same simulation runs on screen and headless for
+  balancing.
 
 ## 2. Layout and build targets
 
@@ -44,7 +45,7 @@ test/                    The app's sources (the Xcode target is also called "tes
     AI/                  Beliefs, bot decision-making, team planning
     Dialogue/            Turning intents into lines; the host; colour
     Missions/            The day's mission as the rules see it; ledger → sightings
-    Arena/               The gauntlet: real-time simulation of a mission
+    Arena/               The mini-games: the gauntlet, and `ArenaCore` with a game per file in Games/
     Staging/             Presentation ordering derived from game state; Autopilot
     Simulator.swift      Headless balancing harness (the CLI's body)
   UI/                    SwiftUI + SpriteKit
@@ -151,7 +152,7 @@ into groups that the type does not distinguish:
 |---|---|
 | [Models.swift](../test/Engine/Core/Models.swift) | `PlayerID` (= `Int`, the seat index), `Role`, `RolePreference`, `Voice`, `Personality` (eight 0…1 traits), `Player`, `Cast.bots` (the seven fixed characters), `SeatMask` (`UInt32` bit set of seats) |
 | [GameState.swift](../test/Engine/Core/GameState.swift) | `Phase`, `Beat`/`BeatKind` (one line of the feed), `HumanInput`, `HumanSay`, `NightChoice`, `DaySnapshot`, `GameOptions` (sim-only switches), `Tally` (counters) |
-| [Events.swift](../test/Engine/Core/Events.swift) | `MissionSpec`, `MissionKind` (five courses, with their titles, icons, brief text and par), `MissionReport`, `Chip`/`ChipKind` (a citable piece of evidence), `Statement`/`StatementKind`, `Defence`, and `PublicEvent`, the log's element type |
+| [Events.swift](../test/Engine/Core/Events.swift) | `MissionSpec`, `MissionKind` (five courses of the gauntlet and ten games, with their titles, icons, brief, controls, hand text and par), `MissionReport`, `Chip`/`ChipKind` (a citable piece of evidence), `Statement`/`StatementKind`, `Defence`, and `PublicEvent`, the log's element type |
 | [TableView.swift](../test/Engine/Core/TableView.swift) | `Seat`, `TableView` (the public state handed to bots), `LogIndex` (the log pre-digested), `Chips.about` / `Chips.holds` (what evidence exists about a player, and whether a cited chip is true) |
 | [Sightings.swift](../test/Engine/Core/Sightings.swift) | `SightingKind`, `Sighting` (who was seen doing what, and by whom), `SightingModel` (base rates used by the dice path) |
 | [Random.swift](../test/Engine/Core/Random.swift) | `SeededRNG` (SplitMix64, `Codable`), `fork`, `derived`, and the free function `clamp` |
@@ -228,7 +229,7 @@ how to fill them in.
 | [Missions.swift](../test/Engine/Missions/Missions.swift) | `MissionResult` (what a played mission hands back), `MissionRun` (one day's mission: plan, resolve, observe, report) |
 | [MissionLedger.swift](../test/Engine/Missions/MissionLedger.swift) | `EventCode`, `MissionEvent`, `Zone`, `MissionLedger` (5 Hz position and sight tracks plus events) |
 | [SightingDeriver.swift](../test/Engine/Missions/SightingDeriver.swift) | Ledger → `[Sighting]` and `neverAlone` |
-| [MissionDeck.swift](../test/Engine/Missions/MissionDeck.swift) | Course order: Great Hall first, the rest shuffled |
+| [MissionDeck.swift](../test/Engine/Missions/MissionDeck.swift) | The order of play: the ten games and one course of the gauntlet, shuffled |
 
 See §6.
 
@@ -249,6 +250,31 @@ See §6.
 
 `Gauntlet` is one class spread over four files. All of its state is `var` and internal, so the
 SpriteKit layer reads it directly each frame.
+
+**The other ten games** sit beside it:
+
+| File | Holds |
+|---|---|
+| [ArenaGame.swift](../test/Engine/Arena/ArenaGame.swift) | `ArenaGame`, the protocol the runner and the screen hold a game by (step, press, shoot, clock, team total, goal, ledger, cues, and the private per-seat `tally`/`loss`/`acts`). `Gauntlet` conforms by extension. `ArenaGames.make` picks the class for a `MissionKind`. |
+| [ArenaCore.swift](../test/Engine/Arena/ArenaCore.swift) | `ArenaCore`, the base class of the ten: actors, hold-to-use `Spot`s, `Prop`s for the stage, bot pacing, honest habits, and the shadow's hand as `Works` |
+| [Games/](../test/Engine/Arena/Games) | One subclass per game: Bog, Lantern, Sheep, Ship, Céilí, Market, Kite, Maze, Hurley, Banquet |
+
+How an `ArenaCore` game differs from the gauntlet:
+
+- It steps at 30 Hz (`ArenaCore.tick`), not 60. `ArenaRunner` asks the game for `stepSeconds`.
+- It always runs the whole clock. Only the gauntlet seals early.
+- **Bots play to a share.** `shareOut()` turns `setup.form` into what each bot sets out to bring
+  home (`pace` per bot, swung by `swing × form × head`), and the bots pace themselves to it. So
+  the company's day is one roll, as the dice path assumes, by construction. `MissionSpec.par` for
+  each game is what `ArenaRunner.par` measures, slips included.
+- **The hand is the same in every game.** A game lists its `works` (the stack, a pen gate, the
+  cart). `sabotage` takes `handCost` off the pile and logs `.sabotage`; `spring` does the visible
+  thing and writes `.sprung` for everyone standing by; `slip()` springs something by itself
+  `slipCount` times a game, waiting for somebody to be standing there. Céilí, Kite and Hurley
+  have no button for it: standing on a cracked board on the beat, leaving a string caught on a
+  sea stack, and putting a ball on the bell are the hand there.
+- A human's button is `press()` (an edge) plus `ArenaInput.hold` (a level). A press by a traitor
+  standing still within reach of a usable works is the hand; otherwise it is the game's own verb.
 
 Note the name clash waiting to happen: the engine's `Feel` enum lives in `GauntletTuning.swift`,
 and the UI has a file called `UI/Audio/Feel.swift` that declares `Haptics`.
@@ -472,7 +498,7 @@ RootView ── Title │ Tutorial │ GameView          two local bools; not pe
 
 [`GameStore.send`](../test/App/GameStore.swift#L51) is the only path that advances the game in a
 release build: copy the struct, `advance`, reassign, record stats at game over, and write the
-whole `Game` to `save-v7.json` synchronously. Because `Game` is replaced wholesale, every view
+whole `Game` to `save-v8.json` synchronously. Because `Game` is replaced wholesale, every view
 that reads `store.game` is invalidated on every input.
 
 In DEBUG builds, launch arguments run `Autopilot.play` and assign the result straight to
@@ -561,6 +587,16 @@ Two behaviours to be aware of:
 
 ### The arena on screen
 
+`ArenaScene` hosts any `ArenaGame`. It asks `ArenaStages.make` for an `ArenaStage`
+([ArenaStage.swift](../test/UI/Missions/Arena/ArenaStage.swift)): `CourseStage` for the gauntlet,
+or a `CoreStage` subclass for the others. `CoreStage` draws the players and the game's `Prop`s
+through a `project` function; `TopDownStage` fits a whole arena flat on one screen (Lantern,
+Sheep, Céilí, Market, Maze, Banquet) and the side-on stages (Bog, Ship, Kite, Hurley) lay a
+landscape behind it. The scene picks the controls from the kind: the stick, one `ActionButton`
+labelled by `MissionKind.button`, or for Hurley a pulled-back strike. The HUD's row of tokens
+is ordered by `tally`, so it shuffles as players overtake each other. What follows describes the
+gauntlet's path through the same scene.
+
 ```
 MissionView ── builds ArenaConfig(ArenaSetup(run:), cast colours, handVisible, spectating)
      │
@@ -604,7 +640,7 @@ constants. Fog-of-war (which runners the human can see) is decided in the render
 | What | Where |
 |---|---|
 | The whole `Game`, `Stats`, `Settings` as JSON in Application Support | [GameStore.swift:133](../test/App/GameStore.swift#L133); synchronous; errors swallowed with `try?` |
-| Save versioning | The file name. `save-v7.json` today; v1–v6 are deleted by name on every launch |
+| Save versioning | The file name. `save-v8.json` today; v1–v7 are deleted by name on every launch |
 | Player name, ending-seen seed, per-course personal best | `@AppStorage` / `UserDefaults`, from three different views |
 | Debug launch arguments | `UserDefaults`, read in `GameStore`, `TraitorsApp`, `Stage`, `MissionView` |
 

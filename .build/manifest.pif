@@ -5,11 +5,11 @@
       "name" : "TraitorsEngine",
       "path" : "/Users/aaronbrennan/Documents/test",
       "projects" : [
-        "df98df2bc0b44050443a1dcff1a4f17b70f138d9cda49c8debeaad077d5cad6a",
+        "9dfc8e4cb6343e66b8d040bbf699442d98ae2911a307b7e26e72e2b2175b6dc0",
         "fc16c36a9dbc1772e899419fe3278313038216c101ca19ee618a33cde5c5e15c"
       ]
     },
-    "signature" : "269064d9cffdd99bb9e93e199fa12c25a16f608e527f1a7bbaa2c68f9c00b422",
+    "signature" : "ae56a9399cc28569b5f5f4975e898c66f6c33fc7b68345380987ca6f36ee527d",
     "type" : "workspace"
   },
   {
@@ -297,6 +297,14 @@
               {
                 "fileType" : "sourcecode.swift",
                 "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_7",
+                "name" : "Arena/ArenaGame.swift",
+                "path" : "Arena/ArenaGame.swift",
+                "sourceTree" : "<group>",
+                "type" : "file"
+              },
+              {
+                "fileType" : "sourcecode.swift",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_8",
                 "name" : "Arena/ArenaRunner.swift",
                 "path" : "Arena/ArenaRunner.swift",
                 "sourceTree" : "<group>",
@@ -304,7 +312,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_8",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_9",
                 "name" : "Arena/ArenaTypes.swift",
                 "path" : "Arena/ArenaTypes.swift",
                 "sourceTree" : "<group>",
@@ -312,7 +320,23 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_9",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_10",
+                "name" : "Arena/Course.swift",
+                "path" : "Arena/Course.swift",
+                "sourceTree" : "<group>",
+                "type" : "file"
+              },
+              {
+                "fileType" : "sourcecode.swift",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_11",
+                "name" : "Arena/Courses.swift",
+                "path" : "Arena/Courses.swift",
+                "sourceTree" : "<group>",
+                "type" : "file"
+              },
+              {
+                "fileType" : "sourcecode.swift",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_12",
                 "name" : "Arena/Games/BanquetCore.swift",
                 "path" : "Arena/Games/BanquetCore.swift",
                 "sourceTree" : "<group>",
@@ -320,7 +344,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_10",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_13",
                 "name" : "Arena/Games/BogCore.swift",
                 "path" : "Arena/Games/BogCore.swift",
                 "sourceTree" : "<group>",
@@ -328,7 +352,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_11",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_14",
                 "name" : "Arena/Games/CeiliCore.swift",
                 "path" : "Arena/Games/CeiliCore.swift",
                 "sourceTree" : "<group>",
@@ -336,7 +360,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_12",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_15",
                 "name" : "Arena/Games/HurleyCore.swift",
                 "path" : "Arena/Games/HurleyCore.swift",
                 "sourceTree" : "<group>",
@@ -344,7 +368,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_13",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_16",
                 "name" : "Arena/Games/KiteCore.swift",
                 "path" : "Arena/Games/KiteCore.swift",
                 "sourceTree" : "<group>",
@@ -352,7 +376,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_14",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_17",
                 "name" : "Arena/Games/LanternCore.swift",
                 "path" : "Arena/Games/LanternCore.swift",
                 "sourceTree" : "<group>",
@@ -360,7 +384,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_15",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_18",
                 "name" : "Arena/Games/MarketCore.swift",
                 "path" : "Arena/Games/MarketCore.swift",
                 "sourceTree" : "<group>",
@@ -368,7 +392,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_16",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_19",
                 "name" : "Arena/Games/MazeCore.swift",
                 "path" : "Arena/Games/MazeCore.swift",
                 "sourceTree" : "<group>",
@@ -376,7 +400,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_17",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_20",
                 "name" : "Arena/Games/SheepCore.swift",
                 "path" : "Arena/Games/SheepCore.swift",
                 "sourceTree" : "<group>",
@@ -384,7 +408,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_18",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_21",
                 "name" : "Arena/Games/ShipCore.swift",
                 "path" : "Arena/Games/ShipCore.swift",
                 "sourceTree" : "<group>",
@@ -392,7 +416,55 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_19",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_22",
+                "name" : "Arena/Gauntlet.swift",
+                "path" : "Arena/Gauntlet.swift",
+                "sourceTree" : "<group>",
+                "type" : "file"
+              },
+              {
+                "fileType" : "sourcecode.swift",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_23",
+                "name" : "Arena/GauntletBody.swift",
+                "path" : "Arena/GauntletBody.swift",
+                "sourceTree" : "<group>",
+                "type" : "file"
+              },
+              {
+                "fileType" : "sourcecode.swift",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_24",
+                "name" : "Arena/GauntletBots.swift",
+                "path" : "Arena/GauntletBots.swift",
+                "sourceTree" : "<group>",
+                "type" : "file"
+              },
+              {
+                "fileType" : "sourcecode.swift",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_25",
+                "name" : "Arena/GauntletTuning.swift",
+                "path" : "Arena/GauntletTuning.swift",
+                "sourceTree" : "<group>",
+                "type" : "file"
+              },
+              {
+                "fileType" : "sourcecode.swift",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_26",
+                "name" : "Arena/Hazards.swift",
+                "path" : "Arena/Hazards.swift",
+                "sourceTree" : "<group>",
+                "type" : "file"
+              },
+              {
+                "fileType" : "sourcecode.swift",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_27",
+                "name" : "Arena/Sabotage.swift",
+                "path" : "Arena/Sabotage.swift",
+                "sourceTree" : "<group>",
+                "type" : "file"
+              },
+              {
+                "fileType" : "sourcecode.swift",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_28",
                 "name" : "Core/Events.swift",
                 "path" : "Core/Events.swift",
                 "sourceTree" : "<group>",
@@ -400,7 +472,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_20",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_29",
                 "name" : "Core/GameState.swift",
                 "path" : "Core/GameState.swift",
                 "sourceTree" : "<group>",
@@ -408,7 +480,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_21",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_30",
                 "name" : "Core/Models.swift",
                 "path" : "Core/Models.swift",
                 "sourceTree" : "<group>",
@@ -416,7 +488,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_22",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_31",
                 "name" : "Core/Random.swift",
                 "path" : "Core/Random.swift",
                 "sourceTree" : "<group>",
@@ -424,7 +496,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_23",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_32",
                 "name" : "Core/Rules.swift",
                 "path" : "Core/Rules.swift",
                 "sourceTree" : "<group>",
@@ -432,7 +504,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_24",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_33",
                 "name" : "Core/Sightings.swift",
                 "path" : "Core/Sightings.swift",
                 "sourceTree" : "<group>",
@@ -440,7 +512,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_25",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_34",
                 "name" : "Core/TableView.swift",
                 "path" : "Core/TableView.swift",
                 "sourceTree" : "<group>",
@@ -448,7 +520,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_26",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_35",
                 "name" : "Dialogue/Dialogue.swift",
                 "path" : "Dialogue/Dialogue.swift",
                 "sourceTree" : "<group>",
@@ -456,7 +528,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_27",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_36",
                 "name" : "Dialogue/Flavour.swift",
                 "path" : "Dialogue/Flavour.swift",
                 "sourceTree" : "<group>",
@@ -464,7 +536,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_28",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_37",
                 "name" : "Dialogue/Host.swift",
                 "path" : "Dialogue/Host.swift",
                 "sourceTree" : "<group>",
@@ -472,7 +544,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_29",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_38",
                 "name" : "Missions/MissionDeck.swift",
                 "path" : "Missions/MissionDeck.swift",
                 "sourceTree" : "<group>",
@@ -480,7 +552,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_30",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_39",
                 "name" : "Missions/MissionLedger.swift",
                 "path" : "Missions/MissionLedger.swift",
                 "sourceTree" : "<group>",
@@ -488,7 +560,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_31",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_40",
                 "name" : "Missions/Missions.swift",
                 "path" : "Missions/Missions.swift",
                 "sourceTree" : "<group>",
@@ -496,7 +568,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_32",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_41",
                 "name" : "Missions/SightingDeriver.swift",
                 "path" : "Missions/SightingDeriver.swift",
                 "sourceTree" : "<group>",
@@ -504,7 +576,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_33",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_42",
                 "name" : "Rules/GameEngine.swift",
                 "path" : "Rules/GameEngine.swift",
                 "sourceTree" : "<group>",
@@ -512,7 +584,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_34",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_43",
                 "name" : "Simulator.swift",
                 "path" : "Simulator.swift",
                 "sourceTree" : "<group>",
@@ -520,7 +592,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_35",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_44",
                 "name" : "Staging/Autopilot.swift",
                 "path" : "Staging/Autopilot.swift",
                 "sourceTree" : "<group>",
@@ -528,7 +600,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_36",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_45",
                 "name" : "Staging/MorningScript.swift",
                 "path" : "Staging/MorningScript.swift",
                 "sourceTree" : "<group>",
@@ -536,7 +608,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_37",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_46",
                 "name" : "Staging/Place.swift",
                 "path" : "Staging/Place.swift",
                 "sourceTree" : "<group>",
@@ -544,7 +616,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_38",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_4::REF_47",
                 "name" : "Staging/VoteScript.swift",
                 "path" : "Staging/VoteScript.swift",
                 "sourceTree" : "<group>",
@@ -618,6 +690,14 @@
               {
                 "fileType" : "sourcecode.swift",
                 "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_7",
+                "name" : "Arena/ArenaGame.swift",
+                "path" : "Arena/ArenaGame.swift",
+                "sourceTree" : "<group>",
+                "type" : "file"
+              },
+              {
+                "fileType" : "sourcecode.swift",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_8",
                 "name" : "Arena/ArenaRunner.swift",
                 "path" : "Arena/ArenaRunner.swift",
                 "sourceTree" : "<group>",
@@ -625,7 +705,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_8",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_9",
                 "name" : "Arena/ArenaTypes.swift",
                 "path" : "Arena/ArenaTypes.swift",
                 "sourceTree" : "<group>",
@@ -633,7 +713,23 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_9",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_10",
+                "name" : "Arena/Course.swift",
+                "path" : "Arena/Course.swift",
+                "sourceTree" : "<group>",
+                "type" : "file"
+              },
+              {
+                "fileType" : "sourcecode.swift",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_11",
+                "name" : "Arena/Courses.swift",
+                "path" : "Arena/Courses.swift",
+                "sourceTree" : "<group>",
+                "type" : "file"
+              },
+              {
+                "fileType" : "sourcecode.swift",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_12",
                 "name" : "Arena/Games/BanquetCore.swift",
                 "path" : "Arena/Games/BanquetCore.swift",
                 "sourceTree" : "<group>",
@@ -641,7 +737,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_10",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_13",
                 "name" : "Arena/Games/BogCore.swift",
                 "path" : "Arena/Games/BogCore.swift",
                 "sourceTree" : "<group>",
@@ -649,7 +745,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_11",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_14",
                 "name" : "Arena/Games/CeiliCore.swift",
                 "path" : "Arena/Games/CeiliCore.swift",
                 "sourceTree" : "<group>",
@@ -657,7 +753,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_12",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_15",
                 "name" : "Arena/Games/HurleyCore.swift",
                 "path" : "Arena/Games/HurleyCore.swift",
                 "sourceTree" : "<group>",
@@ -665,7 +761,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_13",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_16",
                 "name" : "Arena/Games/KiteCore.swift",
                 "path" : "Arena/Games/KiteCore.swift",
                 "sourceTree" : "<group>",
@@ -673,7 +769,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_14",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_17",
                 "name" : "Arena/Games/LanternCore.swift",
                 "path" : "Arena/Games/LanternCore.swift",
                 "sourceTree" : "<group>",
@@ -681,7 +777,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_15",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_18",
                 "name" : "Arena/Games/MarketCore.swift",
                 "path" : "Arena/Games/MarketCore.swift",
                 "sourceTree" : "<group>",
@@ -689,7 +785,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_16",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_19",
                 "name" : "Arena/Games/MazeCore.swift",
                 "path" : "Arena/Games/MazeCore.swift",
                 "sourceTree" : "<group>",
@@ -697,7 +793,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_17",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_20",
                 "name" : "Arena/Games/SheepCore.swift",
                 "path" : "Arena/Games/SheepCore.swift",
                 "sourceTree" : "<group>",
@@ -705,7 +801,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_18",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_21",
                 "name" : "Arena/Games/ShipCore.swift",
                 "path" : "Arena/Games/ShipCore.swift",
                 "sourceTree" : "<group>",
@@ -713,7 +809,55 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_19",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_22",
+                "name" : "Arena/Gauntlet.swift",
+                "path" : "Arena/Gauntlet.swift",
+                "sourceTree" : "<group>",
+                "type" : "file"
+              },
+              {
+                "fileType" : "sourcecode.swift",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_23",
+                "name" : "Arena/GauntletBody.swift",
+                "path" : "Arena/GauntletBody.swift",
+                "sourceTree" : "<group>",
+                "type" : "file"
+              },
+              {
+                "fileType" : "sourcecode.swift",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_24",
+                "name" : "Arena/GauntletBots.swift",
+                "path" : "Arena/GauntletBots.swift",
+                "sourceTree" : "<group>",
+                "type" : "file"
+              },
+              {
+                "fileType" : "sourcecode.swift",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_25",
+                "name" : "Arena/GauntletTuning.swift",
+                "path" : "Arena/GauntletTuning.swift",
+                "sourceTree" : "<group>",
+                "type" : "file"
+              },
+              {
+                "fileType" : "sourcecode.swift",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_26",
+                "name" : "Arena/Hazards.swift",
+                "path" : "Arena/Hazards.swift",
+                "sourceTree" : "<group>",
+                "type" : "file"
+              },
+              {
+                "fileType" : "sourcecode.swift",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_27",
+                "name" : "Arena/Sabotage.swift",
+                "path" : "Arena/Sabotage.swift",
+                "sourceTree" : "<group>",
+                "type" : "file"
+              },
+              {
+                "fileType" : "sourcecode.swift",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_28",
                 "name" : "Core/Events.swift",
                 "path" : "Core/Events.swift",
                 "sourceTree" : "<group>",
@@ -721,7 +865,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_20",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_29",
                 "name" : "Core/GameState.swift",
                 "path" : "Core/GameState.swift",
                 "sourceTree" : "<group>",
@@ -729,7 +873,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_21",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_30",
                 "name" : "Core/Models.swift",
                 "path" : "Core/Models.swift",
                 "sourceTree" : "<group>",
@@ -737,7 +881,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_22",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_31",
                 "name" : "Core/Random.swift",
                 "path" : "Core/Random.swift",
                 "sourceTree" : "<group>",
@@ -745,7 +889,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_23",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_32",
                 "name" : "Core/Rules.swift",
                 "path" : "Core/Rules.swift",
                 "sourceTree" : "<group>",
@@ -753,7 +897,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_24",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_33",
                 "name" : "Core/Sightings.swift",
                 "path" : "Core/Sightings.swift",
                 "sourceTree" : "<group>",
@@ -761,7 +905,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_25",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_34",
                 "name" : "Core/TableView.swift",
                 "path" : "Core/TableView.swift",
                 "sourceTree" : "<group>",
@@ -769,7 +913,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_26",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_35",
                 "name" : "Dialogue/Dialogue.swift",
                 "path" : "Dialogue/Dialogue.swift",
                 "sourceTree" : "<group>",
@@ -777,7 +921,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_27",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_36",
                 "name" : "Dialogue/Flavour.swift",
                 "path" : "Dialogue/Flavour.swift",
                 "sourceTree" : "<group>",
@@ -785,7 +929,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_28",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_37",
                 "name" : "Dialogue/Host.swift",
                 "path" : "Dialogue/Host.swift",
                 "sourceTree" : "<group>",
@@ -793,7 +937,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_29",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_38",
                 "name" : "Missions/MissionDeck.swift",
                 "path" : "Missions/MissionDeck.swift",
                 "sourceTree" : "<group>",
@@ -801,7 +945,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_30",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_39",
                 "name" : "Missions/MissionLedger.swift",
                 "path" : "Missions/MissionLedger.swift",
                 "sourceTree" : "<group>",
@@ -809,7 +953,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_31",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_40",
                 "name" : "Missions/Missions.swift",
                 "path" : "Missions/Missions.swift",
                 "sourceTree" : "<group>",
@@ -817,7 +961,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_32",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_41",
                 "name" : "Missions/SightingDeriver.swift",
                 "path" : "Missions/SightingDeriver.swift",
                 "sourceTree" : "<group>",
@@ -825,7 +969,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_33",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_42",
                 "name" : "Rules/GameEngine.swift",
                 "path" : "Rules/GameEngine.swift",
                 "sourceTree" : "<group>",
@@ -833,7 +977,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_34",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_43",
                 "name" : "Simulator.swift",
                 "path" : "Simulator.swift",
                 "sourceTree" : "<group>",
@@ -841,7 +985,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_35",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_44",
                 "name" : "Staging/Autopilot.swift",
                 "path" : "Staging/Autopilot.swift",
                 "sourceTree" : "<group>",
@@ -849,7 +993,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_36",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_45",
                 "name" : "Staging/MorningScript.swift",
                 "path" : "Staging/MorningScript.swift",
                 "sourceTree" : "<group>",
@@ -857,7 +1001,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_37",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_46",
                 "name" : "Staging/Place.swift",
                 "path" : "Staging/Place.swift",
                 "sourceTree" : "<group>",
@@ -865,7 +1009,7 @@
               },
               {
                 "fileType" : "sourcecode.swift",
-                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_38",
+                "guid" : "PACKAGE:test::MAINGROUP::REF_5::REF_47",
                 "name" : "Staging/VoteScript.swift",
                 "path" : "Staging/VoteScript.swift",
                 "sourceTree" : "<group>",
@@ -912,13 +1056,13 @@
         "2048ecfff470578fa7396cd35ec130ad0ca9f28b7c5c66de6155a1594c605dbb",
         "147e8c7fa327e860343810549fb0e48831f53989418f546b7e5572cf91215ce3",
         "b386c29fc4f818f3b1b01b0116994d62ef07a438ccfc0341bfeb73f636005c2a",
-        "5bd1b77fa654c4d527ef9d7a2b927e38ef5520ad538dd031cdab9807f411dbb5",
-        "816487abc768bad3b19f8c35755edd696565082e3c30ac47004057841c6a12bc",
+        "990ff52e847832d9569e679bdb990ef3cc1eb2aaf3ccb99d27c7492100484fac",
+        "541443d1c795a70f6de59761ec3f1321fc987d32c19a3c328b9221383dd038e0",
         "34754e9b38437b2eb1c66d4ee36d20edf67a64f580b8153ce515235fedd3f034",
         "43f8ab786a53abf48dc34c93d9bf329056fac2496811ecbec64c621f0bd514e7"
       ]
     },
-    "signature" : "df98df2bc0b44050443a1dcff1a4f17b70f138d9cda49c8debeaad077d5cad6a",
+    "signature" : "9dfc8e4cb6343e66b8d040bbf699442d98ae2911a307b7e26e72e2b2175b6dc0",
     "type" : "project"
   },
   {
@@ -2058,6 +2202,87 @@
 
               ],
               "removeHeadersOnCopy" : "false"
+            },
+            {
+              "codeSignOnCopy" : "false",
+              "fileReference" : "PACKAGE:test::MAINGROUP::REF_4::REF_39",
+              "guid" : "PACKAGE-TARGET:TraitorsEngine::BUILDPHASE_0::39",
+              "platformFilters" : [
+
+              ],
+              "removeHeadersOnCopy" : "false"
+            },
+            {
+              "codeSignOnCopy" : "false",
+              "fileReference" : "PACKAGE:test::MAINGROUP::REF_4::REF_40",
+              "guid" : "PACKAGE-TARGET:TraitorsEngine::BUILDPHASE_0::40",
+              "platformFilters" : [
+
+              ],
+              "removeHeadersOnCopy" : "false"
+            },
+            {
+              "codeSignOnCopy" : "false",
+              "fileReference" : "PACKAGE:test::MAINGROUP::REF_4::REF_41",
+              "guid" : "PACKAGE-TARGET:TraitorsEngine::BUILDPHASE_0::41",
+              "platformFilters" : [
+
+              ],
+              "removeHeadersOnCopy" : "false"
+            },
+            {
+              "codeSignOnCopy" : "false",
+              "fileReference" : "PACKAGE:test::MAINGROUP::REF_4::REF_42",
+              "guid" : "PACKAGE-TARGET:TraitorsEngine::BUILDPHASE_0::42",
+              "platformFilters" : [
+
+              ],
+              "removeHeadersOnCopy" : "false"
+            },
+            {
+              "codeSignOnCopy" : "false",
+              "fileReference" : "PACKAGE:test::MAINGROUP::REF_4::REF_43",
+              "guid" : "PACKAGE-TARGET:TraitorsEngine::BUILDPHASE_0::43",
+              "platformFilters" : [
+
+              ],
+              "removeHeadersOnCopy" : "false"
+            },
+            {
+              "codeSignOnCopy" : "false",
+              "fileReference" : "PACKAGE:test::MAINGROUP::REF_4::REF_44",
+              "guid" : "PACKAGE-TARGET:TraitorsEngine::BUILDPHASE_0::44",
+              "platformFilters" : [
+
+              ],
+              "removeHeadersOnCopy" : "false"
+            },
+            {
+              "codeSignOnCopy" : "false",
+              "fileReference" : "PACKAGE:test::MAINGROUP::REF_4::REF_45",
+              "guid" : "PACKAGE-TARGET:TraitorsEngine::BUILDPHASE_0::45",
+              "platformFilters" : [
+
+              ],
+              "removeHeadersOnCopy" : "false"
+            },
+            {
+              "codeSignOnCopy" : "false",
+              "fileReference" : "PACKAGE:test::MAINGROUP::REF_4::REF_46",
+              "guid" : "PACKAGE-TARGET:TraitorsEngine::BUILDPHASE_0::46",
+              "platformFilters" : [
+
+              ],
+              "removeHeadersOnCopy" : "false"
+            },
+            {
+              "codeSignOnCopy" : "false",
+              "fileReference" : "PACKAGE:test::MAINGROUP::REF_4::REF_47",
+              "guid" : "PACKAGE-TARGET:TraitorsEngine::BUILDPHASE_0::47",
+              "platformFilters" : [
+
+              ],
+              "removeHeadersOnCopy" : "false"
             }
           ],
           "guid" : "PACKAGE-TARGET:TraitorsEngine::BUILDPHASE_0",
@@ -2084,7 +2309,7 @@
       "productTypeIdentifier" : "org.swift.product-type.library.static",
       "type" : "standard"
     },
-    "signature" : "5bd1b77fa654c4d527ef9d7a2b927e38ef5520ad538dd031cdab9807f411dbb5",
+    "signature" : "990ff52e847832d9569e679bdb990ef3cc1eb2aaf3ccb99d27c7492100484fac",
     "type" : "target"
   },
   {
@@ -2818,6 +3043,87 @@
 
               ],
               "removeHeadersOnCopy" : "false"
+            },
+            {
+              "codeSignOnCopy" : "false",
+              "fileReference" : "PACKAGE:test::MAINGROUP::REF_5::REF_39",
+              "guid" : "PACKAGE-TARGET:TraitorsEngine--670DE03C95FA7344-dynamic::BUILDPHASE_0::39",
+              "platformFilters" : [
+
+              ],
+              "removeHeadersOnCopy" : "false"
+            },
+            {
+              "codeSignOnCopy" : "false",
+              "fileReference" : "PACKAGE:test::MAINGROUP::REF_5::REF_40",
+              "guid" : "PACKAGE-TARGET:TraitorsEngine--670DE03C95FA7344-dynamic::BUILDPHASE_0::40",
+              "platformFilters" : [
+
+              ],
+              "removeHeadersOnCopy" : "false"
+            },
+            {
+              "codeSignOnCopy" : "false",
+              "fileReference" : "PACKAGE:test::MAINGROUP::REF_5::REF_41",
+              "guid" : "PACKAGE-TARGET:TraitorsEngine--670DE03C95FA7344-dynamic::BUILDPHASE_0::41",
+              "platformFilters" : [
+
+              ],
+              "removeHeadersOnCopy" : "false"
+            },
+            {
+              "codeSignOnCopy" : "false",
+              "fileReference" : "PACKAGE:test::MAINGROUP::REF_5::REF_42",
+              "guid" : "PACKAGE-TARGET:TraitorsEngine--670DE03C95FA7344-dynamic::BUILDPHASE_0::42",
+              "platformFilters" : [
+
+              ],
+              "removeHeadersOnCopy" : "false"
+            },
+            {
+              "codeSignOnCopy" : "false",
+              "fileReference" : "PACKAGE:test::MAINGROUP::REF_5::REF_43",
+              "guid" : "PACKAGE-TARGET:TraitorsEngine--670DE03C95FA7344-dynamic::BUILDPHASE_0::43",
+              "platformFilters" : [
+
+              ],
+              "removeHeadersOnCopy" : "false"
+            },
+            {
+              "codeSignOnCopy" : "false",
+              "fileReference" : "PACKAGE:test::MAINGROUP::REF_5::REF_44",
+              "guid" : "PACKAGE-TARGET:TraitorsEngine--670DE03C95FA7344-dynamic::BUILDPHASE_0::44",
+              "platformFilters" : [
+
+              ],
+              "removeHeadersOnCopy" : "false"
+            },
+            {
+              "codeSignOnCopy" : "false",
+              "fileReference" : "PACKAGE:test::MAINGROUP::REF_5::REF_45",
+              "guid" : "PACKAGE-TARGET:TraitorsEngine--670DE03C95FA7344-dynamic::BUILDPHASE_0::45",
+              "platformFilters" : [
+
+              ],
+              "removeHeadersOnCopy" : "false"
+            },
+            {
+              "codeSignOnCopy" : "false",
+              "fileReference" : "PACKAGE:test::MAINGROUP::REF_5::REF_46",
+              "guid" : "PACKAGE-TARGET:TraitorsEngine--670DE03C95FA7344-dynamic::BUILDPHASE_0::46",
+              "platformFilters" : [
+
+              ],
+              "removeHeadersOnCopy" : "false"
+            },
+            {
+              "codeSignOnCopy" : "false",
+              "fileReference" : "PACKAGE:test::MAINGROUP::REF_5::REF_47",
+              "guid" : "PACKAGE-TARGET:TraitorsEngine--670DE03C95FA7344-dynamic::BUILDPHASE_0::47",
+              "platformFilters" : [
+
+              ],
+              "removeHeadersOnCopy" : "false"
             }
           ],
           "guid" : "PACKAGE-TARGET:TraitorsEngine--670DE03C95FA7344-dynamic::BUILDPHASE_0",
@@ -2843,7 +3149,7 @@
       "productTypeIdentifier" : "com.apple.product-type.library.dynamic",
       "type" : "standard"
     },
-    "signature" : "816487abc768bad3b19f8c35755edd696565082e3c30ac47004057841c6a12bc",
+    "signature" : "541443d1c795a70f6de59761ec3f1321fc987d32c19a3c328b9221383dd038e0",
     "type" : "target"
   },
   {

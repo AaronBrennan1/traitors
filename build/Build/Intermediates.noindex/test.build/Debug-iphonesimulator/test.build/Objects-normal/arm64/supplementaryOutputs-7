@@ -1,11 +1,4 @@
 {
-  "/Users/aaronbrennan/Documents/test/test/UI/Ceremonies/NightCeremony.swift" : {
-    "const-values" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/NightCeremony.swiftconstvalues",
-    "dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/NightCeremony.d",
-    "diagnostics" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/NightCeremony.dia",
-    "object" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/NightCeremony.o",
-    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/NightCeremony.swiftdeps"
-  },
   "/Users/aaronbrennan/Documents/test/test/UI/Ceremonies/RoleCeremony.swift" : {
     "const-values" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/RoleCeremony.swiftconstvalues",
     "dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/RoleCeremony.d",
@@ -27,11 +20,18 @@
     "object" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Components.o",
     "swift-dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/Components.swiftdeps"
   },
-  "/Users/aaronbrennan/Documents/test/test/UI/Missions/Arena/Stages/BanquetStage.swift" : {
-    "const-values" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/BanquetStage.swiftconstvalues",
-    "dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/BanquetStage.d",
-    "diagnostics" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/BanquetStage.dia",
-    "object" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/BanquetStage.o",
-    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/BanquetStage.swiftdeps"
+  "/Users/aaronbrennan/Documents/test/test/UI/Missions/Arena/ArenaConfig.swift" : {
+    "const-values" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/ArenaConfig.swiftconstvalues",
+    "dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/ArenaConfig.d",
+    "diagnostics" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/ArenaConfig.dia",
+    "object" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/ArenaConfig.o",
+    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/ArenaConfig.swiftdeps"
+  },
+  "/Users/aaronbrennan/Documents/test/test/UI/Missions/Arena/ArenaHUDView.swift" : {
+    "const-values" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/ArenaHUDView.swiftconstvalues",
+    "dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/ArenaHUDView.d",
+    "diagnostics" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/ArenaHUDView.dia",
+    "object" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/ArenaHUDView.o",
+    "swift-dependencies" : "/Users/aaronbrennan/Documents/test/build/Build/Intermediates.noindex/test.build/Debug-iphonesimulator/test.build/Objects-normal/arm64/ArenaHUDView.swiftdeps"
   }
 }

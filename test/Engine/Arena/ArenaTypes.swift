@@ -30,7 +30,7 @@ struct ArenaSeat {
     let isHuman: Bool
 }
 
-/// Everything a run of the gauntlet is dealt before it starts.
+/// Everything a mini-game is dealt before it starts.
 struct ArenaSetup {
     let kind: MissionKind
     let day: Int
@@ -70,11 +70,54 @@ struct ArenaSetup {
     }
 }
 
-/// What the human is doing with their thumb this frame. A press of Dash goes through
-/// `ArenaRunner.press()`, which holds on to it until a step can take it.
+/// What the human is doing with their thumbs this frame. A press of the button and a strike let
+/// go both go through `ArenaRunner`, which holds on to them until a step can take them.
 struct ArenaInput {
-    /// The stick, length 0...1, in the course's own axes.
+    /// The stick, length 0...1, in the arena's own axes.
     var move = Vec2.zero
+    /// The button is being held down.
+    var hold = false
+}
+
+/// Everything a stage knows how to draw, in the games that are not the gauntlet.
+enum PropKind: String {
+    case stone, turfLight, turfHeavy, stack, hollow, bogOak
+    case brazier, lantern
+    case sheep, pen, dog
+    case chest, eel, boat
+    case tile, crack
+    case stall, cart, shopper
+    case ring, spire, kite, gull
+    case sigil, post, bell, statue
+    case target, ball
+    case station, pot, herbShelf
+}
+
+/// One thing in the arena, as the stage should show it this frame.
+struct Prop {
+    var id: Int
+    var kind: PropKind
+    var pos: Vec2
+    /// Height off the ground.
+    var z = 0.0
+    /// What it is doing, in the game's own terms: lit or out, which colour, how full.
+    var state = 0
+    var value = 0.0
+    /// Seat whose colour it wears, or -1.
+    var tint = -1
+    var hidden = false
+}
+
+/// Somewhere a player can stand and hold the button.
+struct Spot {
+    let id: Int
+    var pos: Vec2
+    var reach = 30.0
+    var hold = 1.0
+    /// What kind of thing it is, in the game's own terms.
+    var tag = 0
+    /// Has nothing to do with the day's work.
+    var offMission = false
 }
 
 /// Things for the screen and the speaker to do that do not change the game.
@@ -97,6 +140,13 @@ enum ArenaCue {
     case sealing, unsealed, sealed, overtime
     /// The shadow's hand was used. Only that player's own screen may show it.
     case hand(PlayerID)
+
+    // What the other games ask of the screen, in their own words.
+    case popup(String, Vec2, seat: PlayerID?, bad: Bool)
+    case banner(String)
+    case flash(bad: Bool)
+    case shake
+    case burst(Vec2, seat: PlayerID?)
 }
 
 /// A square grid of walls. It blocks feet, sight or both.

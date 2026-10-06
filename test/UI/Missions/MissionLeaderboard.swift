@@ -36,7 +36,7 @@ struct MissionResultCard: View {
                 }
             }
             .frame(height: 10)
-            Text(made ? "The vault is sealed. Nobody is murdered tonight."
+            Text(made ? "The goal is made. Nobody is murdered tonight."
                       : "The traitors have their night.")
                 .font(.serif(.subheadline)).foregroundStyle(Palette.parchment)
                 .fixedSize(horizontal: false, vertical: true)

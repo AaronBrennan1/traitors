@@ -47,7 +47,7 @@ struct MissionView: View {
                                     // The thumbs go straight through to the game, VoiceOver or not.
                                     .accessibilityElement()
                                     .accessibilityLabel("\(run.kind.title), play area")
-                                    .accessibilityHint(MissionKind.controls.joined(separator: " "))
+                                    .accessibilityHint(run.kind.controls.joined(separator: " "))
                                     .accessibilityDirectTouch(true, options: .silentOnTouch)
                                 ArenaHUDView(model: scene.model, topInset: frame.topInset)
                                 if !game.humanAlive, !scene.model.paused {

@@ -1,9 +1,9 @@
 import Foundation
 
-/// The order the courses come up in over a game.
+/// The order the games come up in over a play-through.
 enum MissionDeck {
-    /// The Great Hall is always first, being the plainest. The rest come in any order.
+    /// Every game once and the gauntlet once, on whichever of its courses comes up, in any order.
     static func deal(rng: inout SeededRNG) -> [MissionKind] {
-        [.greatHall] + rng.shuffled(MissionKind.allCases.filter { $0 != .greatHall })
+        rng.shuffled(MissionKind.games + [rng.pick(MissionKind.courses)])
     }
 }

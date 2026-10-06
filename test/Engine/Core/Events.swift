@@ -27,10 +27,25 @@ struct MissionSpec {
     }
 }
 
-/// The courses of the gauntlet. It is the same game on every one: gold from the hoard to the
-/// vault, through whatever that part of the castle has in the way.
+/// The games a day's mission can be. Five of them are courses of the gauntlet, which is one game:
+/// gold from the hoard to the vault, through whatever that part of the castle has in the way.
+/// The other ten are each a game of their own.
 enum MissionKind: String, Codable, CaseIterable {
     case greatHall, cellars, armoury, battlements, crypt
+    case bogRelay, lanternRun, sheepRoundUp, shipwreckDive, ceiliChaos
+    case marketDay, kiteRace, hedgeMaze, hurley, banquetPrep
+
+    /// The courses of the gauntlet. A game sees one of them.
+    static let courses: [MissionKind] = [.greatHall, .cellars, .armoury, .battlements, .crypt]
+    /// The games that are not the gauntlet.
+    static let games: [MissionKind] = allCases.filter { !$0.isGauntlet }
+
+    var isGauntlet: Bool {
+        switch self {
+        case .greatHall, .cellars, .armoury, .battlements, .crypt: return true
+        default: return false
+        }
+    }
 
     var title: String {
         switch self {
@@ -39,6 +54,16 @@ enum MissionKind: String, Codable, CaseIterable {
         case .armoury: return "The Armoury"
         case .battlements: return "The Battlements"
         case .crypt: return "The Crypt"
+        case .bogRelay: return "The Bog Relay"
+        case .lanternRun: return "Castle Lantern Run"
+        case .sheepRoundUp: return "Sheep Round-Up"
+        case .shipwreckDive: return "The Shipwreck Dive"
+        case .ceiliChaos: return "Céilí Chaos"
+        case .marketDay: return "Market Day Scramble"
+        case .kiteRace: return "Cliffside Kite Race"
+        case .hedgeMaze: return "The Hedge Maze"
+        case .hurley: return "Hurley Target Practice"
+        case .banquetPrep: return "The Banquet Prep"
         }
     }
 
@@ -49,6 +74,16 @@ enum MissionKind: String, Codable, CaseIterable {
         case .armoury: return "shield.lefthalf.filled"
         case .battlements: return "wind"
         case .crypt: return "flame.fill"
+        case .bogRelay: return "square.stack.3d.up.fill"
+        case .lanternRun: return "lightbulb.fill"
+        case .sheepRoundUp: return "pawprint.fill"
+        case .shipwreckDive: return "water.waves"
+        case .ceiliChaos: return "music.note"
+        case .marketDay: return "basket.fill"
+        case .kiteRace: return "paperplane.fill"
+        case .hedgeMaze: return "square.grid.3x3.fill"
+        case .hurley: return "target"
+        case .banquetPrep: return "fork.knife"
         }
     }
 
@@ -59,6 +94,16 @@ enum MissionKind: String, Codable, CaseIterable {
         case .armoury: return MissionSpec(unit: "bags", baseSeconds: 75, par: (8.55, 8.9))
         case .battlements: return MissionSpec(unit: "bags", baseSeconds: 75, par: (11.0, 11.0))
         case .crypt: return MissionSpec(unit: "bags", baseSeconds: 75, par: (8.5, 8.8))
+        case .bogRelay: return MissionSpec(unit: "sods", baseSeconds: 75, par: (5.70, 6.07))
+        case .lanternRun: return MissionSpec(unit: "lanterns", baseSeconds: 80, par: (6.56, 7.01))
+        case .sheepRoundUp: return MissionSpec(unit: "sheep", baseSeconds: 80, par: (5.41, 5.89))
+        case .shipwreckDive: return MissionSpec(unit: "chests", baseSeconds: 85, par: (4.86, 5.62))
+        case .ceiliChaos: return MissionSpec(unit: "steps", baseSeconds: 70, par: (10.37, 9.99))
+        case .marketDay: return MissionSpec(unit: "items", baseSeconds: 80, par: (6.56, 7.01))
+        case .kiteRace: return MissionSpec(unit: "rings", baseSeconds: 75, par: (8.58, 9.55))
+        case .hedgeMaze: return MissionSpec(unit: "finds", baseSeconds: 85, par: (5.54, 6.04))
+        case .hurley: return MissionSpec(unit: "hits", baseSeconds: 70, par: (6.09, 6.77))
+        case .banquetPrep: return MissionSpec(unit: "jobs", baseSeconds: 90, par: (6.40, 6.19))
         }
     }
 
@@ -74,10 +119,30 @@ enum MissionKind: String, Codable, CaseIterable {
             return "The wall-walk, on a night with a wind in it. There is nothing at the edge but the odd merlon, and a gust will carry you and your gold clean over."
         case .crypt:
             return "The crypt, by candlelight. Flame from the old grates, blades between the tombs, and no seeing further than the next candle. Carried gold glints in the dark."
+        case .bogRelay:
+            return "A Connemara bog at dawn. Turf is cut at one bank and has to be stacked at the other, across stepping stones that sink under your feet. Every sod on the stack goes to the team."
+        case .lanternRun:
+            return "Night on the ramparts, and the dark is creeping in from the walls. Carry flame from the brazier and keep the lanterns lit. What is lit can be seen from across the yard. What is not, only from close by."
+        case .sheepRoundUp:
+            return "A windy hillside and a flock with no intention of going home. Walk the sheep into the pen that matches their ribbon. The dog answers to whoever whistles last."
+        case .shipwreckDive:
+            return "An old wreck in a sheltered bay off Kerry. Dive, haul the chests up to the boat and come up for air before it runs out. The water is murky and the big chest wants two pairs of hands."
+        case .ceiliChaos:
+            return "A céilí in the great hall. The band calls a shape and everyone has a tile to be standing on when the beat lands. A shape with nobody missing counts extra for the team."
+        case .marketDay:
+            return "Market day in the village, and a feast to shop for. Buy from the stalls, bring it back to the cart and mind the crowds. Stalls sell out, so spread yourselves round the square."
+        case .kiteRace:
+            return "Sea cliffs on a windy day. Run the cliff path and fly your kite through the rings, twice round. The gusts will throw you about and the sea stacks will catch a careless string."
+        case .hedgeMaze:
+            return "The old estate maze, with a bell tower at its heart. Find the sigils and the map posts, then ring the bell. Whatever one of you walks through goes on the map for all, and the hedges will not stay put."
+        case .hurley:
+            return "The castle lawn on a sunny afternoon, ten sliotars each and targets out to the far wall. Every hit in a row by anyone builds the team's streak."
+        case .banquetPrep:
+            return "The castle kitchen an hour before the feast. Fetch, chop, stir, plate and serve. Nobody can do it all, and a pot left alone will burn."
         }
     }
 
-    /// What is different about this course, in a line.
+    /// What is different about this game, in a line.
     var twist: String {
         switch self {
         case .greatHall: return "Three blades in a row swing a beat apart. One steady pace walks through all of them."
@@ -85,18 +150,135 @@ enum MissionKind: String, Codable, CaseIterable {
         case .armoury: return "A plate in the floor looses the darts two paces on. The crowd sets them off."
         case .battlements: return "No walls at the edge. Lean into the gusts or go over with your gold."
         case .crypt: return "You can only see as far as the candles let you."
+        case .bogRelay: return "Stones sink while you stand on them, and wading is slow. The big pile counts double."
+        case .lanternRun: return "Lanterns burn down. A dark corner hides whoever is standing in it."
+        case .sheepRoundUp: return "Sheep run from you. Get behind one, and mind which gate it is facing."
+        case .shipwreckDive: return "Your air runs out. Whatever you are carrying goes back down if it does."
+        case .ceiliChaos: return "No button. Only your feet, and the beat."
+        case .marketDay: return "Each stall only sells you three. A crowd hides whoever is in it."
+        case .kiteRace: return "Rings only count in order. Fly close behind another kite for a tow."
+        case .hedgeMaze: return "The hedges move twice. You see no further than the next corner."
+        case .hurley: return "Nobody runs. Pull back, aim, let go. A miss ends the streak for everyone."
+        case .banquetPrep: return "Every job feeds the next. A pot that boils dry costs the team."
         }
     }
 
-    /// How the gauntlet is played. It is the same on every course.
-    static let controls = [
-        "Drag to run. Walk into the hoard to lift a bag, and wait there a moment for a second and a third. More gold makes you slower.",
-        "Carry it up to the vault. Get caught by a trap and you drop the lot and wake at the last brazier.",
-        "Tap Dash for a burst that clears a gap two tiles wide. Every trap shows itself before it strikes.",
-    ]
+    /// How the game is played.
+    var controls: [String] {
+        switch self {
+        case .greatHall, .cellars, .armoury, .battlements, .crypt:
+            return [
+                "Drag to run. Walk into the hoard to lift a bag, and wait there a moment for a second and a third. More gold makes you slower.",
+                "Carry it up to the vault. Get caught by a trap and you drop the lot and wake at the last brazier.",
+                "Tap Dash for a burst that clears a gap two tiles wide. Every trap shows itself before it strikes.",
+            ]
+        case .bogRelay:
+            return [
+                "Drag to run. Walk into the turf bank on the left to lift a sod. The big pile at the back counts double and slows you down.",
+                "Carry it across to the stack on the right. Keep to the stones: they sink while you stand on them.",
+                "Tap Pass beside someone empty-handed to hand your sod on. A sod that changed hands earns the team one more.",
+            ]
+        case .lanternRun:
+            return [
+                "Drag to run. Touch the brazier in the middle to take a flame.",
+                "Walk into a dark lantern to light it. Lanterns burn down and want lighting again.",
+                "Hold Trim at a lantern that is burning low to keep it going.",
+            ]
+        case .sheepRoundUp:
+            return [
+                "Drag to run. Sheep move away from you, so get behind one and walk it in.",
+                "Each sheep wears a ribbon. It only counts in the pen flying the same colour, and the wrong pen costs the team one.",
+                "Tap Whistle to send the dog out in front of you.",
+            ]
+        case .shipwreckDive:
+            return [
+                "Drag to swim. Hold Lift at a chest to take it, then swim it up to the boat.",
+                "Watch your air. Surface before it runs out or you come up with nothing.",
+                "The big chest is slow unless another diver swims alongside. Eels stun.",
+            ]
+        case .ceiliChaos:
+            return [
+                "Drag to move. When the band calls a shape, a tile lights up in your colour.",
+                "Be standing on it when the ring closes. That is a step for the team.",
+                "On a free dance nobody has a tile. Stand where you like.",
+            ]
+        case .marketDay:
+            return [
+                "Drag to run. Stalls with a gold tag still have something on your list.",
+                "Hold Buy at a stall. You can carry three things at once.",
+                "Walk them back to the cart at the foot of the square.",
+            ]
+        case .kiteRace:
+            return [
+                "Push right to run the cliff path. Push up and down to fly your kite higher and lower.",
+                "Thread the rings in order. Three in a row earns the team one more.",
+                "If your string catches on a sea stack, hold Tug to pull it free.",
+            ]
+        case .hedgeMaze:
+            return [
+                "Drag to run. Walk into sigils and map posts to claim them. A post fills in its corner of the map for everyone.",
+                "With four finds, ring the bell in the middle.",
+                "Hold Search at a statue. Some of them are hiding a sigil.",
+            ]
+        case .hurley:
+            return [
+                "Drag back anywhere on the lawn and let go to strike. The further you pull, the harder it flies.",
+                "Ten sliotars each. Far targets are small and the carts roll.",
+                "Every hit by anyone adds to the streak. Every fifth earns the team one more.",
+            ]
+        case .banquetPrep:
+            return [
+                "Drag to run. A station that glows has a job waiting: hold Work there to do it.",
+                "Food goes from the pantry to the board, into a pot, onto a plate and out through the pass.",
+                "A pot that asks for seasoning wants a herb from the shelf at the back of the pantry.",
+            ]
+        }
+    }
+
+    /// What the one button says, in the games that have one.
+    var button: String? {
+        switch self {
+        case .greatHall, .cellars, .armoury, .battlements, .crypt: return "Dash"
+        case .bogRelay: return "Pass"
+        case .lanternRun: return "Trim"
+        case .sheepRoundUp: return "Whistle"
+        case .shipwreckDive: return "Lift"
+        case .marketDay: return "Buy"
+        case .kiteRace: return "Tug"
+        case .hedgeMaze: return "Search"
+        case .banquetPrep: return "Work"
+        case .ceiliChaos, .hurley: return nil
+        }
+    }
 
     /// What a traitor can do out there, and what it earns.
-    static let hand = "The Shadow's Hand. Stand still beside a lever, a candle sconce or the vault door and tap Dash: the lever trips its trap, the sconce goes out, the door spills gold back onto the floor. Nothing on the screen says it was you, but anyone watching sees who was standing there."
+    var hand: String {
+        let close = " Nothing on the screen says it was you, but anyone watching sees who was standing there."
+        switch self {
+        case .greatHall, .cellars, .armoury, .battlements, .crypt:
+            return "The Shadow's Hand. Stand still beside a lever, a candle sconce or the vault door and tap Dash: the lever trips its trap, the sconce goes out, the door spills gold back onto the floor." + close
+        case .bogRelay:
+            return "The Shadow's Hand. Stand still beside the stack, or at one of the dark pools in the back lane, and tap Pass. The stack slumps, or the bank gives way, and sods are lost." + close
+        case .lanternRun:
+            return "The Shadow's Hand. Stand still at the brazier, or by a lantern in one of the corner towers, and tap Trim. The fire is smothered or a draught takes the towers, and the count goes down." + close
+        case .sheepRoundUp:
+            return "The Shadow's Hand. Stand still at the mouth of a pen and tap Whistle. The gate bursts and what was penned comes back out." + close
+        case .shipwreckDive:
+            return "The Shadow's Hand. Hold still at the boat, or down in the far corner of the hold, and tap Lift. The net slips or the timbers fall in, and chests are lost." + close
+        case .ceiliChaos:
+            return "The Shadow's Hand. Two boards on the floor are cracked. Be standing still on one as the beat lands and it gives way, and the team loses steps. Anyone near enough sees who was on it."
+        case .marketDay:
+            return "The Shadow's Hand. Stand still at the cart, or at a stall that sells nothing on the list, and tap Buy. The cart tips or the stall goes over, and what was bought is lost." + close
+        case .kiteRace:
+            return "The Shadow's Hand. Fly your kite onto a sea stack and leave the string caught, with never a tug at it. After a moment it fouls the lines and the team loses rings. Anyone near enough sees whose string it was."
+        case .hedgeMaze:
+            return "The Shadow's Hand. Stand still at the bell, or at a statue, and tap Search. The rope snaps or a sigil fades, and finds are lost." + close
+        case .hurley:
+            return "The Shadow's Hand. Put a sliotar on the old bell at the far wall. Every target drops, the streak is gone and the team loses hits. The players either side of you can see where you aimed."
+        case .banquetPrep:
+            return "The Shadow's Hand. Stand still at the pass, or in among the pots, and tap Work. A tray goes over or the pots boil, and the work is lost." + close
+        }
+    }
 }
 
 /// What the table is told about a mission: what the company brought home between them, and
