@@ -1,5 +1,6 @@
 import SwiftUI
 import UIKit
+import TraitorsEngine
 
 /// One colour, defined once and handed to SwiftUI, SpriteKit and SceneKit alike.
 struct Swatch {
@@ -20,7 +21,6 @@ enum Tokens {
     enum Hue {
         // The shell.
         static let ink = Swatch(0.030, 0.047, 0.043)
-        static let moss = Swatch(0.055, 0.110, 0.092)
         static let panel = Swatch(0.082, 0.118, 0.108)
         static let panelHi = Swatch(0.125, 0.170, 0.155)
         static let line = Swatch(1, 1, 1, 0.10)
@@ -57,7 +57,6 @@ enum Tokens {
         static let woodDark = Swatch(0.33, 0.21, 0.13)
         static let steel = Swatch(0.62, 0.67, 0.72)
         static let straw = Swatch(0.80, 0.67, 0.36)
-        static let sky = Swatch(0.36, 0.46, 0.52)
         static let sea = Swatch(0.11, 0.27, 0.35)
         /// The three pens of the round-up.
         static let ribbons = [Swatch(0.80, 0.27, 0.25), Swatch(0.28, 0.48, 0.80), Swatch(0.88, 0.73, 0.26)]

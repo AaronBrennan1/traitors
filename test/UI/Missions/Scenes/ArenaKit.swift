@@ -1,4 +1,5 @@
 import SpriteKit
+import TraitorsEngine
 
 /// The arena's colours as SpriteKit wants them. Every one comes from `Tokens`.
 enum Toon {
@@ -15,7 +16,6 @@ enum Toon {
     static let woodDark = Tokens.Hue.woodDark.ui
     static let steel = Tokens.Hue.steel.ui
     static let straw = Tokens.Hue.straw.ui
-    static let panel = Tokens.Hue.panel.ui
     static let ink = Tokens.Hue.ink.ui
     static let ember = Tokens.Hue.ember.ui
     static let flagstone = Tokens.Hue.flagstone.ui
@@ -333,17 +333,6 @@ enum FX {
             bit.run(.sequence([.group([.moveBy(x: CGFloat.random(in: -40...40), y: -(size.height + 120), duration: fall),
                                        .rotate(byAngle: CGFloat.random(in: -8...8), duration: fall)]), .removeFromParent()]))
         }
-    }
-
-    static func shake(_ node: SKNode, amount: CGFloat = 6) {
-        node.removeAction(forKey: "shake")
-        var steps: [SKAction] = []
-        for i in 0..<6 {
-            let k = amount * CGFloat(6 - i) / 6
-            steps.append(.move(to: CGPoint(x: CGFloat.random(in: -k...k), y: CGFloat.random(in: -k...k)), duration: 0.035))
-        }
-        steps.append(.move(to: .zero, duration: 0.035))
-        node.run(.sequence(steps), withKey: "shake")
     }
 
     /// Springs a node in from nothing.

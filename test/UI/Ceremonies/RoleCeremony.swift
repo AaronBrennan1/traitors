@@ -1,28 +1,21 @@
 import SwiftUI
+import TraitorsEngine
 
 /// The first night: the host's welcome, the others introducing themselves, then blindfolds on
 /// while she walks the circle and chooses her traitors.
 struct RoleCeremony: View {
-    @Environment(GameStore.self) private var store
+    @Environment(GameSession.self) private var session
     @Environment(Stage.self) private var stage
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var shown = 0
 
-    enum Moment {
-        case welcome(String)
-        case meet(PlayerID)
-        case blindfold, circling, footstep(Int)
-        /// A hand on the shoulder, or the steps going by.
-        case touch
-        case done, reveal
-        /// Traitors only: hoods down in the turret.
-        case turret
-    }
+    typealias Moment = RoleTelling.Moment
 
     var body: some View {
-        if let game = store.game, let me = game.human {
+        if let game = session.game, let me = game.human {
             let role = game.players[me].role
-            let moments = Self.moments(game, role)
+            let telling = RoleTelling(game: game, role: role)
+            let moments = telling.moments
             let settled = shown >= moments.count
             VStack(spacing: 0) {
                 ScrollView {
@@ -41,7 +34,7 @@ struct RoleCeremony: View {
                 met(game, moments)
                 VStack(spacing: 8) {
                     if settled {
-                        Button("Go down to breakfast") { store.send(.next) }
+                        Button("Go down to breakfast") { session.send(.proceed) }
                             .buttonStyle(GoldButtonStyle(tint: Palette.role(role)))
                     } else {
                         Text("Tap to skip. Make sure nobody else can see your screen.")
@@ -52,54 +45,12 @@ struct RoleCeremony: View {
                 .padding(.horizontal, 24)
                 .padding(.bottom, 16)
             }
-            .stepClock($shown, count: moments.count, key: "role", hold: { hold(moments, $0) }, cue: { cue(moments[$0], role) })
+            .stepClock($shown, count: moments.count, key: "role", hold: telling.hold, cue: { telling.cue($0)?.play() })
             .onChange(of: shown, initial: true) {
                 // Dark for as long as the blindfold is on.
-                var dark = false
-                if shown > 0 {
-                    switch moments[shown - 1] {
-                    case .blindfold, .circling, .footstep, .touch: dark = true
-                    default: break
-                    }
-                }
+                let dark = telling.blindfolded(shown: shown)
                 withAnimation(.easeInOut(duration: reduceMotion ? 0.3 : 0.9)) { stage.dim = dark ? 1 : 0 }
             }
-        }
-    }
-
-    static func moments(_ game: Game, _ role: Role) -> [Moment] {
-        var out: [Moment] = Host.welcome.map { .welcome($0) }
-        out += game.players.indices.filter { !game.players[$0].isHuman }.map { .meet($0) }
-        out += [.blindfold, .circling, .footstep(1), .footstep(2), .footstep(3), .touch, .done, .reveal]
-        if role == .traitor { out.append(.turret) }
-        return out
-    }
-
-    private func hold(_ moments: [Moment], _ i: Int) -> Double {
-        if i == 0 { return 0.7 }
-        switch moments[i] {
-        case .welcome: return 2.8
-        case .meet: return 2.4
-        case .blindfold: return 2.6
-        case .circling: return 2.6
-        case .footstep: return 1.2
-        case .touch: return 1.8
-        case .done: return 2.6
-        case .reveal: return 2.4
-        case .turret: return 3.4
-        }
-    }
-
-    private func cue(_ moment: Moment, _ role: Role) {
-        switch moment {
-        case .meet: Cue.door.play()
-        case .blindfold: Cue.snuff.play()
-        case .footstep: Cue.footstep.play()
-        case .touch: (role == .traitor ? Cue.shoulder : Cue.footstep).play()
-        case .done: Cue.bell.play()
-        case .reveal: Cue.declare(role).play()
-        case .turret: Cue.boom.play()
-        default: break
         }
     }
 

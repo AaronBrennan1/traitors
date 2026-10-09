@@ -1,16 +1,21 @@
 import AVFoundation
+import QuartzCore
+import TraitorsEngine
 
 /// Plays the room you are standing in and the sounds laid over it. Every buffer is made ahead of
 /// time by `Synth` and handed to player nodes, so no code of ours runs on the audio thread.
 final class Soundscape {
-    static let shared = Soundscape()
+    /// Whether anything should be heard. Set by whoever owns the settings.
+    var enabled = true
 
     private let engine = AVAudioEngine()
     private let format = AVAudioFormat(standardFormatWithSampleRate: Synth.rate, channels: 1)!
     private let beds = [AVAudioPlayerNode(), AVAudioPlayerNode()]
     private let stings = (0..<8).map { _ in AVAudioPlayerNode() }
     private var bedBuffers: [Bed: AVAudioPCMBuffer] = [:]
-    private var stingBuffers: [Sting: AVAudioPCMBuffer] = [:]
+    /// Every short sound made so far, by name, whichever synth made it.
+    private var shots: [String: AVAudioPCMBuffer] = [:]
+    private var making: Set<String> = []
     private var front = 0
     private var nextSting = 0
     /// The room that should be playing, whether or not it is audible yet.
@@ -20,7 +25,7 @@ final class Soundscape {
     private var fade: Task<Void, Never>?
     private var wired = false
 
-    private init() {}
+    init() {}
 
     // MARK: - Control
 
@@ -28,7 +33,7 @@ final class Soundscape {
     func setBed(_ bed: Bed?, level: Float = 1) {
         wanted = bed
         self.level = level
-        guard Senses.sound, let bed else { fadeTo(nil); return }
+        guard enabled, let bed else { fadeTo(nil); return }
         if let buffer = bedBuffers[bed] {
             fadeTo((bed, buffer))
         } else {
@@ -41,13 +46,14 @@ final class Soundscape {
         }
     }
 
-    func play(_ sting: Sting, volume: Float = 1) {
-        guard Senses.sound, start() else { return }
-        guard let buffer = stingBuffers[sting] else {
-            Task {
-                let samples = await Task.detached(priority: .userInitiated) { Synth.render(sting) }.value
-                self.stingBuffers[sting] = self.buffer(samples)
-                self.play(sting, volume: volume)
+    /// Plays a short sound by name. The first time one is wanted it is made off the main thread
+    /// by `render`, and played only if that was quick enough for it still to belong to its moment.
+    func play(_ name: String, volume: Float = 1, render: @escaping @Sendable () -> [Float]) {
+        guard enabled, start() else { return }
+        guard let buffer = shots[name] else {
+            let asked = CACurrentMediaTime()
+            make(name, render: render) { [weak self] in
+                if CACurrentMediaTime() - asked < 0.25 { self?.play(name, volume: volume, render: render) }
             }
             return
         }
@@ -59,28 +65,14 @@ final class Soundscape {
         node.play()
     }
 
-    /// Plays a buffer somebody else made, once. It must be mono at `Synth.rate`, as `makeBuffer` returns.
-    func playOneShot(_ buffer: AVAudioPCMBuffer, volume: Float = 1) {
-        guard Senses.sound, start() else { return }
-        let node = stings[nextSting]
-        nextSting = (nextSting + 1) % stings.count
-        node.stop()
-        node.volume = volume
-        node.scheduleBuffer(buffer, at: nil, options: [])
-        node.play()
-    }
-
-    /// Wraps samples from `Synth` (mono, `Synth.rate`) for `playOneShot`.
-    func makeBuffer(_ samples: [Float]) -> AVAudioPCMBuffer? { buffer(samples) }
-
-    /// Makes the short sounds ahead of the first time they are needed.
-    func warmUp() {
-        guard Senses.sound else { return }
-        for sting in Sting.allCases where stingBuffers[sting] == nil {
-            Task {
-                let samples = await Task.detached(priority: .utility) { Synth.render(sting) }.value
-                if self.stingBuffers[sting] == nil { self.stingBuffers[sting] = self.buffer(samples) }
-            }
+    /// Makes a short sound ahead of the first time it is needed. Never on the main thread.
+    func make(_ name: String, render: @escaping @Sendable () -> [Float], then: (() -> Void)? = nil) {
+        guard shots[name] == nil, making.insert(name).inserted else { return }
+        Task {
+            let samples = await Task.detached(priority: .userInitiated) { render() }.value
+            self.shots[name] = self.buffer(samples)
+            self.making.remove(name)
+            then?()
         }
     }
 
@@ -96,7 +88,7 @@ final class Soundscape {
     func resume() {
         let bed = wanted
         playing = nil
-        if Senses.sound { setBed(bed, level: level) } else { suspend() }
+        if enabled { setBed(bed, level: level) } else { suspend() }
     }
 
     // MARK: - Engine
@@ -110,10 +102,10 @@ final class Soundscape {
             }
             // Ambient: the mute switch silences it and other audio keeps playing.
             try? AVAudioSession.sharedInstance().setCategory(.ambient, options: [.mixWithOthers])
-            NotificationCenter.default.addObserver(forName: AVAudioSession.interruptionNotification, object: nil, queue: .main) { note in
+            NotificationCenter.default.addObserver(forName: AVAudioSession.interruptionNotification, object: nil, queue: .main) { [weak self] note in
                 let ended = (note.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt) == AVAudioSession.InterruptionType.ended.rawValue
                 Task { @MainActor in
-                    if ended { Soundscape.shared.resume() } else { Soundscape.shared.suspend() }
+                    if ended { self?.resume() } else { self?.suspend() }
                 }
             }
         }

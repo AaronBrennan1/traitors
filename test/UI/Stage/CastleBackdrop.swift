@@ -1,4 +1,5 @@
 import SwiftUI
+import TraitorsEngine
 
 /// The room behind everything: painted once for where you are, with its lights moving on top.
 /// Kept dark enough everywhere that text can sit straight on it.

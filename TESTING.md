@@ -1,5 +1,21 @@
 # Testing
 
+> **Status, 2026-10-06.** This report was measured before the refactor in
+> [docs/REFACTORING_PLAN.md](docs/REFACTORING_PLAN.md), and its numbers, file names and line
+> links describe the code as it was then. Since then: the one test file is five targets
+> (`CoreTests`, `MindsTests`, `GauntletTests`, `EngineTests`, and `AppTests` in the Xcode
+> project); the engine is in `Sources/`; `swift test` is a quick tier (about 20 s) and
+> `FULL=1 swift test -c release -Xswiftc -enable-testing` runs everything (about 25 s).
+> Recommendations 1, 5, 18 and 19 are done, and 3 in part (loops are capped; there are no time
+> limits). Of the five items under "Needs a main-code change", three are done: saves take
+> their store as a parameter, the visibility rules are in the engine, and tuning is a value.
+> Marking engine types `nonisolated` and having the simulator return its summary are not.
+> There is also a golden master.
+> [docs/ARCHITECTURE.md §8–9](docs/ARCHITECTURE.md#8-invariants-and-the-tests-that-guard-them)
+> has the current list of tests and how to run them. The findings below about tests that can
+> pass empty (2), seeds missing from failure messages (4) and thin end-state invariants (7)
+> still stand.
+
 What the test suite covers today, where it is thin, and what to do about it, in priority order.
 
 Measured on 2026-10-05 against the working tree (Swift 6.4, macOS, debug build with coverage on).

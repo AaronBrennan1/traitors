@@ -1,0 +1,12 @@
+== seat 0: faithful, votes with the table
+  wins 58.7%   banished 17.7% (day 1: 3.7%)   murdered 34.7%   company won its mission 24.3%
+== seat 0: faithful, votes at random
+  wins 48.3%   banished 35.0% (day 1: 4.7%)   murdered 26.0%   company won its mission 24.0%
+== seat 0: faithful, idle in every mission
+  wins 52.3%   banished 14.7% (day 1: 3.7%)   murdered 40.7%   company won its mission 10.0%
+== seat 0: traitor, never uses the hand
+  wins 50.7%   banished 55.3% (day 1: 2.7%)   murdered 0.0%   company won its mission 39.1%
+== seat 0: traitor, idle in every mission
+  wins 58.3%   banished 50.0% (day 1: 2.7%)   murdered 0.0%   company won its mission 14.8%
+== seat 0: traitor, always uses the hand
+  wins 37.7%   banished 84.7% (day 1: 41.0%)   murdered 0.0%   company won its mission 13.9%

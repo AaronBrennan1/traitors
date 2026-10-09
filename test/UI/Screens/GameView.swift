@@ -1,9 +1,11 @@
 import SwiftUI
+import TraitorsEngine
 
 /// Routes the current phase to its screen, under a persistent header.
 struct GameView: View {
-    @Environment(GameStore.self) private var store
+    @Environment(GameSession.self) private var session
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.effects) private var effects
     var onExit: () -> Void
     @State private var showCast = false
     @State private var stage = Stage()
@@ -11,7 +13,7 @@ struct GameView: View {
     @State private var lifted: String?
 
     var body: some View {
-        if let game = store.game {
+        if let game = session.game {
             let place = Place.of(game)
             let key = "\(game.seed)-\(Place.sceneKey(game))"
             let card = Place.card(game)
@@ -46,16 +48,22 @@ struct GameView: View {
             }
             .task(id: "\(place.rawValue)-\(game.phase == .mission)-\(game.day)") {
                 // A mission has an air of its own in place of the room.
-                Soundscape.shared.setBed(game.phase == .mission ? (game.mission?.kind.bed ?? .gauntlet) : place.bed, level: game.phase == .mission ? 0.8 : 1)
+                effects.setBed(game.phase == .mission ? (game.mission?.kind.bed ?? .gauntlet) : place.bed, level: game.phase == .mission ? 0.8 : 1)
             }
             .onChange(of: game.phase) { stage.clear() }
             .onChange(of: scenePhase) {
-                if scenePhase == .active { Soundscape.shared.resume() } else { Soundscape.shared.suspend() }
+                if scenePhase == .active { effects.resume() } else { effects.suspend() }
             }
-            .onChange(of: store.settings.sound) { Soundscape.shared.resume() }
-            .onAppear { Soundscape.shared.warmUp() }
-            .onDisappear { Soundscape.shared.setBed(nil) }
+            .onChange(of: session.settings.sound) { effects.resume() }
+            .onAppear { effects.warmUp() }
+            .onDisappear { effects.setBed(nil, level: 1) }
         }
+    }
+
+    /// A tied vote the human has a second slate in.
+    private var revote: Bool {
+        if case .vote(2, _) = session.prompt { return true }
+        return false
     }
 
     @ViewBuilder
@@ -69,7 +77,7 @@ struct GameView: View {
             BreakfastCeremony().id("breakfast-\(game.day)")
         case .voteReveal:
             VoteCeremony().id(voteID(game))
-        case .voting where game.voteRound == 2:
+        case .voting where revote:
             // The first round is turned over before anyone votes again, and the scene carries on from there.
             VoteCeremony().id(voteID(game))
         case .finaleReveal:
@@ -92,7 +100,7 @@ struct GameView: View {
 }
 
 struct HeaderBar: View {
-    @Environment(GameStore.self) private var store
+    @Environment(GameSession.self) private var session
     let game: Game
     var onCast: () -> Void
     var onExit: () -> Void
@@ -121,7 +129,7 @@ struct HeaderBar: View {
                     ForEach(game.players.indices, id: \.self) { i in
                         // Don't show tonight's banishment in the header before the votes have played out.
                         // Avatar and roleShown both hold back anything the scene on screen has not told yet.
-                        Avatar(player: game.players[i], size: 29, role: store.roleShown(i))
+                        Avatar(player: game.players[i], size: 29, role: session.roleShown(i))
                     }
                     Spacer(minLength: 4)
                     roleTag
@@ -136,7 +144,7 @@ struct HeaderBar: View {
         .overlay(alignment: .bottom) { Rectangle().fill(Palette.line).frame(height: 1) }
         .confirmationDialog("Leave the castle?", isPresented: $confirmQuit, titleVisibility: .visible) {
             Button("Save and return to title") { onExit() }
-            Button("Abandon this game", role: .destructive) { store.abandon(); onExit() }
+            Button("Abandon this game", role: .destructive) { session.abandon(); onExit() }
             Button("Stay", role: .cancel) {}
         }
     }
@@ -145,7 +153,7 @@ struct HeaderBar: View {
     private var roleTag: some View {
         if let me = game.human {
             let role = game.players[me].role
-            let dead = store.spectating
+            let dead = session.spectating
             Text(dead ? "WATCHING" : role == .traitor ? "TRAITOR" : "FAITHFUL")
                 .font(.serif(.caption2, weight: .heavy))
                 .tracking(1)
@@ -175,18 +183,18 @@ struct HeaderBar: View {
 
 /// A scene that plays out as a list of beats and waits for a tap to move on.
 struct SceneView: View {
-    @Environment(GameStore.self) private var store
+    @Environment(GameSession.self) private var session
     @State private var settled = false
 
     var body: some View {
-        if let game = store.game {
+        if let game = session.game {
             VStack(spacing: 0) {
                 FeedList(beats: game.feed, pace: game.phase == .voteReveal ? 1.0 : 0.7, settled: $settled)
                 BottomBar {
-                    if store.spectating, game.phase != .gameOver, game.winner == nil {
+                    if session.spectating, game.phase != .gameOver, game.winner == nil {
                         SpectatorNote()
                     }
-                    Button(label(game)) { store.send(.next) }
+                    Button(label(game)) { session.send(.proceed) }
                         .buttonStyle(GoldButtonStyle())
                         .opacity(settled ? 1 : 0.45)
                 }
@@ -195,12 +203,9 @@ struct SceneView: View {
     }
 
     private func label(_ game: Game) -> String {
-        switch game.phase {
-        case .breakfast: return game.winner != nil ? "See how it ended" : game.finale ? "To the Fire of Truth" : "To the mission"
-        case .voteReveal:
-            if game.winner != nil || (game.finale && game.alive.count <= 2) { return "See how it ended" }
-            return game.finale ? "Continue" : "Nightfall"
-        case .finaleReveal: return game.winner != nil ? "See how it ended" : "To the vote"
+        switch session.prompt {
+        case .proceed(.ending): return "See how it ended"
+        case .proceed(.vote): return "To the vote"
         default: return "Continue"
         }
     }
@@ -221,20 +226,14 @@ struct BottomBar<Content: View>: View {
 
 /// Shown once the human is out: roles are open and the rest can be fast-forwarded.
 struct SpectatorNote: View {
-    @Environment(GameStore.self) private var store
+    @Environment(GameSession.self) private var session
 
     var body: some View {
         HStack {
             Text("You are out. Roles are revealed while you watch.")
                 .font(.serif(.caption)).foregroundStyle(Palette.muted)
             Spacer()
-            Button("Skip to the end") {
-                var guardCount = 0
-                while let g = store.game, g.phase != .gameOver, guardCount < 400 {
-                    store.send(.next)
-                    guardCount += 1
-                }
-            }
+            Button("Skip to the end") { session.skipToEnd() }
             .font(.serif(.caption, weight: .bold))
         }
     }
@@ -242,13 +241,13 @@ struct SpectatorNote: View {
 
 /// Everyone at a glance, with the public evidence about each of them.
 struct CastSheet: View {
-    @Environment(GameStore.self) private var store
+    @Environment(GameSession.self) private var session
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         ZStack {
             CastleBackground()
-            if let game = store.game {
+            if let game = session.game {
                 let view = game.view()
                 ScrollView {
                     VStack(alignment: .leading, spacing: 12) {
@@ -259,17 +258,17 @@ struct CastSheet: View {
                         }
                         .padding(.top, 24)
                         ForEach(game.players.indices, id: \.self) { i in
-                            let p = store.shown(game.players[i])
+                            let p = session.shown(game.players[i])
                             VStack(alignment: .leading, spacing: 8) {
                                 HStack(spacing: 10) {
-                                    Avatar(player: p, size: 40, role: store.roleShown(i))
+                                    Avatar(player: p, size: 40, role: session.roleShown(i))
                                     VStack(alignment: .leading, spacing: 1) {
                                         Text(p.isHuman ? "\(p.name) (you)" : p.name)
                                             .font(.serif(.headline)).foregroundStyle(Palette.parchment)
                                         Text(status(p)).font(.serif(.caption)).foregroundStyle(Palette.muted)
                                     }
                                     Spacer()
-                                    if let role = store.roleShown(i) {
+                                    if let role = session.roleShown(i) {
                                         Text(role == .traitor ? "Traitor" : "Faithful")
                                             .font(.serif(.caption, weight: .bold)).foregroundStyle(Palette.role(role))
                                     }

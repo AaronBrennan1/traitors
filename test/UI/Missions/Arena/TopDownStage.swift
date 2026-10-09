@@ -1,4 +1,6 @@
 import SpriteKit
+import TraitorsEngine
+import TraitorsGauntlet
 
 /// A game seen flat and from straight above, like the gauntlet, but all on one screen: the whole
 /// arena is fitted between the tally and the thumbs, and nothing scrolls.

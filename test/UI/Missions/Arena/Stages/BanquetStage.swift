@@ -1,4 +1,6 @@
 import SpriteKit
+import TraitorsEngine
+import TraitorsGauntlet
 
 /// The Banquet Prep: the castle kitchen from above. Boards and blocks round the walls, three
 /// pots on the stove in the middle, and the pantry behind its own wall at the top.

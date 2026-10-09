@@ -1,0 +1,10 @@
+tie, human votes again     -autoplay 1 -seed 3 -role faithful -stopPhase voting -stopDay 1 -stopVoteRound 2
+fate decides               -autoplay 1 -seed 4 -role traitor -stopPhase voteReveal -stopDay 5
+human banished             -autoplay 1 -seed 1 -role faithful -stopPhase voteReveal -stopDay 2
+human murdered             -autoplay 1 -seed 3 -role faithful -stopPhase breakfast -stopDay 4
+human murders              -autoplay 1 -seed 1 -role traitor -stopPhase night -stopDay 1 -stopNight murder
+recruitment offer          -autoplay 1 -seed 4 -role faithful -stopPhase night -stopDay 1 -stopNight offer
+human recruits             -autoplay 1 -seed 11 -role traitor -stopPhase night -stopDay 1 -stopNight recruit
+spectator vote             -autoplay 1 -seed 1 -role faithful -stopPhase voteReveal -stopDay 3
+finale choice              -autoplay 1 -seed 2 -role faithful -stopPhase finaleChoice -stopDay 5
+quiet night                not found in seeds 1...401

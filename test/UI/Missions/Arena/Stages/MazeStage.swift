@@ -1,4 +1,6 @@
 import SpriteKit
+import TraitorsEngine
+import TraitorsGauntlet
 
 /// The Hedge Maze from above: gravel walks between clipped hedges, the bell tower in the
 /// middle, and no seeing further than the next corner. The shared map sits in the corner of the screen.

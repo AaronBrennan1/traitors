@@ -1,4 +1,0 @@
-module TraitorsEngine {
-header "TraitorsEngine-Swift.h"
-export *
-}

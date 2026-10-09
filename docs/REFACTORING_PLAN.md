@@ -5,6 +5,7 @@ each hiding a lot behind a narrow interface, with the compiler enforcing the bou
 [ARCHITECTURE.md](ARCHITECTURE.md) describes the code as it is; this says where to take it and
 in what order.
 
+- [0. Status: what was done](#0-status-what-was-done)
 - [1. What is wrong today](#1-what-is-wrong-today)
 - [2. Target shape](#2-target-shape)
 - [3. The interfaces](#3-the-interfaces)
@@ -12,6 +13,76 @@ in what order.
 - [5. How testing changes](#5-how-testing-changes)
 - [6. Risks](#6-risks)
 - [7. Decisions needed](#7-decisions-needed)
+
+## 0. Status: what was done
+
+Carried out on 2026-10-06, all six phases, in the order below. The rest of this document is the
+plan as written beforehand and is kept for the reasoning; [ARCHITECTURE.md](ARCHITECTURE.md)
+describes the result. Nothing has been committed: everything is in the working tree.
+
+**The plan was written for one mini-game and the code now has eleven.** The ten other games were
+added back between the plan and the work. Phases 0–3 and 5 were unaffected. Phase 4 was adapted,
+and one part of it was not done (below).
+
+| Phase | Done | Not done, or done differently |
+|---|---|---|
+| 0. Safety net | `.gitignore`; build products removed from the index (staged, not committed); tests split into suites; quick and full tiers; golden master over 370 games and one round of each mini-game; simulator baselines in `docs/baseline` | The suite did not hang: it was slow in debug (6½ min) and takes 25 s in release |
+| 1. A real boundary | Engine moved to `Sources/`; the app links the package; `TraitorsLab` target; four files renamed | Of the dead code listed, only what was still unused once the ten games were back was deleted: `Palette.moss`, `Toon.panel`, `FX.shake`, `ArenaHUDModel.seat`, two swatches |
+| 2. Game's interface | `Prompt`, `Answer`, throwing `advance`, `SeatPolicy` (three stand-ins became three policies), typed `Outcome`, `GameScene`, bookkeeping `private`, save envelope | `Scene` is called `GameScene`, to keep clear of SwiftUI's |
+| 3. Core and Minds | `StatementEffect`, `PublicRecord` with an incremental index, `Mind` with three implementations, both targets split out, minds keep their `Replay` | A team playing at random still draws lots for the hand in `Game` (`beginBrief`), from the game's stream, so that the sim's control arm is unchanged |
+| 4. Gauntlet and Tuning | `ArenaSession` for all eleven games (clock, cues, player's panel, results, hand summary, `finish()`); spectator skip plays the round out; `TraitorsGauntlet` target; `Tuning` as a value with no statics left | **No per-frame `Frame` snapshot.** The eleven stages still read their game's state directly. It is read-only to the app now, and that is all. See below. |
+| 5. The app | `GameSession` + `SaveStore`; `Effects`; ceremony scripts as `Equatable` values; leaf components off the session; `AppTests` target | `Effects` reaches SpriteKit and the button styles through `Feedback.effects`, not the environment, since they have none |
+
+**What was checked.** After every step: the package's tests, the golden master, and the
+simulator's output against its baseline in three modes (default, `--seat`, `--scenes`); the
+played-out mode (`--arena`) at the end of Phases 4 and 5. All byte-identical throughout, including
+the step that lets minds keep their inference. 89 package tests and 12 app tests pass. The app was
+built after every step from Phase 1 on and looked at in the simulator at the end of each phase
+(table, vote reveal, tie-break, night, breakfast, three mini-games).
+
+**What it bought, measured.**
+
+| | Before | After |
+|---|---|---|
+| Compiler-enforced engine/UI boundary | none | 491 `public` declarations, 6 of them writable by the app |
+| `traitors-sim --games 2000` (6,000 games) | 17.9 s | 11.0 s, same output |
+| Full test suite | 6 min 36 s (debug only) | 25 s release; 20 s quick tier in debug |
+| Mutable static tuning values | about 50 | 0 |
+| Places the public log is interpreted | 4 | 1 (`StatementKind.effect`) |
+| Stand-ins for the human seat | 3 | 1 protocol, 3 policies |
+| Tests of the app | 0 | 12 |
+
+**One deliberate behaviour change:** a spectator who skips a mission now gets the result of the
+round that was on screen, played out, not a dice roll. And one small one that follows from asking
+the game: the faint red rim on a traitor's button now shows only where a press would actually be
+the hand (standing still at something usable), which is what the other ten games already did.
+
+### The part of Phase 4 that was not done
+
+The plan's `Frame` was a snapshot of one game for one renderer. With eleven games, each drawn by
+its own stage from its own state, the equivalent is eleven snapshot types and eleven renderers
+rewritten against them, with no way to check the result except by playing each game. That is a
+piece of work of its own, and a risky one to do blind.
+
+What was done in its place: everything the *scene* took from the game (clock, countdown, cues,
+hand in reach, edge of sight, end-card numbers) goes through `ArenaSession`; the game a stage is
+handed is typed as the read-only `ArenaGame`; and every public stored property in the package is
+`public package(set)`. So the stages can look and cannot touch. What is left is the width: 275
+public declarations in the Gauntlet target, which is the number a `Frame` per game would bring
+down. `CourseStage` still assumes its node arrays line up with the game's, and still decides
+which runners the human can see.
+
+If it is taken on, the gauntlet is the place to start, as the plan sketches, and `CoreStage`
+second: its subclasses draw the other ten largely from `actors` and `props`, which is most of a
+frame already.
+
+### Decisions (§7)
+
+1. **Saves:** discarded, as before. The save is now `game.json` with a version inside it.
+2. **Targets:** the full split.
+3. **Dice path:** stays. Measured headless in a release build, a played round costs about 10 ms
+   and a whole dice game about 2 ms, so playing every mission out makes a game roughly 18 times
+   slower. A 2,000-game balance run would go from seconds to minutes per arm.
 
 ## 1. What is wrong today
 

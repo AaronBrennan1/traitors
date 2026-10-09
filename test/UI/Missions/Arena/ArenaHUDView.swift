@@ -1,4 +1,6 @@
 import SwiftUI
+import TraitorsEngine
+import TraitorsGauntlet
 
 /// What the top of a mini-game shows. The scene writes it; the view only reads.
 @Observable
@@ -83,20 +85,18 @@ final class ArenaHUDModel {
     /// Nobody is at the controls, so the round hands itself back.
     let autoAdvance: Bool
 
-    init(config: ArenaConfig, game: any ArenaGame) {
+    init(config: ArenaConfig, goal: Int) {
         kind = config.setup.kind
         title = kind.title
         unit = kind.spec.unit
-        teamGoal = game.goal
+        teamGoal = goal
         seats = config.cast.map { Seat(id: $0.id, name: $0.name, color: Color(uiColor: $0.color), isHuman: $0.isHuman && !config.spectating) }
         watching = config.spectating || !config.cast.contains { $0.isHuman }
-        handText = config.handVisible ? kind.hand : nil
+        handText = config.setup.humanHasHand ? kind.hand : nil
         tally = Array(repeating: 0, count: config.cast.count)
         order = Array(config.cast.indices)
         autoAdvance = config.setup.autopilot || watching
     }
-
-    func seat(_ id: PlayerID) -> Seat? { seats.first { $0.id == id } }
 
     func pause() {
         guard canPause, !paused, !ended else { return }

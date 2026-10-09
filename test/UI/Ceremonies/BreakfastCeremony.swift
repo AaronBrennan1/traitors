@@ -1,31 +1,24 @@
 import SwiftUI
+import TraitorsEngine
 
 /// Breakfast: the table fills a few players at a time, and whoever was murdered is the chair
 /// nobody comes to.
 struct BreakfastCeremony: View {
-    @Environment(GameStore.self) private var store
+    @Environment(GameSession.self) private var session
     @State private var shown = 0
 
-    enum Moment {
-        /// What the human finds in their own room, when they are the one.
-        case letter
-        case arrive([PlayerID])
-        case empty
-        case victim(PlayerID)
-        case react(PlayerID, String)
-        case line(Beat)
-    }
+    typealias Moment = BreakfastTelling.Moment
 
     var body: some View {
-        if let game = store.game {
-            let script = MorningScript(game: game)
-            let moments = Self.moments(game, script)
+        if let game = session.game {
+            let telling = BreakfastTelling(game: game)
+            let moments = telling.moments
             let told = Array(moments.prefix(shown))
             VStack(spacing: 0) {
                 ScrollViewReader { proxy in
                     ScrollView {
                         VStack(spacing: 12) {
-                            table(game, script, told)
+                            table(game, telling, told)
                             ForEach(told.indices, id: \.self) { i in
                                 row(game, told[i]).transition(.opacity.combined(with: .move(edge: .bottom)))
                             }
@@ -40,70 +33,32 @@ struct BreakfastCeremony: View {
                 .onTapGesture { shown = moments.count }
                 .accessibilityAction(named: "Skip ahead") { shown = moments.count }
                 BottomBar {
-                    if store.spectating, game.winner == nil { SpectatorNote() }
-                    Button(game.winner != nil ? "See how it ended" : game.finale ? "To the Fire of Truth" : "To the mission") {
-                        store.send(.next)
+                    if session.spectating, game.winner == nil { SpectatorNote() }
+                    Button(onward(session.prompt)) {
+                        session.send(.proceed)
                     }
                     .buttonStyle(GoldButtonStyle())
                     .opacity(shown >= moments.count ? 1 : 0.45)
                 }
             }
-            .stepClock($shown, count: moments.count, key: "breakfast", hold: { hold(moments, $0) }, cue: { cue(moments[$0]) })
+            .stepClock($shown, count: moments.count, key: "breakfast", hold: telling.hold, cue: { telling.cue($0)?.play() })
             .onChange(of: shown, initial: true) {
-                // Once the chair has a name, or there is no empty chair at all, nothing is being held back.
-                let named = told.contains { if case .victim = $0 { return true } else { return false } }
-                if named || script.victim == nil { store.tell() }
+                if telling.told(shown: shown) { session.tell() }
             }
         }
     }
 
-    static func moments(_ game: Game, _ script: MorningScript) -> [Moment] {
-        var out: [Moment] = []
-        if script.humanIsVictim { out.append(.letter) }
-        out += script.arrivals.map { .arrive($0) }
-        var lines = script.lines
-        if let victim = script.victim {
-            out.append(.empty)
-            out.append(.victim(victim))
-        } else if !lines.isEmpty {
-            // The host speaks before anyone else does.
-            out.append(.line(lines.removeFirst()))
-        }
-        for p in script.reactors {
-            let voice = game.players[p].voice
-            let text = script.victim.map { Flavour.murderReaction(voice, victim: game.players[$0].name, seat: p, seed: game.seed, day: game.day) }
-                ?? Flavour.quietNightReaction(voice, seat: p, seed: game.seed, day: game.day)
-            out.append(.react(p, text))
-        }
-        out += lines.map { .line($0) }
-        return out
-    }
-
-    private func hold(_ moments: [Moment], _ i: Int) -> Double {
-        if i == 0 { return 0.6 }
-        switch moments[i] {
-        case .letter: return 0.6
-        case .arrive: return 1.1
-        case .empty: return 1.8
-        case .victim: return 2.4
-        case .react: return 1.6
-        case .line: return 1.3
-        }
-    }
-
-    private func cue(_ moment: Moment) {
-        switch moment {
-        case .letter: Cue.letter.play()
-        case .arrive: Cue.door.play()
-        case .empty: Cue.heartbeat.play()
-        case .victim: Cue.boom.play()
-        default: break
+    private func onward(_ prompt: Prompt?) -> String {
+        switch prompt {
+        case .proceed(.ending): return "See how it ended"
+        case .proceed(.fireOfTruth): return "To the Fire of Truth"
+        default: return "To the mission"
         }
     }
 
     // MARK: - The table
 
-    private func table(_ game: Game, _ script: MorningScript, _ told: [Moment]) -> some View {
+    private func table(_ game: Game, _ script: BreakfastTelling, _ told: [Moment]) -> some View {
         var here: Set<PlayerID> = []
         var noticed = false, named = false
         for moment in told {
@@ -115,11 +70,11 @@ struct BreakfastCeremony: View {
             }
         }
         return LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 12) {
-            ForEach(script.seats(game), id: \.self) { p in
+            ForEach(script.seats, id: \.self) { p in
                 let player = game.players[p]
                 VStack(spacing: 4) {
                     if here.contains(p) || (p == script.victim && named) {
-                        Avatar(player: player, size: 54, role: store.roleShown(p))
+                        Avatar(player: player, size: 54, role: session.roleShown(p))
                             .transition(.scale(scale: 0.7).combined(with: .opacity))
                     } else {
                         // A chair with nobody in it yet.

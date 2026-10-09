@@ -1,4 +1,6 @@
 import SpriteKit
+import TraitorsEngine
+import TraitorsGauntlet
 
 /// Cliffside Kite Race: the cliff path along the bottom, sea stacks in the middle distance and
 /// the open sea behind. The camera runs with the player.

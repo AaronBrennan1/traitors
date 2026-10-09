@@ -1,4 +1,6 @@
 import SpriteKit
+import TraitorsEngine
+import TraitorsGauntlet
 
 /// Draws a mini-game. The rules live in the game; a stage only shows what is there.
 protocol ArenaStage: SKNode {

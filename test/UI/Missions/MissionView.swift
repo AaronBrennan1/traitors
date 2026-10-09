@@ -1,5 +1,7 @@
 import SwiftUI
 import SpriteKit
+import TraitorsEngine
+import TraitorsGauntlet
 
 /// Where the arena sits in the space it is given: the whole screen on a phone, a tall column on anything wider.
 private struct ArenaFrame {
@@ -30,13 +32,13 @@ private struct ArenaFrame {
 
 /// Hosts the day's mini-game while everyone plays it, then what the company made of it.
 struct MissionView: View {
-    @Environment(GameStore.self) private var store
+    @Environment(GameSession.self) private var session
     @Environment(\.scenePhase) private var scenePhase
     var onExit: () -> Void = {}
     @State private var scene: ArenaScene?
 
     var body: some View {
-        if let game = store.game, let run = game.mission {
+        if let game = session.game, let run = game.mission {
             if game.phase == .mission {
                 GeometryReader { geo in
                     let frame = ArenaFrame(geo)
@@ -51,7 +53,7 @@ struct MissionView: View {
                                     .accessibilityDirectTouch(true, options: .silentOnTouch)
                                 ArenaHUDView(model: scene.model, topInset: frame.topInset)
                                 if !game.humanAlive, !scene.model.paused {
-                                    Button("Skip to the result") { store.send(.next) }
+                                    Button("Skip to the result") { scene.skip() }
                                         .buttonStyle(GhostButtonStyle())
                                         .padding(.horizontal, 60)
                                         .padding(.bottom, 40)
@@ -94,7 +96,7 @@ struct MissionView: View {
                     }
                     BottomBar {
                         if !game.humanAlive, game.human != nil { SpectatorNote() }
-                        Button("To the Round Table") { store.send(.next) }.buttonStyle(GoldButtonStyle())
+                        Button("To the Round Table") { session.send(.proceed) }.buttonStyle(GoldButtonStyle())
                     }
                 }
             }
@@ -103,10 +105,6 @@ struct MissionView: View {
 
     private func start(_ game: Game, _ run: MissionRun, _ layout: ArenaLayout) {
         guard scene == nil else { return }
-        let cast = run.order.sorted().map { p in
-            let player = game.players[p]
-            return Contestant(id: p, name: player.name, color: Tokens.Hue.cloak(for: player).ui, isHuman: player.isHuman)
-        }
         var autopilot = false
         var pace = 1.0
         #if DEBUG
@@ -115,9 +113,13 @@ struct MissionView: View {
         autopilot = UserDefaults.standard.bool(forKey: "arenaBots")
         pace = max(1, UserDefaults.standard.double(forKey: "arenaSpeed"))
         #endif
-        let made = ArenaScene(config: ArenaConfig(setup: ArenaSetup(run: run, autopilot: autopilot), cast: cast,
-                                                  handVisible: game.humanAlive && game.humanIsTraitor, spectating: run.human == nil),
-                              layout: layout)
+        // The setup says who is playing and in what order; the screen only adds names and colours.
+        let setup = ArenaSetup(run: run, autopilot: autopilot)
+        let cast = setup.cast.map { seat in
+            let player = game.players[seat.id]
+            return Contestant(id: seat.id, name: player.name, color: Tokens.Hue.cloak(for: player).ui, isHuman: player.isHuman)
+        }
+        let made = ArenaScene(config: ArenaConfig(setup: setup, cast: cast), layout: layout)
         made.pace = pace
         #if DEBUG
         if UserDefaults.standard.bool(forKey: "arenaPause") {
@@ -127,7 +129,7 @@ struct MissionView: View {
             }
         }
         #endif
-        made.onFinish = { [store] result in store.send(.mission(result)) }
+        made.onFinish = { [session] result in session.send(.mission(result)) }
         scene = made
     }
 }

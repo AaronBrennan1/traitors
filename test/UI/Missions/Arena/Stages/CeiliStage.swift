@@ -1,4 +1,6 @@
 import SpriteKit
+import TraitorsEngine
+import TraitorsGauntlet
 
 /// The Céilí: the boards of the great hall from above. Each dancer's tile lights in their own
 /// colour, with a ring that closes on it as the beat comes.

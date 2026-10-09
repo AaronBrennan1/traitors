@@ -1,5 +1,7 @@
 import SpriteKit
 import SwiftUI
+import TraitorsEngine
+import TraitorsGauntlet
 
 /// The one button. It says what the game's one action is, and for a traitor standing by something
 /// they could work it wears the faintest red rim: nothing anyone looking over a shoulder would notice.
@@ -61,13 +63,11 @@ final class ActionButton: SKNode {
 final class ArenaScene: SKScene {
     let config: ArenaConfig
     let layout: ArenaLayout
-    let runner: ArenaRunner
+    /// The game in play. Time and the thumbs go in; what to show, sound and hand back comes out.
+    let session: ArenaSession
+    /// Draws the game. It is the only thing here that looks at the game itself.
     let stage: any ArenaStage
     let model: ArenaHUDModel
-    var game: any ArenaGame { runner.game }
-    /// The game, when it is the gauntlet, and when it is one of the others.
-    let gauntlet: Gauntlet?
-    let arena: ArenaCore?
     var onFinish: ((MissionResult) -> Void)?
     /// How many times faster than life to run, for unattended checks.
     var pace = 1.0
@@ -100,18 +100,15 @@ final class ArenaScene: SKScene {
     private var aimTo = CGPoint.zero
     private var place = 0
 
-    /// The player's seat, and their place in the cast, while they are the one at the controls.
-    private var mine: PlayerID? { game.humanSeat }
-    private var me: Int? { mine.flatMap { seat in config.setup.cast.firstIndex { $0.id == seat } } }
+    /// The player's seat, while they are the one at the controls.
+    private var mine: PlayerID? { session.player }
 
     init(config: ArenaConfig, layout: ArenaLayout) {
         self.config = config
         self.layout = layout
-        runner = ArenaRunner(config.setup)
-        gauntlet = runner.game as? Gauntlet
-        arena = runner.game as? ArenaCore
-        stage = ArenaStages.make(config, runner.game, layout)
-        model = ArenaHUDModel(config: config, game: runner.game)
+        session = ArenaSession(config.setup)
+        stage = ArenaStages.make(config, session.game, layout)
+        model = ArenaHUDModel(config: config, goal: session.goal)
         button = config.setup.kind.button.map(ActionButton.init)
         aims = config.setup.kind == .hurley
         steers = config.setup.kind != .hurley
@@ -145,7 +142,7 @@ final class ArenaScene: SKScene {
             addChild(overlay)
         }
         addChild(stick)
-        if let button, me != nil {
+        if let button, mine != nil {
             button.position = CGPoint(x: ArenaLayout.width - 58, y: layout.safeBottom + 66)
             addChild(button)
         }
@@ -174,7 +171,7 @@ final class ArenaScene: SKScene {
         }
         if wasPaused {
             wasPaused = false
-            if runner.stage == .playing { resume = 1.5 }
+            if session.stage == .playing { resume = 1.5 }
         }
         if resume > 0 {
             resume -= real
@@ -195,12 +192,12 @@ final class ArenaScene: SKScene {
         var input = ArenaInput()
         if steers { input.move = stage.arenaVector(stick.vector) }
         input.hold = buttonTouch != nil
-        let before = runner.stage
-        runner.advance(dt, input: input)
+        let before = session.stage
+        session.advance(dt, input: input)
 
-        switch runner.stage {
+        switch session.stage {
         case .countdown:
-            let number = "\(min(3, Int(runner.countdown / 0.9) + 1))"
+            let number = session.countdownNumber.map(String.init) ?? ""
             if number != shownNumber {
                 shownNumber = number
                 model.countdown = number
@@ -213,7 +210,7 @@ final class ArenaScene: SKScene {
                 Feedback.play(.go)
                 Feedback.prepare()
             }
-            let s = Int(game.timeLeft.rounded(.up))
+            let s = session.clock.secondsLeft
             if s != second, s <= 10, s > 0, second != Int.max { Feedback.play(.lastSeconds) }
             second = s
         case .finished:
@@ -225,43 +222,47 @@ final class ArenaScene: SKScene {
             // A player reads the card and moves on when ready. An unattended run moves itself on.
             if model.autoAdvance ? finishDelay <= 0 : model.proceed, let done = onFinish {
                 onFinish = nil
-                done(runner.result())
+                done(session.result())
             }
         }
 
-        stage.sync(alpha: runner.alpha, dt: real)
-        for cue in game.cues { play(cue) }
-        game.cues.removeAll(keepingCapacity: true)
+        stage.sync(alpha: session.alpha, dt: real)
+        for cue in session.takeCues() { play(cue) }
         refresh(real)
+    }
+
+    /// For someone only watching: plays out what is left at once and hands the round back as it
+    /// was played, so a mission comes out the same way whether or not anyone sat through it.
+    func skip() {
+        guard let done = onFinish else { return }
+        onFinish = nil
+        session.finish()
+        done(session.result())
     }
 
     private func finish() {
         var own: ArenaHUDModel.Summary.Own?
-        if let me {
-            let count = game.tally[me]
+        if let result = session.playerResult {
             let key = "best.\(config.setup.kind.rawValue)"
             let best = UserDefaults.standard.integer(forKey: key)
-            if count > best { UserDefaults.standard.set(count, forKey: key) }
-            var extras: [ArenaHUDModel.Summary.Extra] = []
-            if let gauntlet, let r = gauntlet.human.map({ gauntlet.runners[$0] }) {
-                extras = [.init(value: "\(r.bestStreak)", label: "in a row"), .init(value: "\(r.nearMisses)", label: "near misses")]
-            } else {
-                let ahead = game.tally.filter { $0 > count }.count
-                extras = [.init(value: "\(ahead + 1)", label: "your place of \(game.tally.count)"),
-                          .init(value: "\(game.tally.max() ?? 0)", label: "the most by anyone")]
+            if result.count > best { UserDefaults.standard.set(result.count, forKey: key) }
+            let extras = result.extras.map { extra -> ArenaHUDModel.Summary.Extra in
+                switch extra.what {
+                case .inARow: return .init(value: "\(extra.value)", label: "in a row")
+                case .nearMisses: return .init(value: "\(extra.value)", label: "near misses")
+                case .place(let of): return .init(value: "\(extra.value)", label: "your place of \(of)")
+                case .mostByAnyone: return .init(value: "\(extra.value)", label: "the most by anyone")
+                }
             }
-            own = .init(count: count, best: max(best, count), record: count > best && count > 0, extras: extras)
+            own = .init(count: result.count, best: max(best, result.count), record: result.count > best && result.count > 0, extras: extras)
         }
-        var hand: ArenaHUDModel.Summary.Hand?
-        if config.handVisible, let me {
-            hand = .init(uses: game.acts[me], cost: Int(game.loss[me].rounded()), sank: game.sunkBy == mine)
-        }
-        model.endTitle = gauntlet != nil && game.won ? "Sealed" : "Time"
-        model.summary = ArenaHUDModel.Summary(teamTotal: game.teamTotal, own: own, hand: hand)
+        let hand = session.ownHand.map { ArenaHUDModel.Summary.Hand(uses: $0.uses, cost: $0.cost, sank: $0.sank) }
+        model.endTitle = config.setup.kind.isGauntlet && session.won ? "Sealed" : "Time"
+        model.summary = ArenaHUDModel.Summary(teamTotal: session.teamTotal, own: own, hand: hand)
         model.ended = true
-        Feedback.play(game.won ? .teamGoal : .time)
+        Feedback.play(session.won ? .teamGoal : .time)
         dropTouches()
-        if game.won, !Tokens.Motion.reduced {
+        if session.won, !Tokens.Motion.reduced {
             FX.confetti(in: self, size: layout.size, colors: config.cast.map(\.color) + [Toon.gold])
         }
     }
@@ -313,7 +314,7 @@ final class ArenaScene: SKScene {
             stage.figure(seat)?.squash()
             if seat == mine { Feedback.play(.dash) }
         case .bump(let at):
-            if let r = gauntlet?.human.flatMap({ gauntlet?.runners[$0] }), r.pos.distance(to: at) < 40 { Feedback.play(.bump) }
+            if let eye = session.panel?.eye, eye.distance(to: at) < 40 { Feedback.play(.bump) }
         case .nearMiss(let seat, let at):
             guard seat == mine else { break }
             popup("close!", at: stage.screenPoint(at), color: Toon.cream, size: 12)
@@ -321,12 +322,12 @@ final class ArenaScene: SKScene {
             Feedback.play(.nearMiss)
         case .warned(let h):
             // A corridor full of traps should tick, not clatter.
-            if let gauntlet, stage.inEarshot(gauntlet.hazards[h].a), lastTime - lastWarn > 0.12 {
+            if let at = session.trap(h), stage.inEarshot(at), lastTime - lastWarn > 0.12 {
                 lastWarn = lastTime
                 Feedback.play(.warn)
             }
         case .fired(let h):
-            if let gauntlet, stage.inEarshot(gauntlet.hazards[h].a) { Feedback.play(.strike) }
+            if let at = session.trap(h), stage.inEarshot(at) { Feedback.play(.strike) }
         case .cracked:
             break
         case .gave(let at):
@@ -356,7 +357,7 @@ final class ArenaScene: SKScene {
             if seat == mine { Feedback.play(.hand) }
         case .popup(let text, let at, let seat, let bad):
             // What somebody out of the player's sight is doing is not put on the screen.
-            if let seat, seat != mine, let arena, arena.hidesUnseen, let me = arena.human, arena.actor(seat)?.seenBy.has(me.id) == false { break }
+            if let seat, seat != mine, !session.playerSees(seat) { break }
             guard stage.inEarshot(at) else { break }
             let own = seat == mine && seat != nil
             popup(text, at: stage.screenPoint(at), color: bad ? Toon.danger : own ? Toon.gold : seat.map(config.color) ?? Toon.cream,
@@ -386,7 +387,7 @@ final class ArenaScene: SKScene {
     }
 
     /// The note a score is played on: it climbs as the company closes on its goal.
-    private var note: Int { Int(16 * min(1, Double(game.teamTotal) / Double(max(game.goal, 1)))) }
+    private var note: Int { Int(16 * min(1, Double(session.teamTotal) / Double(max(session.goal, 1)))) }
 
     private func toast(_ text: String) {
         model.toast = text
@@ -417,15 +418,15 @@ final class ArenaScene: SKScene {
     /// The stick can be taken up at any time, the countdown included, so a thumb that is already
     /// down when the round starts is already steering.
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard me != nil, !model.paused, !ended else { return }
+        guard mine != nil, !model.paused, !ended else { return }
         for t in touches {
             let p = t.location(in: self)
             if let button, buttonTouch == nil, p.distance(to: button.position) < ActionButton.radius + 16 {
                 buttonTouch = t
-                if resume <= 0 { runner.press() }
+                if resume <= 0 { session.press() }
             } else if aims {
                 // Anywhere on the lawn is somewhere to pull a strike back from.
-                if aimTouch == nil, runner.stage == .playing, resume <= 0 {
+                if aimTouch == nil, session.stage == .playing, resume <= 0 {
                     aimTouch = t
                     aimFrom = p
                     aimTo = p
@@ -465,7 +466,7 @@ final class ArenaScene: SKScene {
             if t === buttonTouch { buttonTouch = nil }
             if t === aimTouch {
                 aimTo = t.location(in: self)
-                if strike, pull.length > 0.12 { runner.shoot(pull) }
+                if strike, pull.length > 0.12 { session.shoot(pull) }
                 aimTouch = nil
                 aimLine.path = nil
             }
@@ -476,31 +477,17 @@ final class ArenaScene: SKScene {
 
     private func refresh(_ dt: TimeInterval) {
         feedModel()
-        // How far the player can see, and from where, in the games where that is not the whole floor.
-        var sight: Double?
-        var eye = Vec2.zero
-        if let gauntlet, let i = gauntlet.human {
-            let r = gauntlet.runners[i]
-            let inReach = config.handVisible && r.up && r.handCool == 0 && gauntlet.mechanism(near: r.pos) != nil
-            let ready = runner.stage == .playing ? r.dashReady : 1
-            button?.show(ring: ready < 1 ? ready : nil, lit: ready >= 1, pressed: buttonTouch != nil, hand: inReach)
-            let far = gauntlet.vision(r.pos, r.pos)
-            if far < 250 { sight = far }
-            eye = r.last + (r.pos - r.last) * runner.alpha
-        } else if let arena, let a = arena.human {
-            let working = buttonTouch != nil && a.holdSpot >= 0
-            button?.show(ring: working ? a.hold / max(a.holdNeed, 0.01) : nil, lit: arena.canInteract(a), pressed: buttonTouch != nil,
-                         hand: config.handVisible && arena.canSabotage(a) != nil)
-            sight = arena.sightRadius
-            eye = a.last + (a.pos - a.last) * runner.alpha
-            aim(from: a, in: arena)
-        } else {
+        // The button, and how far the player can see and from where, as the game itself has it.
+        guard let panel = session.panel else {
             dark.isHidden = true
             return
         }
+        button?.show(ring: panel.ring, lit: panel.lit, pressed: buttonTouch != nil, hand: panel.handInReach)
+        let sight = panel.sight, eye = panel.eye
+        drawAim()
 
         // The edge of what the player can see, by candlelight, in fog or with the candles out.
-        if let sight, runner.stage != .countdown {
+        if let sight, session.stage != .countdown {
             if dark.isHidden {
                 dark.isHidden = false
                 dark.setScale(4)
@@ -516,18 +503,18 @@ final class ArenaScene: SKScene {
     }
 
     /// Draws where a strike being pulled back would come down.
-    private func aim(from a: ArenaActor, in arena: ArenaCore) {
-        guard aimTouch != nil, let lawn = arena as? HurleyCore, pull.length > 0.05 else {
+    private func drawAim() {
+        guard aimTouch != nil, pull.length > 0.05, let aim = session.aim(pull) else {
             aimLine.path = nil
             return
         }
-        let from = stage.screenPoint(a.pos), to = stage.screenPoint(lawn.landing(from: a.pos, pull))
+        let from = stage.screenPoint(aim.from), to = stage.screenPoint(aim.to)
         let path = CGMutablePath()
         path.move(to: CGPoint(x: from.x, y: from.y + 10))
         path.addLine(to: to)
         path.addEllipse(in: CGRect(x: to.x - 7, y: to.y - 5, width: 14, height: 10))
         aimLine.path = path
-        aimLine.alpha = pull.length > 0.12 && a.stun <= 0 && a.aux >= 1 ? 0.9 : 0.3
+        aimLine.alpha = pull.length > 0.12 && aim.ready ? 0.9 : 0.3
     }
 
     /// Hands the numbers to SwiftUI. Each value is only written when it has changed, so the view is
@@ -536,29 +523,26 @@ final class ArenaScene: SKScene {
         func put<T: Equatable>(_ path: ReferenceWritableKeyPath<ArenaHUDModel, T>, _ value: T) {
             if model[keyPath: path] != value { model[keyPath: path] = value }
         }
-        put(\.seconds, Int(game.timeLeft.rounded(.up)))
-        put(\.timeFraction, (game.timeLeft / max(game.totalTime, 1) * 200).rounded() / 200)
-        put(\.urgent, game.timeLeft < 8)
-        put(\.teamTotal, game.teamTotal)
-        put(\.canPause, runner.stage == .playing && resume <= 0)
-        let tally = game.tally
+        let clock = session.clock
+        put(\.seconds, clock.secondsLeft)
+        put(\.timeFraction, clock.fraction)
+        put(\.urgent, clock.urgent)
+        put(\.teamTotal, session.teamTotal)
+        put(\.canPause, session.stage == .playing && resume <= 0)
+        let tally = session.tally
         if model.tally != tally {
             model.tally = tally
             // Best first, and seat order among those level, so nobody jumps about for nothing.
             let order = tally.indices.sorted { tally[$0] != tally[$1] ? tally[$0] > tally[$1] : $0 < $1 }
-            if let me, let now = order.firstIndex(of: me) {
-                if now < place, runner.stage == .playing { Feedback.play(.nearMiss) }
+            if let mine, let me = config.setup.cast.firstIndex(where: { $0.id == mine }), let now = order.firstIndex(of: me) {
+                if now < place, session.stage == .playing { Feedback.play(.nearMiss) }
                 place = now
             }
             put(\.order, order)
         }
-        if let gauntlet {
-            put(\.sealing, (gauntlet.sealing * 40).rounded() / 40)
-            if let i = gauntlet.human {
-                put(\.load, .bags(have: gauntlet.runners[i].carry, of: Feel.maxCarry, streak: gauntlet.runners[i].streak))
-            }
-        } else if let arena, let a = arena.human, let m = arena.meter(for: a) {
-            put(\.meter, ArenaHUDModel.Meter(label: m.label, value: (m.value * 100).rounded() / 100))
-        }
+        if let sealing = session.sealing { put(\.sealing, (sealing * 40).rounded() / 40) }
+        let panel = session.panel
+        if let bags = panel?.bags { put(\.load, .bags(have: bags.have, of: bags.of, streak: bags.streak)) }
+        if let m = panel?.meter { put(\.meter, ArenaHUDModel.Meter(label: m.label, value: (m.value * 100).rounded() / 100)) }
     }
 }

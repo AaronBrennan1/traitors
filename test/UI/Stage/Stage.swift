@@ -21,9 +21,6 @@ extension EnvironmentValues {
 
 /// Whether the castle may be heard and felt, from the player's settings.
 enum Senses {
-    static var sound: Bool { Feedback.settings.sound && !Feedback.muted }
-    static var haptics: Bool { Feedback.settings.haptics && !Feedback.muted }
-
     /// `-ceremony settled` opens every staged scene on its last frame, for screenshots.
     static var settledCeremonies: Bool {
         #if DEBUG

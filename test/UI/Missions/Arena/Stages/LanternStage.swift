@@ -1,4 +1,6 @@
 import SpriteKit
+import TraitorsEngine
+import TraitorsGauntlet
 
 /// The Lantern Run: the ramparts at night from above. The stones are all but black, and what
 /// can be seen is what the brazier and the lanterns are lighting.

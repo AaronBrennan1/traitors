@@ -1,4 +1,6 @@
 import SpriteKit
+import TraitorsEngine
+import TraitorsGauntlet
 
 /// The Bog Relay: a Connemara bog at dawn, seen from the side. Three lanes run away from the
 /// camera, so the back lane is drawn higher up and smaller.

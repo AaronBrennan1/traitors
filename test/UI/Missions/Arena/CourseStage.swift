@@ -1,4 +1,6 @@
 import SpriteKit
+import TraitorsEngine
+import TraitorsGauntlet
 
 /// Draws a course and everything on it, flat and from straight above. The rules live in the
 /// `Gauntlet`; the stage only shows what is there, a little way between one step and the next so
@@ -171,7 +173,8 @@ final class CourseStage: SKNode {
         func solidFloor(_ t: Tile) -> Bool { t != .void && t != .wall && t != .crumble }
         for chunk in 0..<(course.rows + deep - 1) / deep {
             let size = CGSize(width: CGFloat(cols) * cell, height: CGFloat(deep) * cell)
-            let texture = Props.texture("course|\(course.kind.rawValue)|\(chunk)", size, scale: 2) { ctx in
+            // A course of the same name and another length is another floor: the short ones are for the demonstrations.
+            let texture = Props.texture("course|\(course.kind.rawValue)|\(course.rows)|\(chunk)", size, scale: 2) { ctx in
                 Props.fill(ctx, CGPath(rect: CGRect(origin: .zero, size: size), transform: nil), Toon.pit)
                 for r in chunk * deep..<min(course.rows, (chunk + 1) * deep) {
                     for c in 0..<cols {

@@ -1,4 +1,6 @@
 import SpriteKit
+import TraitorsEngine
+import TraitorsGauntlet
 
 /// One player as the screen needs to know them.
 struct Contestant {
@@ -12,10 +14,8 @@ struct ArenaConfig {
     let setup: ArenaSetup
     /// Everyone playing, in seat order.
     let cast: [Contestant]
-    /// True only for a living traitor, who has the shadow's hand. Nobody else is shown anything of it.
-    let handVisible: Bool
     /// The human is out of the game and only watches the others play.
-    let spectating: Bool
+    var spectating: Bool { setup.human == nil }
 
     func color(_ seat: PlayerID) -> UIColor { cast.first { $0.id == seat }?.color ?? Toon.cream }
 }

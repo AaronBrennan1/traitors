@@ -1,18 +1,20 @@
 import SwiftUI
+import TraitorsEngine
+import TraitorsGauntlet
 
 /// The sound and haptics switches, wherever they are offered.
 struct SettingsToggles: View {
-    @Environment(GameStore.self) private var store
+    @Environment(GameSession.self) private var session
 
     var body: some View {
-        @Bindable var store = store
+        @Bindable var session = session
         VStack(spacing: 0) {
-            Toggle(isOn: $store.settings.sound) {
-                Label("Sound", systemImage: store.settings.sound ? "speaker.wave.2.fill" : "speaker.slash.fill")
+            Toggle(isOn: $session.settings.sound) {
+                Label("Sound", systemImage: session.settings.sound ? "speaker.wave.2.fill" : "speaker.slash.fill")
             }
             .padding(.vertical, 10)
             Rectangle().fill(Palette.line).frame(height: 1)
-            Toggle(isOn: $store.settings.haptics) {
+            Toggle(isOn: $session.settings.haptics) {
                 Label("Haptics", systemImage: "hand.tap.fill")
             }
             .padding(.vertical, 10)
@@ -20,17 +22,18 @@ struct SettingsToggles: View {
         .font(.serif(.subheadline, weight: .semibold))
         .foregroundStyle(Palette.parchment)
         .tint(Palette.gold)
-        .onChange(of: store.settings.sound) { Feedback.play(.toggle) }
-        .onChange(of: store.settings.haptics) { Feedback.play(.toggle) }
+        .onChange(of: session.settings.sound) { Feedback.play(.toggle) }
+        .onChange(of: session.settings.haptics) { Feedback.play(.toggle) }
     }
 }
 
-/// A mini-game stopped mid-round: how to play it, the switches, and the way out.
+/// A mini-game stopped mid-round: the game demonstrating itself, the switches, and the way out.
 struct ArenaPauseView: View {
     let model: ArenaHUDModel
     /// The status bar's height, when the arena runs under it.
     var topInset: CGFloat = 0
     var onLeave: () -> Void
+    @State private var reel = ArenaDemo.Reel.play
 
     var body: some View {
         ZStack {
@@ -45,16 +48,27 @@ struct ArenaPauseView: View {
                     }
                     .padding(.top, Tokens.Space.xl + topInset)
 
-                    VStack(alignment: .leading, spacing: 6) {
-                        SectionTitle(text: "How to play")
-                        ForEach(model.kind.controls + [model.kind.twist], id: \.self) { line in
-                            Text(line).font(.serif(.subheadline)).foregroundStyle(Palette.parchment)
-                                .fixedSize(horizontal: false, vertical: true)
+                    // How it is played, shown and not told. A traitor can turn it over to see the hand.
+                    VStack(spacing: Tokens.Space.m) {
+                        DemoReel(kind: model.kind, reel: reel, compact: true)
+                            .frame(width: 210)
+                        Text(reel == .hand ? model.kind.handGist : model.kind.gist)
+                            .font(.serif(.subheadline, weight: .semibold)).foregroundStyle(Palette.parchment)
+                            .multilineTextAlignment(.center).lineLimit(1).minimumScaleFactor(0.6)
+                        if model.handText != nil {
+                            Button {
+                                Feedback.play(.tap)
+                                reel = reel == .hand ? .play : .hand
+                            } label: {
+                                Label(reel == .hand ? "The game" : "The shadow's hand", systemImage: reel == .hand ? "gamecontroller.fill" : "eye.slash.fill")
+                                    .font(.serif(.caption, weight: .heavy)).tracking(1)
+                                    .foregroundStyle(reel == .hand ? Palette.gold : Palette.blood)
+                                    .padding(.horizontal, 12).frame(minHeight: 30)
+                                    .overlay(Capsule().strokeBorder((reel == .hand ? Palette.gold : Palette.blood).opacity(0.5), lineWidth: 1))
+                            }
+                            .buttonStyle(.plain)
                         }
                     }
-                    .panel()
-
-                    if let hand = model.handText { QuestBanner(text: hand) }
 
                     SettingsToggles().panel()
 

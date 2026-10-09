@@ -1,8 +1,41 @@
 import SwiftUI
+import TraitorsEngine
+
+/// Everyone in the game as the human may see them right now: a value handed down the view tree,
+/// so the small components know who is who without knowing where the game is kept.
+struct Roster {
+    var seats: [GameScene.Seat] = []
+    /// Players the game has sent out whose going the screen has not told yet.
+    var concealed: Set<PlayerID> = []
+
+    init() {}
+
+    init(_ scene: GameScene?) {
+        seats = scene?.seats ?? []
+        concealed = scene?.concealed ?? []
+    }
+
+    func player(_ id: PlayerID) -> Player? { seats.indices.contains(id) ? seats[id].player : nil }
+    /// The role the human may see for a player, if any.
+    func role(_ id: PlayerID) -> Role? { seats.indices.contains(id) ? seats[id].role : nil }
+    /// A player as the screen may show them: still seated if their going has not been told.
+    func shown(_ p: Player) -> Player { concealed.contains(p.id) ? p.seated : p }
+}
+
+private struct RosterKey: EnvironmentKey {
+    static let defaultValue = Roster()
+}
+
+extension EnvironmentValues {
+    var roster: Roster {
+        get { self[RosterKey.self] }
+        set { self[RosterKey.self] = newValue }
+    }
+}
 
 /// A player's cloak-coloured token. Shows a role mark only when the viewer is entitled to it.
 struct Avatar: View {
-    @Environment(GameStore.self) private var store
+    @Environment(\.roster) private var roster
     /// As passed in. What is drawn is `player`, which keeps someone seated until their going has been told.
     let subject: Player
     var size: CGFloat = 44
@@ -19,7 +52,7 @@ struct Avatar: View {
         self.hooded = hooded
     }
 
-    private var player: Player { store.shown(subject) }
+    private var player: Player { roster.shown(subject) }
 
     var body: some View {
         Portrait(name: player.name, cloak: Palette.cloak(for: player), size: size, hooded: hooded, human: player.isHuman)
@@ -50,20 +83,21 @@ struct Avatar: View {
 
 /// A grid of players to choose one from.
 struct PlayerPicker: View {
-    @Environment(GameStore.self) private var store
+    @Environment(\.roster) private var roster
     let ids: [PlayerID]
     @Binding var selection: PlayerID?
 
     var body: some View {
-        if let game = store.game {
+        Group {
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 10) {
-                ForEach(ids, id: \.self) { id in
+                ForEach(ids.filter { roster.player($0) != nil }, id: \.self) { id in
+                    let player = roster.player(id)!
                     Button {
                         selection = selection == id ? nil : id
                     } label: {
                         VStack(spacing: 4) {
-                            Avatar(player: game.players[id], size: 50, role: store.roleShown(id), selected: selection == id)
-                            Text(game.players[id].name)
+                            Avatar(player: player, size: 50, role: roster.role(id), selected: selection == id)
+                            Text(player.name)
                                 .font(.serif(.caption, weight: selection == id ? .bold : .regular))
                                 .foregroundStyle(selection == id ? Palette.gold : Palette.parchment)
                                 .lineLimit(1)
@@ -79,11 +113,11 @@ struct PlayerPicker: View {
 }
 
 struct BeatRow: View {
-    @Environment(GameStore.self) private var store
+    @Environment(\.roster) private var roster
     let beat: Beat
 
     var body: some View {
-        if let game = store.game {
+        Group {
             switch beat.kind {
             case .narration:
                 Text(beat.text)
@@ -96,12 +130,12 @@ struct BeatRow: View {
                 HostLine(text: beat.text)
             case .speech:
                 HStack(alignment: .top, spacing: 10) {
-                    if let s = beat.speaker {
-                        Avatar(player: game.players[s], size: 36, role: store.roleShown(s))
+                    if let s = beat.speaker, let speaker = roster.player(s) {
+                        Avatar(player: speaker, size: 36, role: roster.role(s))
                     }
                     VStack(alignment: .leading, spacing: 3) {
-                        if let s = beat.speaker {
-                            Text(game.players[s].isHuman ? "You" : game.players[s].name)
+                        if let s = beat.speaker, let speaker = roster.player(s) {
+                            Text(speaker.isHuman ? "You" : speaker.name)
                                 .font(.serif(.caption, weight: .bold))
                                 .foregroundStyle(Palette.gold)
                         }
@@ -116,12 +150,12 @@ struct BeatRow: View {
             case .vote:
                 // Drawn as they were at the vote, so the rows don't give away the banishment below.
                 HStack(spacing: 10) {
-                    if let s = beat.speaker { Avatar(player: seated(game.players[s]), size: 30) }
+                    if let s = beat.speaker, let speaker = roster.player(s) { Avatar(player: speaker.seated, size: 30) }
                     Text(beat.text)
                         .font(.serif(.subheadline))
                         .foregroundStyle(Palette.parchment)
                     Spacer(minLength: 0)
-                    if let t = beat.target { Avatar(player: seated(game.players[t]), size: 30) }
+                    if let t = beat.target, let target = roster.player(t) { Avatar(player: target.seated, size: 30) }
                 }
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
@@ -129,7 +163,7 @@ struct BeatRow: View {
             case .banish, .murder:
                 let tint = beat.role.map(Palette.role) ?? Palette.muted
                 VStack(spacing: 10) {
-                    if let t = beat.target { Avatar(player: game.players[t], size: 64, role: beat.role) }
+                    if let t = beat.target, let target = roster.player(t) { Avatar(player: target, size: 64, role: beat.role) }
                     Text(beat.text)
                         .font(.serif(.headline))
                         .foregroundStyle(Palette.parchment)
@@ -196,13 +230,6 @@ struct HostLine: View {
     }
 }
 
-/// A player as they looked while still at the table.
-func seated(_ p: Player) -> Player {
-    var q = p
-    q.alive = true
-    return q
-}
-
 /// Shows beats one at a time so a scene plays out instead of landing all at once. Tap to skip ahead.
 struct FeedList: View {
     let beats: [Beat]
@@ -262,24 +289,5 @@ struct SectionTitle: View {
             .font(.serif(.caption, weight: .heavy))
             .tracking(2)
             .foregroundStyle(Palette.gold)
-    }
-}
-
-/// What only a traitor is told about a mission.
-struct QuestBanner: View {
-    let text: String
-
-    var body: some View {
-        HStack(alignment: .top, spacing: 8) {
-            Image(systemName: "eye.slash.fill").foregroundStyle(Palette.blood)
-            Text(text)
-                .font(.serif(.footnote))
-                .foregroundStyle(Palette.parchment)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .padding(10)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Palette.blood.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
-        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Palette.blood.opacity(0.5), lineWidth: 1))
     }
 }

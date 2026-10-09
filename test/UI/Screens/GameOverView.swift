@@ -1,16 +1,17 @@
 import SwiftUI
 import Charts
+import TraitorsEngine
 
 struct GameOverView: View {
-    @Environment(GameStore.self) private var store
+    @Environment(GameSession.self) private var session
     var onExit: () -> Void
     /// The game whose last scene at the fire has already been watched.
     @AppStorage("endingSeenSeed") private var endingSeen = ""
 
     var body: some View {
-        if let game = store.game {
+        if let game = session.game {
             let winner = game.winner ?? .faithful
-            let won = store.humanWon(game)
+            let won = session.humanWon(game)
             if endingSeen != "\(game.seed)" {
                 EndingCeremony { withAnimation(.easeInOut(duration: 0.4)) { endingSeen = "\(game.seed)" } }
             } else {
@@ -63,7 +64,7 @@ struct GameOverView: View {
                         }
 
                         VStack(spacing: 10) {
-                            Button("Back to the title") { store.leaveGame(); onExit() }.buttonStyle(GoldButtonStyle())
+                            Button("Back to the title") { session.leaveGame(); onExit() }.buttonStyle(GoldButtonStyle())
                         }
                         .padding(.bottom, 24)
                     }

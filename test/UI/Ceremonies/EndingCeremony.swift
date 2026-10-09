@@ -1,16 +1,17 @@
 import SwiftUI
+import TraitorsEngine
 
 /// The last scene at the fire: whoever is left steps up and says what they are, and only then
 /// is the winner named. Shown once per game, ahead of the summary.
 struct EndingCeremony: View {
-    @Environment(GameStore.self) private var store
+    @Environment(GameSession.self) private var session
     @Environment(Stage.self) private var stage
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     var onDone: () -> Void
     @State private var shown = 0
 
     var body: some View {
-        if let game = store.game {
+        if let game = session.game {
             let survivors = game.alive
             // The host's call, one moment for each survivor, then the result.
             let count = survivors.count + 2

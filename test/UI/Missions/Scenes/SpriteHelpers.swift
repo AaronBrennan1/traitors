@@ -91,6 +91,13 @@ final class ThumbStick: SKNode {
         vector = CGVector(dx: dx / len * pull / reach, dy: dy / len * pull / reach)
     }
 
+    /// Stands the stick somewhere with a push already on it, for a demonstration with no thumb of its own.
+    func show(at p: CGPoint, push v: CGVector) {
+        position = p
+        knob.position = CGPoint(x: v.dx * reach, y: v.dy * reach)
+        isHidden = false
+    }
+
     func end() {
         origin = nil
         vector = .zero

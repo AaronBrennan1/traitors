@@ -1,0 +1,88 @@
+== smart vs smart, missions played out (200 games, 0 unfinished)
+  faithful win rate         58.5%
+  round tables per game    3.33
+  murder on nights          49.1%   quiet nights  28.5%
+  company won its mission   28.0%
+  banishments hit traitor   53.7%
+  first table hits traitor  34.5%   (random: 25.0%)
+  unanimous votes            0.0%
+  first table split        100.0%
+  traitor >0.9 by day 2      3.5%
+  recruitment happened      56.0%
+  public Brier score       0.185
+  calibration (said→true)  0.08→0.07  0.27→0.27  0.47→0.46  0.68→0.73  0.88→0.89
+  hand used / sank the day  78.6% /  64.4%
+  partner voted for a banished traitor  35.4%
+  same name: traitor pairs  40.8%   faithful pairs  42.2%
+  per game: callouts 1.06  testimony 4.67  lies 0.40  challenges 0.12
+  lies caught               30.0%
+  defences                 appeal 15%  counterattack 17%  denial 3%  diffusion 5%  evidence 1%  originRedirect 14%  ownAndPivot 6%  redirect 22%  trackRecord 17%
+  seen of the hand         offTask 3.7 (25% / 7%)  loiter 3.6 (14% / 4%)  emptyHanded 5.1 (6% / 1%)  startled 10.2 (21% / 2%)  atTheWorks 25.0 (45% / 2%)  inView 0.0 (0% / 36%)
+  traitor aim (both/only)  accuse 0.26/1.13  defend 0.23/1.18  doubt 1.90/0.81  soft 0.58/1.08  vote 0.69/1.06  vouch 0.34/1.14
+  against a faithful's rate accuse 0.30/1.35  defend 0.24/0.97  doubt 3.84/1.43  soft 0.69/1.25  vote 0.70/1.10  vouch 0.48/1.43
+  first to name a faithful 1.34 times likelier from a traitor
+  company wins by mission  greatHall 57%  cellars 38%  armoury 13%  battlements 30%  crypt 33%  bogRelay 19%  lanternRun 36%  sheepRoundUp 27%  shipwreckDive 16%  ceiliChaos 29%  marketDay 29%  kiteRace 37%  hedgeMaze 17%  hurley 25%  banquetPrep 41%
+== par: bags a head, measured (stored), and the swing of the company's day in shares (200 games each)
+  greatHall    8: 9.40 (9.45) ±0.73   7: 9.60 (9.37) ±0.77   6: 9.32 (9.28) ±0.73   5: 9.23 (9.20) ±0.74
+  cellars      8: 9.98 (10.10) ±1.12   7: 10.16 (10.07) ±0.97   6: 9.99 (10.03) ±0.91   5: 10.02 (10.00) ±0.87
+  armoury      8: 8.79 (8.90) ±0.77   7: 8.88 (8.78) ±0.70   6: 8.63 (8.67) ±0.71   5: 8.58 (8.55) ±0.66
+  battlements  8: 10.92 (11.00) ±0.58   7: 11.02 (11.00) ±0.52   6: 10.95 (11.00) ±0.52   5: 10.95 (11.00) ±0.46
+  crypt        8: 8.83 (8.80) ±0.79   7: 8.85 (8.70) ±0.83   6: 8.78 (8.60) ±0.74   5: 8.47 (8.50) ±0.84
+  bogRelay     8: 6.09 (6.07) ±0.79   7: 6.12 (5.95) ±0.74   6: 5.88 (5.82) ±0.75   5: 5.73 (5.70) ±0.77
+  lanternRun   8: 7.06 (7.01) ±0.79   7: 7.07 (6.86) ±0.80   6: 6.78 (6.71) ±0.83   5: 6.60 (6.56) ±0.88
+  sheepRoundUp 8: 5.91 (5.89) ±0.80   7: 5.89 (5.73) ±0.82   6: 5.63 (5.57) ±0.82   5: 5.44 (5.41) ±0.86
+  shipwreckDiv 8: 5.66 (5.62) ±0.73   7: 5.58 (5.37) ±0.67   6: 5.22 (5.11) ±0.71   5: 4.90 (4.86) ±0.70
+  ceiliChaos   8: 10.02 (9.99) ±0.66   7: 10.21 (10.12) ±0.74   6: 10.12 (10.24) ±0.85   5: 10.42 (10.37) ±0.95
+  marketDay    8: 7.06 (7.01) ±0.79   7: 7.07 (6.86) ±0.80   6: 6.78 (6.71) ±0.83   5: 6.60 (6.56) ±0.88
+  kiteRace     8: 9.60 (9.55) ±0.85   7: 9.57 (9.23) ±0.84   6: 9.06 (8.90) ±0.86   5: 8.62 (8.58) ±0.95
+  hedgeMaze    8: 6.07 (6.04) ±0.74   7: 6.06 (5.87) ±0.73   6: 5.80 (5.71) ±0.76   5: 5.58 (5.54) ±0.84
+  hurley       8: 6.80 (6.77) ±0.86   7: 6.78 (6.54) ±0.87   6: 6.40 (6.32) ±0.88   5: 6.10 (6.09) ±0.94
+  banquetPrep  8: 6.22 (6.19) ±0.77   7: 6.84 (6.26) ±0.80   6: 6.56 (6.33) ±0.87   5: 6.44 (6.40) ±0.95
+== company wins %: left alone / seat 0 idle / hand against it / hand against it and a strong seat 0
+   aim 78 / 40 / 20 / 45.   dice at 8, played at 8, played at 5
+  greatHall     74 / 27 / 13 / 29      80 / 30 / 24 / 29      86 / 25 / 11 / 14
+  cellars       71 / 29 / 11 / 27      78 / 31 /  8 / 20      83 / 24 /  7 /  8
+  armoury       74 / 29 / 12 / 30      74 / 28 / 18 / 30      83 / 26 / 12 / 12
+  battlements   75 / 27 / 11 / 28      74 / 20 / 13 / 12      88 /  8 /  6 / 10
+  crypt         72 / 29 / 13 / 30      80 / 34 / 26 / 28      78 / 29 / 12 /  8
+  bogRelay      71 / 25 / 11 / 29      83 / 40 / 12 / 33      77 / 28 /  4 / 13
+  lanternRun    74 / 27 / 11 / 27      76 / 36 / 18 / 37      71 / 27 / 15 / 34
+  sheepRoundUp  76 / 32 / 14 / 32      80 / 40 / 10 / 28      84 / 32 /  3 / 18
+  shipwreckDiv  81 / 30 / 13 / 30      88 / 34 / 16 / 26      76 / 29 /  4 / 16
+  ceiliChaos    72 / 30 / 13 / 27      86 / 28 / 16 / 38      76 / 12 / 12 / 34
+  marketDay     73 / 27 / 12 / 27      77 / 36 / 12 / 37      78 / 20 /  9 / 28
+  kiteRace      72 / 27 / 12 / 28      79 / 32 / 22 / 36      72 / 26 / 12 / 32
+  hedgeMaze     80 / 35 / 14 / 35      86 / 32 /  8 / 24      84 / 24 /  4 / 10
+  hurley        74 / 27 / 11 / 28      80 / 32 /  8 / 27      78 / 32 / 12 / 24
+  banquetPrep   79 / 34 / 17 / 35      84 / 54 / 22 / 57      74 / 30 / 16 / 32
+== with the hand in play (200 games each)
+  greatHall    downed 2.1 a runner, near misses 9.9, round 81s, hand used 3.0 times, cost 5.0, sank the day  26%
+               seen % of the hand / of others (lift assumed): offTask 24/10 (2.3)  loiter 20/13 (2.4)  emptyHanded 30/6 (5.0)  startled 14/5 (3.0)  atTheWorks 38/3 (10.0)  inView 0/25 (0.1)
+  cellars      downed 2.9 a runner, near misses 6.1, round 81s, hand used 2.6 times, cost 8.7, sank the day  40%
+               seen % of the hand / of others (lift assumed): offTask 16/9 (2.3)  loiter 17/7 (2.4)  emptyHanded 19/2 (5.0)  startled 10/5 (3.0)  atTheWorks 40/2 (10.0)  inView 4/30 (0.1)
+  armoury      downed 2.5 a runner, near misses 10.6, round 82s, hand used 3.3 times, cost 4.8, sank the day  25%
+               seen % of the hand / of others (lift assumed): offTask 26/11 (2.3)  loiter 22/9 (2.4)  emptyHanded 40/7 (5.0)  startled 20/7 (3.0)  atTheWorks 44/4 (10.0)  inView 0/22 (0.1)
+  battlements  downed 0.6 a runner, near misses 2.1, round 81s, hand used 3.1 times, cost 6.5, sank the day  40%
+               seen % of the hand / of others (lift assumed): offTask 22/12 (2.3)  loiter 25/6 (2.4)  emptyHanded 26/4 (5.0)  startled 20/5 (3.0)  atTheWorks 46/1 (10.0)  inView 0/41 (0.1)
+  crypt        downed 1.8 a runner, near misses 8.1, round 81s, hand used 3.4 times, cost 4.5, sank the day  26%
+               seen % of the hand / of others (lift assumed): offTask 10/3 (2.3)  loiter 18/12 (2.4)  emptyHanded 13/4 (5.0)  startled 2/1 (3.0)  atTheWorks 42/2 (10.0)  inView 0/1 (0.1)
+  bogRelay     downed 0.0 a runner, near misses 0.0, round 75s, hand used 3.5 times, cost 7.1, sank the day  54%
+               seen % of the hand / of others (lift assumed): offTask 72/17 (2.3)  loiter 38/12 (2.4)  emptyHanded 2/2 (5.0)  startled 21/3 (3.0)  atTheWorks 36/1 (10.0)  inView 0/31 (0.1)
+  lanternRun   downed 0.0 a runner, near misses 0.0, round 80s, hand used 3.5 times, cost 10.3, sank the day  62%
+               seen % of the hand / of others (lift assumed): offTask 24/8 (2.3)  loiter 10/2 (2.4)  emptyHanded 0/0 (5.0)  startled 50/10 (3.0)  atTheWorks 78/14 (10.0)  inView 0/42 (0.1)
+  sheepRoundUp downed 0.0 a runner, near misses 0.0, round 80s, hand used 3.6 times, cost 10.9, sank the day  70%
+               seen % of the hand / of others (lift assumed): offTask 37/16 (2.3)  loiter 40/9 (2.4)  emptyHanded 0/0 (5.0)  startled 28/2 (3.0)  atTheWorks 8/1 (10.0)  inView 0/38 (0.1)
+  shipwreckDiv downed 3.0 a runner, near misses 0.0, round 85s, hand used 3.8 times, cost 7.5, sank the day  64%
+               seen % of the hand / of others (lift assumed): offTask 12/6 (2.3)  loiter 32/7 (2.4)  emptyHanded 22/4 (5.0)  startled 6/1 (3.0)  atTheWorks 48/3 (10.0)  inView 0/11 (0.1)
+  ceiliChaos   downed 0.0 a runner, near misses 0.0, round 70s, hand used 3.6 times, cost 14.5, sank the day  67%
+               seen % of the hand / of others (lift assumed): offTask 0/0 (2.3)  loiter 0/0 (2.4)  emptyHanded 0/0 (5.0)  startled 14/2 (3.0)  atTheWorks 53/2 (10.0)  inView 0/32 (0.1)
+  marketDay    downed 0.0 a runner, near misses 0.0, round 80s, hand used 3.7 times, cost 11.1, sank the day  63%
+               seen % of the hand / of others (lift assumed): offTask 28/9 (2.3)  loiter 22/5 (2.4)  emptyHanded 22/6 (5.0)  startled 38/7 (3.0)  atTheWorks 62/2 (10.0)  inView 0/51 (0.1)
+  kiteRace     downed 1.7 a runner, near misses 0.0, round 75s, hand used 2.2 times, cost 15.6, sank the day  58%
+               seen % of the hand / of others (lift assumed): offTask 86/14 (2.3)  loiter 0/0 (2.4)  emptyHanded 0/0 (5.0)  startled 38/1 (3.0)  atTheWorks 37/2 (10.0)  inView 0/61 (0.1)
+  hedgeMaze    downed 0.0 a runner, near misses 0.0, round 85s, hand used 3.6 times, cost 10.8, sank the day  78%
+               seen % of the hand / of others (lift assumed): offTask 4/1 (2.3)  loiter 2/2 (2.4)  emptyHanded 0/0 (5.0)  startled 44/0 (3.0)  atTheWorks 79/0 (10.0)  inView 0/55 (0.1)
+  hurley       downed 0.0 a runner, near misses 0.0, round 70s, hand used 1.6 times, cost 8.1, sank the day  34%
+               seen % of the hand / of others (lift assumed): offTask 52/4 (2.3)  loiter 0/0 (2.4)  emptyHanded 0/0 (5.0)  startled 0/0 (3.0)  atTheWorks 48/1 (10.0)  inView 0/48 (0.1)
+  banquetPrep  downed 0.0 a runner, near misses 0.0, round 90s, hand used 3.4 times, cost 10.2, sank the day  64%
+               seen % of the hand / of others (lift assumed): offTask 11/10 (2.3)  loiter 12/12 (2.4)  emptyHanded 0/0 (5.0)  startled 48/0 (3.0)  atTheWorks 31/0 (10.0)  inView 0/46 (0.1)

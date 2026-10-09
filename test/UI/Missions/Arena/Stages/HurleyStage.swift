@@ -1,4 +1,6 @@
 import SpriteKit
+import TraitorsEngine
+import TraitorsGauntlet
 
 /// Hurley Target Practice on the castle lawn. The lawn runs away from the camera to the outer
 /// wall, so things further up it are drawn smaller and closer together.

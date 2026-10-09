@@ -1,4 +1,6 @@
 import SpriteKit
+import TraitorsEngine
+import TraitorsGauntlet
 
 /// The Shipwreck Dive in cross-section: the boat on the surface, the water column, and the
 /// wreck's rooms on the seabed. The whole bay fits on screen.

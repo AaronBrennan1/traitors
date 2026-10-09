@@ -1,0 +1,72 @@
+== smart vs smart (2000 games, 0 unfinished)
+  faithful win rate         57.2%
+  round tables per game    3.47
+  murder on nights          48.4%   quiet nights  27.2%
+  company won its mission   27.0%
+  banishments hit traitor   53.8%
+  first table hits traitor  42.2%   (random: 25.0%)
+  unanimous votes            0.0%
+  first table split         99.2%
+  traitor >0.9 by day 2      1.0%
+  recruitment happened      62.3%
+  public Brier score       0.191
+  calibration (said→true)  0.08→0.10  0.27→0.27  0.47→0.41  0.68→0.62  0.88→0.86
+  hand used / sank the day  78.3% /  59.5%
+  partner voted for a banished traitor  42.8%
+  same name: traitor pairs  35.4%   faithful pairs  46.2%
+  per game: callouts 1.05  testimony 8.92  lies 0.34  challenges 0.07
+  lies caught               20.5%
+  defences                 appeal 7%  counterattack 19%  denial 3%  diffusion 6%  evidence 4%  originRedirect 12%  ownAndPivot 4%  redirect 26%  trackRecord 20%
+  seen of the hand         offTask 2.2 (30% / 14%)  loiter 2.1 (16% / 8%)  emptyHanded 4.5 (33% / 7%)  startled 2.8 (16% / 6%)  atTheWorks 13.4 (37% / 3%)  inView 0.0 (0% / 24%)
+  traitor aim (both/only)  accuse 0.31/1.12  defend 0.32/1.16  doubt 0.69/1.07  soft 0.74/1.05  vote 0.88/1.02  vouch 0.36/1.15
+  against a faithful's rate accuse 0.40/1.48  defend 0.36/1.02  doubt 1.01/1.33  soft 0.82/1.16  vote 0.88/1.06  vouch 0.36/0.92
+  first to name a faithful 1.25 times likelier from a traitor
+  company wins by mission  greatHall 28%  cellars 30%  armoury 30%  battlements 23%  crypt 26%  bogRelay 26%  lanternRun 26%  sheepRoundUp 27%  shipwreckDive 27%  ceiliChaos 29%  marketDay 29%  kiteRace 27%  hedgeMaze 29%  hurley 25%  banquetPrep 26%
+== random faithful (2000 games, 0 unfinished)
+  faithful win rate         12.2%
+  round tables per game    3.02
+  murder on nights          59.9%   quiet nights  26.6%
+  company won its mission   26.0%
+  banishments hit traitor   23.3%
+  first table hits traitor  15.1%   (random: 25.0%)
+  unanimous votes            0.0%
+  first table split          0.0%
+  traitor >0.9 by day 2      0.0%
+  recruitment happened      32.0%
+  public Brier score       0.204
+  calibration (said→true)  0.13→0.24  0.28→0.27  0.46→0.48  0.66→0.62  0.83→0.50
+  hand used / sank the day  79.4% /  59.8%
+  partner voted for a banished traitor  41.3%
+  same name: traitor pairs  55.1%   faithful pairs  14.2%
+  per game: callouts 0.38  testimony 1.91  lies 0.04  challenges 0.00
+  lies caught                0.0%
+  defences                 
+  seen of the hand         offTask 2.2 (30% / 14%)  loiter 2.2 (16% / 7%)  emptyHanded 4.4 (32% / 7%)  startled 2.8 (15% / 5%)  atTheWorks 13.4 (37% / 3%)  inView 0.0 (0% / 24%)
+  traitor aim (both/only)  accuse 0.00/1.21  defend 0.00/1.24  doubt 0.67/1.08  soft 0.76/1.05  vote 0.76/1.05  vouch 0.00/1.27
+  against a faithful's rate accuse 0.00/187921805.91  defend 0.00/15747420.68  doubt 11310904.87/15572880.30  soft 0.81/1.09  vote 0.80/1.09  vouch 0.00/1629043.52
+  first to name a faithful 4.34 times likelier from a traitor
+  company wins by mission  greatHall 24%  cellars 20%  armoury 29%  battlements 18%  crypt 20%  bogRelay 26%  lanternRun 26%  sheepRoundUp 25%  shipwreckDive 29%  ceiliChaos 28%  marketDay 25%  kiteRace 27%  hedgeMaze 26%  hurley 26%  banquetPrep 26%
+== random traitors (2000 games, 0 unfinished)
+  faithful win rate         58.1%
+  round tables per game    3.71
+  murder on nights          30.8%   quiet nights  50.8%
+  company won its mission   50.0%
+  banishments hit traitor   47.8%
+  first table hits traitor  37.5%   (random: 25.0%)
+  unanimous votes            0.0%
+  first table split         99.8%
+  traitor >0.9 by day 2      0.0%
+  recruitment happened      48.8%
+  public Brier score       0.192
+  calibration (said→true)  0.08→0.09  0.27→0.29  0.47→0.34  0.68→0.49  0.86→0.72
+  hand used / sank the day  39.9% /  59.8%
+  partner voted for a banished traitor  31.6%
+  same name: traitor pairs  15.2%   faithful pairs  41.1%
+  per game: callouts 1.15  testimony 7.25  lies 0.00  challenges 0.00
+  lies caught                0.0%
+  defences                 appeal 10%  counterattack 14%  denial 3%  diffusion 4%  evidence 5%  originRedirect 12%  ownAndPivot 8%  redirect 31%  trackRecord 13%
+  seen of the hand         offTask 2.2 (30% / 14%)  loiter 2.2 (17% / 7%)  emptyHanded 4.4 (33% / 7%)  startled 2.7 (15% / 6%)  atTheWorks 12.7 (35% / 3%)  inView 0.0 (0% / 23%)
+  traitor aim (both/only)  soft 1.00/1.00  vote 1.00/1.00
+  against a faithful's rate accuse 0.00/0.00  defend 0.00/0.00  doubt 0.00/0.00  soft 0.79/0.80  vote 0.99/1.02  vouch 0.00/0.00
+  first to name a faithful 0.04 times likelier from a traitor
+  company wins by mission  greatHall 55%  cellars 55%  armoury 48%  battlements 53%  crypt 50%  bogRelay 52%  lanternRun 47%  sheepRoundUp 52%  shipwreckDive 52%  ceiliChaos 50%  marketDay 49%  kiteRace 49%  hedgeMaze 53%  hurley 46%  banquetPrep 48%

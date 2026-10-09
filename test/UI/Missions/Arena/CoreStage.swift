@@ -1,4 +1,6 @@
 import SpriteKit
+import TraitorsEngine
+import TraitorsGauntlet
 
 /// The colours of the outdoor games: bog and moss, limestone, sea.
 extension Toon {
@@ -49,7 +51,7 @@ class CoreStage: SKNode, ArenaStage {
             addChild(f)
         }
         // What the hand can work, marked for a traitor and nobody else.
-        if config.handVisible {
+        if config.setup.humanHasHand {
             for w in core.works {
                 let m = Stagecraft.handMark()
                 addChild(m)

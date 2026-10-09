@@ -1,8 +1,8 @@
 import SwiftUI
+import TraitorsEngine
 
 enum Palette {
     static let ink = Tokens.Hue.ink.color
-    static let moss = Tokens.Hue.moss.color
     static let panel = Tokens.Hue.panel.color
     static let panelHi = Tokens.Hue.panelHi.color
     static let line = Tokens.Hue.line.color

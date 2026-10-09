@@ -1,111 +1,138 @@
 import SwiftUI
+import TraitorsEngine
+import TraitorsGauntlet
 
-/// Before each mission: which game it is, how it is played, and for a traitor the shadow's hand.
+/// Before each mission: the game playing itself for a few seconds, one line to say what it is,
+/// and for a traitor a second reel that shows the shadow's hand. Nothing here has to be read to
+/// be understood. The long form of it is still there for VoiceOver, on the reel.
 struct MissionBriefView: View {
-    @Environment(GameStore.self) private var store
+    @Environment(GameSession.self) private var session
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    /// Which reel is showing: the game, or the hand.
+    @State private var reel = ArenaDemo.Reel.play
+    /// The hand has been shown once without being asked for. After that it is left to the traitor.
+    @State private var turned = false
+    @State private var arrived = false
 
     var body: some View {
-        if let game = store.game, let run = game.mission {
+        if let game = session.game, let run = game.mission {
             let kind = run.kind
-            let spec = kind.spec
+            let secrets = game.feed.filter { $0.kind == .secret }
+            let traitor = !secrets.isEmpty
+            let hand = reel == .hand
             VStack(spacing: 0) {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 14) {
-                        hero(kind, day: game.day)
+                VStack(spacing: 12) {
+                    if traitor { reelSwitch }
 
-                        HStack(spacing: 8) {
-                            fact("person.3.fill", "Goal", "\(run.teamGoal)", "\(spec.unit) between you")
-                            fact("moon.stars.fill", "Make it", "Safe", "no murder tonight")
-                            fact("hourglass", "Time", "\(Int(spec.seconds(day: game.day)))", "seconds")
-                        }
+                    DemoReel(kind: kind, reel: reel) {
+                        // A traitor is shown the hand once the game itself has played through.
+                        guard traitor, !turned, reel == .play else { return }
+                        turned = true
+                        turn(to: .hand)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .scaleEffect(arrived || reduceMotion ? 1 : 0.96)
+                    .opacity(arrived ? 1 : 0)
+                    .gesture(DragGesture(minimumDistance: 24).onEnded { drag in
+                        guard traitor, abs(drag.translation.width) > abs(drag.translation.height) else { return }
+                        turned = true
+                        turn(to: drag.translation.width < 0 ? .hand : .play)
+                    })
 
-                        VStack(alignment: .leading, spacing: 8) {
-                            SectionTitle(text: "How to play")
-                            ForEach(Array((kind.controls + [kind.twist]).enumerated()), id: \.offset) { _, line in
-                                HStack(alignment: .firstTextBaseline, spacing: 9) {
-                                    Image(systemName: "diamond.fill").font(.system(size: 6)).foregroundStyle(Palette.gold)
-                                    Text(line).font(.serif(.subheadline)).foregroundStyle(Palette.parchment)
-                                        .fixedSize(horizontal: false, vertical: true)
-                                }
-                            }
-                            Text(kind.isGauntlet ? "Everyone runs at once and everything goes in one vault. Fill it to the goal between you and it seals: nobody is murdered tonight. Fall short and the traitors have their night."
-                                 : "Everyone plays at once and everything counts towards one goal. Make it between you and nobody is murdered tonight. Fall short and the traitors have their night. The row of tokens at the top shows who has brought home what.")
-                                .font(.serif(.caption)).foregroundStyle(Palette.muted)
-                                .fixedSize(horizontal: false, vertical: true)
-                                .padding(.top, 2)
-                        }
-                        .panel()
+                    // The one line.
+                    Text(hand ? kind.handGist : kind.gist)
+                        .font(Tokens.TypeRole.title.font(.title3))
+                        .foregroundStyle(Palette.parchment)
+                        .multilineTextAlignment(.center)
+                        .lineLimit(1).minimumScaleFactor(0.6)
+                        .contentTransition(.opacity)
+                        .frame(maxWidth: .infinity)
+                        .opacity(arrived ? 1 : 0)
+                        .offset(y: arrived || reduceMotion ? 0 : 8)
 
-                        ForEach(game.feed.indices, id: \.self) { i in
-                            if game.feed[i].kind == .secret { BeatRow(beat: game.feed[i]) }
+                    HStack(spacing: 8) {
+                        chip("flag.checkered", "\(run.teamGoal) \(kind.spec.unit)", says: "The goal is \(run.teamGoal) \(kind.spec.unit) between you")
+                        chip("hourglass", "\(Int(kind.spec.seconds(day: game.day)))s", says: "\(Int(kind.spec.seconds(day: game.day))) seconds")
+                        if hand {
+                            chip("moon.fill", "Your night", tint: Palette.blood, says: "Keep the company short of its goal and the night is the traitors'")
+                        } else {
+                            chip("checkmark.shield.fill", "Safe night", tint: Palette.faithful, says: "Make the goal and nobody is murdered tonight")
                         }
                     }
-                    .padding(16)
-                    .frame(maxWidth: 560)
-                    .frame(maxWidth: .infinity)
+                    .opacity(arrived ? 1 : 0)
+
+                    // What a traitor is told about tonight is the state of the game, not how to play it.
+                    if hand, secrets.count > 1 {
+                        Label(secrets[1].text, systemImage: "moon.stars.fill")
+                            .font(.serif(.caption)).foregroundStyle(Palette.muted)
+                            .lineLimit(2).minimumScaleFactor(0.8)
+                            .transition(.opacity)
+                    }
                 }
+                .padding(.horizontal, 16)
+                .padding(.top, 10)
+                .padding(.bottom, 12)
+                .frame(maxWidth: 520)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+
                 BottomBar {
                     if !game.humanAlive, game.human != nil { SpectatorNote() }
                     Button(game.humanAlive ? "Begin the mission" : "Watch the mission") {
                         Feedback.play(.tap)
-                        store.send(.next)
+                        session.send(.proceed)
                     }
                     .buttonStyle(GoldButtonStyle())
                 }
             }
-        }
-    }
-
-    /// The mission's name on a card in its own light: the hour and weather of the stage to come.
-    private func hero(_ kind: MissionKind, day: Int) -> some View {
-        let tint = kind.tint
-        return VStack(spacing: 10) {
-            Image(systemName: kind.icon)
-                .font(.system(size: 34, weight: .semibold))
-                .foregroundStyle(Palette.gold)
-                .frame(width: 76, height: 76)
-                .background(Palette.ink.opacity(0.75), in: Circle())
-                .overlay(Circle().stroke(Palette.gold, lineWidth: 1.5))
-                .overlay(Circle().stroke(Palette.gold.opacity(0.3), lineWidth: 1).padding(-5))
-                .shadow(color: tint.opacity(0.6), radius: 18)
-                .accessibilityHidden(true)
-            Text(kind.title)
-                .font(Tokens.TypeRole.display.font(.title)).foregroundStyle(Palette.parchment)
-                .multilineTextAlignment(.center)
-            HostLine(text: Host.missionIntro(day: day))
-            Text(kind.brief)
-                .font(.serif(.subheadline).italic()).foregroundStyle(Palette.parchment.opacity(0.82))
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 20)
-        .frame(maxWidth: .infinity)
-        .background {
-            ZStack {
-                Palette.panel
-                LinearGradient(colors: [tint.opacity(0.55), tint.opacity(0.08)], startPoint: .top, endPoint: .bottom)
-                RadialGradient(colors: [Palette.gold.opacity(0.16), .clear], center: .top, startRadius: 0, endRadius: 220)
+            .onAppear {
+                withAnimation(reduceMotion ? .easeOut(duration: Tokens.Motion.standard) : .spring(response: 0.45, dampingFraction: 0.82)) { arrived = true }
             }
         }
-        .clipShape(RoundedRectangle(cornerRadius: Tokens.Radius.sheet))
-        .overlay(RoundedRectangle(cornerRadius: Tokens.Radius.sheet).stroke(Palette.gold.opacity(0.3), lineWidth: 1))
     }
 
-    private func fact(_ icon: String, _ label: String, _ value: String, _ unit: String) -> some View {
-        VStack(spacing: 3) {
-            Image(systemName: icon).font(.caption2).foregroundStyle(Palette.gold.opacity(0.8))
-            Text(value).font(Tokens.TypeRole.numeral.font(.title3)).foregroundStyle(Palette.parchment)
-            Text(label.uppercased()).font(.serif(.caption2, weight: .heavy)).tracking(1.5).foregroundStyle(Palette.gold)
-            Text(unit).font(.serif(.caption2)).foregroundStyle(Palette.muted).lineLimit(1).minimumScaleFactor(0.7)
+    private func turn(to next: ArenaDemo.Reel) {
+        guard next != reel else { return }
+        Feedback.play(.tap)
+        withAnimation(.easeInOut(duration: Tokens.Motion.reveal)) { reel = next }
+    }
+
+    /// Two reels for a traitor: the game everyone plays, and what only they can do in it.
+    private var reelSwitch: some View {
+        HStack(spacing: 6) {
+            tab(.play, "gamecontroller.fill", "The game", Palette.gold)
+            tab(.hand, "eye.slash.fill", "The shadow's hand", Palette.blood)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 10)
-        .padding(.horizontal, 4)
-        .background(Palette.panel, in: RoundedRectangle(cornerRadius: Tokens.Radius.card))
-        .overlay(RoundedRectangle(cornerRadius: Tokens.Radius.card).stroke(Palette.line))
+    }
+
+    private func tab(_ which: ArenaDemo.Reel, _ icon: String, _ name: String, _ tint: Color) -> some View {
+        let on = reel == which
+        return Button {
+            turned = true
+            turn(to: which)
+        } label: {
+            Label(name, systemImage: icon)
+                .font(.serif(.caption, weight: .heavy)).tracking(1)
+                .foregroundStyle(on ? Palette.ink : tint)
+                .padding(.horizontal, 12).frame(minHeight: 30)
+                .background(on ? tint : tint.opacity(0.1), in: Capsule())
+                .overlay(Capsule().strokeBorder(tint.opacity(on ? 0 : 0.5), lineWidth: 1))
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(on ? .isSelected : [])
+    }
+
+    /// A number worth knowing, with a glyph for what it is the number of.
+    private func chip(_ icon: String, _ value: String, tint: Color = Palette.gold, says: String) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: icon).font(.caption).foregroundStyle(tint)
+            Text(value).font(Tokens.TypeRole.numeral.font(.footnote)).foregroundStyle(Palette.parchment).lineLimit(1)
+        }
+        .padding(.horizontal, 12)
+        .frame(minHeight: 32)
+        .background(Palette.panel, in: Capsule())
+        .overlay(Capsule().strokeBorder(Palette.line))
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(label), \(value) \(unit)")
+        .accessibilityLabel(says)
     }
 }
 

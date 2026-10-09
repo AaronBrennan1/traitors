@@ -1,34 +1,26 @@
 import SwiftUI
+import TraitorsEngine
 
 /// The vote, told the way it is at the table: slates turned one at a time with the count kept
 /// beside them, then the banished player's walk, last words, and only then what they were.
 struct VoteCeremony: View {
-    @Environment(GameStore.self) private var store
+    @Environment(GameSession.self) private var session
     @Environment(Stage.self) private var stage
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var shown = 0
     @State private var vote: PlayerID?
 
-    enum Moment {
-        case line(Beat)
-        /// The host calls for the slates.
-        case call
-        case slate(voter: PlayerID, target: PlayerID, round: Int, left: Int)
-        case walk(PlayerID)
-        case words(PlayerID, String)
-        case ask
-        case declare(PlayerID, Role?)
-        case verdict(Beat)
-    }
+    typealias Moment = VoteTelling.Moment
 
     var body: some View {
-        if let game = store.game {
-            let moments = Self.moments(game)
-            let banishAt = moments.firstIndex { if case .walk = $0 { return true } else { return false } }
+        if let game = session.game {
+            let telling = VoteTelling(game: game)
+            let moments = telling.moments
+            let banishAt = telling.banishAt
             VStack(spacing: 0) {
                 ZStack {
                     VStack(spacing: 0) {
-                        tally(game, moments)
+                        tally(game, telling)
                         slates(game, moments, upTo: banishAt ?? moments.count)
                     }
                     if let banishAt, shown > banishAt {
@@ -40,12 +32,12 @@ struct VoteCeremony: View {
                 .onTapGesture { shown = moments.count }
                 .accessibilityAction(named: "Skip to the result") { shown = moments.count }
                 BottomBar {
-                    if game.phase == .voting {
+                    if case .vote(_, let candidates) = session.prompt {
                         VStack(alignment: .leading, spacing: 10) {
                             SectionTitle(text: "Tie-break: vote again")
-                            PlayerPicker(ids: game.choices, selection: $vote)
+                            PlayerPicker(ids: candidates, selection: $vote)
                             Button(vote.map { "Vote to banish \(game.players[$0].name)" } ?? "Choose a player") {
-                                if let vote { store.send(.vote(vote)) }
+                                if let vote { session.send(.vote(vote)) }
                                 vote = nil
                             }
                             .buttonStyle(GoldButtonStyle())
@@ -54,19 +46,18 @@ struct VoteCeremony: View {
                         .opacity(shown >= moments.count ? 1 : 0.4)
                         .allowsHitTesting(shown >= moments.count)
                     } else {
-                        if store.spectating, game.winner == nil { SpectatorNote() }
-                        Button(label(game)) { store.send(.next) }
+                        if session.spectating, game.winner == nil { SpectatorNote() }
+                        Button(onward(session.prompt)) { session.send(.proceed) }
                             .buttonStyle(GoldButtonStyle())
                             .opacity(shown >= moments.count ? 1 : 0.45)
                     }
                 }
             }
-            .stepClock($shown, count: moments.count, key: "vote", hold: { hold(moments, $0) }, cue: { cue(moments[$0]) })
-            .onChange(of: shown) { sync(moments) }
+            .stepClock($shown, count: moments.count, key: "vote", hold: telling.hold, cue: { telling.cue($0)?.play() })
+            .onChange(of: shown) { sync(telling) }
             .onAppear {
                 // Coming back to a reveal whose first round was already watched: pick up at the revote.
-                if shown == 0, game.phase == .voteReveal, let me = game.human,
-                   let at = moments.firstIndex(where: { if case .slate(_, _, 2, _) = $0 { return true } else { return false } }),
+                if shown == 0, game.phase == .voteReveal, let me = game.human, let at = telling.revoteStart,
                    moments.contains(where: { if case .slate(me, _, 2, _) = $0 { return true } else { return false } }) {
                     shown = at
                 }
@@ -74,101 +65,34 @@ struct VoteCeremony: View {
         }
     }
 
-    // MARK: - The script
-
-    static func moments(_ game: Game) -> [Moment] {
-        let script = VoteScript(feed: game.feed)
-        var out: [Moment] = []
-        var called = false
-        for (i, step) in script.steps.enumerated() {
-            switch step {
-            case .line(let beat):
-                out.append(.line(beat))
-            case .slate(let voter, let target, let round):
-                if !called, round == 1 { out.append(.call) }
-                called = true
-                out.append(.slate(voter: voter, target: target, round: round, left: script.slatesLeft(after: i)))
-            case .banish(let target, let role):
-                out.append(.walk(target))
-                // In the finale they leave without a word, and nobody is told what they were.
-                if role != nil {
-                    let p = game.players[target]
-                    if !p.isHuman { out.append(.words(target, Flavour.lastWords(p.voice, seat: target, seed: game.seed, day: game.day))) }
-                    out.append(.ask)
-                }
-                out.append(.declare(target, role))
-            case .verdict(let beat):
-                out.append(.verdict(beat))
-            }
-        }
-        return out
-    }
-
-    /// Seconds to wait before a moment appears: the last few slates are turned slowly.
-    private func hold(_ moments: [Moment], _ i: Int) -> Double {
-        if i == 0 { return 0.5 }
-        switch moments[i] {
-        case .line: return 0.9
-        case .call: return 0.9
-        case .slate(_, _, _, let left): return left == 0 ? 2.4 : left <= 2 ? 1.7 : 1.1
-        case .walk: return 2.0
-        case .words: return 2.0
-        case .ask: return 2.4
-        case .declare(_, let role): return role == nil ? 2.2 : 3.0
-        case .verdict: return 2.4
-        }
-    }
-
-    private func cue(_ moment: Moment) {
-        switch moment {
-        case .call: Cue.bell.play()
-        case .slate(_, _, _, let left): (left <= 1 ? Cue.lateSlate : Cue.slate).play()
-        case .walk: Cue.boom.play()
-        case .ask: Cue.heartbeat.play()
-        case .declare(_, let role): Cue.declare(role).play()
-        default: break
-        }
-    }
-
     /// Once the declaration has been made, the rest of the screen may show it.
-    private func sync(_ moments: [Moment]) {
-        for moment in moments.prefix(shown) {
-            if case .declare(_, let role) = moment {
-                store.tell()
-                if let role, stage.flood == nil {
-                    withAnimation(.easeInOut(duration: reduceMotion ? 1.6 : 0.6)) { stage.flood = Palette.role(role) }
-                }
-            }
+    private func sync(_ telling: VoteTelling) {
+        let declared = telling.declared(shown: shown)
+        guard declared.told else { return }
+        session.tell()
+        if let role = declared.role, stage.flood == nil {
+            withAnimation(.easeInOut(duration: reduceMotion ? 1.6 : 0.6)) { stage.flood = Palette.role(role) }
         }
     }
 
-    private func label(_ game: Game) -> String {
-        if game.winner != nil || (game.finale && game.alive.count <= 2) { return "See how it ended" }
-        return game.finale ? "Continue" : "Nightfall"
+    private func onward(_ prompt: Prompt?) -> String {
+        switch prompt {
+        case .proceed(.ending): return "See how it ended"
+        case .proceed(.night): return "Nightfall"
+        default: return "Continue"
+        }
     }
 
     // MARK: - The slates
 
-    /// The count for the round in progress, in the order names were first written.
-    private func counts(_ moments: [Moment]) -> [(player: PlayerID, votes: Int)] {
-        var round = 0
-        var rows: [(player: PlayerID, votes: Int)] = []
-        for moment in moments.prefix(shown) {
-            guard case .slate(_, let target, let r, _) = moment else { continue }
-            if r != round { round = r; rows = [] }
-            if let i = rows.firstIndex(where: { $0.player == target }) { rows[i].votes += 1 } else { rows.append((target, 1)) }
-        }
-        return rows
-    }
-
     @ViewBuilder
-    private func tally(_ game: Game, _ moments: [Moment]) -> some View {
-        let rows = counts(moments)
+    private func tally(_ game: Game, _ telling: VoteTelling) -> some View {
+        let rows = telling.tally(shown: shown)
         if !rows.isEmpty {
             HStack(alignment: .top, spacing: 14) {
                 ForEach(rows, id: \.player) { row in
                     VStack(spacing: 4) {
-                        Avatar(player: game.players[row.player], size: 40, role: store.roleShown(row.player))
+                        Avatar(player: game.players[row.player], size: 40, role: session.roleShown(row.player))
                         Text(game.players[row.player].isHuman ? "You" : game.players[row.player].name)
                             .font(.serif(.caption2)).foregroundStyle(Palette.parchment).lineLimit(1)
                         Text("\(row.votes)")
@@ -214,7 +138,7 @@ struct VoteCeremony: View {
             HostLine(text: Host.slates)
         case .slate(let voter, let target, _, _):
             HStack(spacing: 10) {
-                Avatar(player: seated(game.players[voter]), size: 34)
+                Avatar(player: game.players[voter].seated, size: 34)
                 Text(game.players[voter].isHuman ? "You" : game.players[voter].name)
                     .font(.serif(.subheadline)).foregroundStyle(Palette.parchment)
                 Spacer(minLength: 8)
@@ -261,7 +185,7 @@ struct VoteCeremony: View {
         switch moment {
         case .walk(let p):
             VStack(spacing: 12) {
-                Avatar(player: game.players[p], size: 112, role: store.roleShown(p))
+                Avatar(player: game.players[p], size: 112, role: session.roleShown(p))
                 HostLine(text: Host.banished(game.players[p].name))
             }
         case .words(_, let text):

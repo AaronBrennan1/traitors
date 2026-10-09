@@ -1,7 +1,8 @@
 import SwiftUI
+import TraitorsEngine
 
 struct TitleView: View {
-    @Environment(GameStore.self) private var store
+    @Environment(GameSession.self) private var session
     /// Called to enter the castle; `true` when the game has only just been set up.
     var onPlay: (Bool) -> Void
     @State private var showSetup = false
@@ -32,11 +33,11 @@ struct TitleView: View {
                     .padding(.top, 16)
                 Spacer()
 
-                if store.stats.played > 0 {
+                if session.stats.played > 0 {
                     HStack(spacing: 0) {
-                        stat("Played", "\(store.stats.played)")
-                        stat("Won as faithful", "\(store.stats.wonAsFaithful)/\(store.stats.asFaithful)")
-                        stat("Won as traitor", "\(store.stats.wonAsTraitor)/\(store.stats.asTraitor)")
+                        stat("Played", "\(session.stats.played)")
+                        stat("Won as faithful", "\(session.stats.wonAsFaithful)/\(session.stats.asFaithful)")
+                        stat("Won as traitor", "\(session.stats.wonAsTraitor)/\(session.stats.asTraitor)")
                     }
                     .padding(.vertical, 10)
                     .background(Palette.panel, in: RoundedRectangle(cornerRadius: 12))
@@ -44,7 +45,7 @@ struct TitleView: View {
                 }
 
                 VStack(spacing: 10) {
-                    if store.hasSave {
+                    if session.hasSave {
                         Button("Continue game") { onPlay(false) }.buttonStyle(GoldButtonStyle())
                         Button("New game") { showSetup = true }.buttonStyle(GhostButtonStyle())
                     } else {
@@ -62,7 +63,7 @@ struct TitleView: View {
         }
         .sheet(isPresented: $showSetup) {
             SetupView { name, pref in
-                store.newGame(name: name, preference: pref)
+                session.newGame(name: name, preference: pref)
                 showSetup = false
                 onPlay(true)
             }
